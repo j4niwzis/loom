@@ -1301,8 +1301,6 @@ using timeline_content = knot::tagged<"type", m_call_answer_content_t, m_call_ca
 // The content of an event outside a room's timeline: account data, ephemeral, to-device. Any other type is kept as knot::value.
 using other_content = knot::tagged<"type", m_accepted_terms_content_t, m_direct_content_t, m_dummy_content_t, m_forwarded_room_key_content_t, m_fully_read_content_t, m_identity_server_content_t, m_ignored_user_list_content_t, m_image_pack_rooms_content_t, m_invite_permission_config_content_t, m_key_verification_accept_content_t, m_key_verification_cancel_content_t, m_key_verification_done_content_t, m_key_verification_key_content_t, m_key_verification_mac_content_t, m_key_verification_ready_content_t, m_key_verification_request_content_t, m_key_verification_start_content_t, m_key_backup_content_t, m_marked_unread_content_t, m_presence_content_t, m_push_rules_content_t, m_receipt_content_t, m_recent_emoji_content_t, m_room_encrypted_content_t, m_room_key_withheld_content_t, m_room_key_content_t, m_room_key_bundle_content_t, m_room_key_request_content_t, m_secret_request_content_t, m_secret_send_content_t, m_tag_content_t, m_typing_content_t, knot::value>;
 
-// What a room event carries besides its content (the spec's ClientEvent and,
-// without room_id, ClientEventWithoutRoomID): state_key where it is state.
 // What the server adds to an event, not signed (the spec's UnsignedData):
 // prev_content and redacted_because as they came, and anything newer kept.
 struct unsigned_data {
@@ -1317,6 +1315,8 @@ struct unsigned_data {
   }
 };
 
+// What a room event carries besides its content (the spec's ClientEvent and,
+// without room_id, ClientEventWithoutRoomID): state_key where it is state.
 template <class Content>
 struct room_event {
   Content content;

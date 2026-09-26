@@ -112,9 +112,7 @@ def main_events():
         alternatives = ', '.join(m[3] for m in members)
         lines.append(f'using {name} = knot::tagged<"type", {alternatives}, knot::value>;')
     lines.append('')
-    lines.append('''// What a room event carries besides its content (the spec's ClientEvent and,
-// without room_id, ClientEventWithoutRoomID): state_key where it is state.
-// What the server adds to an event, not signed (the spec's UnsignedData):
+    lines.append('''// What the server adds to an event, not signed (the spec's UnsignedData):
 // prev_content and redacted_because as they came, and anything newer kept.
 struct unsigned_data {
   std::optional<std::int64_t> age;
@@ -128,6 +126,8 @@ struct unsigned_data {
   }
 };
 
+// What a room event carries besides its content (the spec's ClientEvent and,
+// without room_id, ClientEventWithoutRoomID): state_key where it is state.
 template <class Content>
 struct room_event {
   Content content;
