@@ -62,3 +62,30 @@ foreach(one IN ITEMS loom)
     endif()
   endforeach()
 endforeach()
+
+# The spec's examples, each read into its generated type: one test file for
+# each file of the specification, all in one program.
+file(GLOB loom_cs_test_sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/cs/*_test.cc)
+add_executable(loom-cs-test ${loom_cs_test_sources})
+target_link_libraries(loom-cs-test PRIVATE ${LOOM_CS_MODULES} loom_api ${loom_gtest})
+add_test(NAME cs COMMAND loom-cs-test)
+if(LOOM_CONSTEXPR_TESTS)
+  target_compile_definitions(loom-cs-test PRIVATE
+    LOOM_CONSTEXPR_TESTS
+    "LOOM_TEST_CMAKE=\"${CMAKE_COMMAND}\""
+    "LOOM_TEST_BUILD_DIR=\"${CMAKE_BINARY_DIR}\""
+    $<${loom_multi_config}:LOOM_TEST_CONFIG="$<CONFIG>">)
+  foreach(source IN LISTS loom_cs_test_sources)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${source})
+    file(STRINGS ${source} declared REGEX "^CONSTEXPR_TEST\\(")
+    foreach(line IN LISTS declared)
+      if(line MATCHES "^CONSTEXPR_TEST\\(([A-Za-z0-9_]+), *([A-Za-z0-9_]+)\\)")
+        set(test ${CMAKE_MATCH_1}.${CMAKE_MATCH_2})
+        add_library(loom-constexpr-${test} OBJECT EXCLUDE_FROM_ALL ${source})
+        target_link_libraries(loom-constexpr-${test} PRIVATE ${LOOM_CS_MODULES} loom_api ${loom_gtest})
+        target_compile_definitions(loom-constexpr-${test} PRIVATE
+          LOOM_CONSTEXPR_TESTS "LOOM_CONSTEXPR_DIAGNOSE=\"${test}\"")
+      endif()
+    endforeach()
+  endforeach()
+endif()

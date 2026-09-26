@@ -15,12 +15,13 @@ namespace method {
 struct get { static constexpr std::string_view name = "GET"; };
 struct post { static constexpr std::string_view name = "POST"; };
 struct put { static constexpr std::string_view name = "PUT"; };
+struct delete_ { static constexpr std::string_view name = "DELETE"; };
 }  // namespace method
 
 // What to send, from the homeserver's base URL; with the access token as
 // "Authorization: Bearer", where authenticated.
 struct request {
-  std::variant<method::get, method::post, method::put> method;
+  std::variant<method::get, method::post, method::put, method::delete_> method;
   std::string target;
   std::string body;  // JSON, or nothing
   bool authenticated = true;
@@ -62,6 +63,38 @@ constexpr std::string decimal(std::int64_t n) {
   char* end = std::to_chars(digits, digits + 24, n).ptr;
   return std::string(digits, end);
 }
+
+// A parameter as the text a path or a query carries.
+constexpr std::string text(const std::string& one) { return one; }
+constexpr std::string text(std::string_view one) { return std::string(one); }
+constexpr std::string text(const char* one) { return std::string(one); }
+constexpr std::string text(bool one) { return one ? "true" : "false"; }
+constexpr std::string text(std::int64_t one) { return decimal(one); }
+constexpr std::string text(double one) {
+  char digits[32];
+  char* end = std::to_chars(digits, digits + 32, one).ptr;
+  return std::string(digits, end);
+}
+constexpr std::string text(const knot::value& one) { return knot::to_json_string(one); }
+// A choice: the string its alternative names, or the one it keeps.
+template <class... Alternatives>
+constexpr std::string text(const std::variant<Alternatives...>& one) {
+  return std::visit(
+      [](const auto& held) -> std::string {
+        if constexpr (requires { std::remove_cvref_t<decltype(held)>::json_value; }) {
+          return std::string(std::remove_cvref_t<decltype(held)>::json_value);
+        } else {
+          return text(held);
+        }
+      },
+      one);
+}
+
+// A body, as JSON.
+template <class Body>
+constexpr std::string json(const Body& body) {
+  return knot::to_json_string(body);
+}
 }  // namespace detail
 
 // An answer with nothing in it that a client needs.
@@ -72,6 +105,11 @@ consteval auto json_schema(knot::type<empty>) { return knot::schema<empty>(); }
 // into the error.
 template <class Endpoint>
 constexpr std::expected<typename Endpoint::response, error> read(int status, std::string_view body) {
+  if constexpr (requires { Endpoint::raw_response; }) {
+    // Bytes, not JSON: what the content repository gives.
+    if (status >= 200 && status < 300)
+      return typename Endpoint::response{std::string(body)};
+  }
   if (status >= 200 && status < 300) {
     auto got = knot::try_read<typename Endpoint::response>(body);
     if (!got)

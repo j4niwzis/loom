@@ -21,7 +21,7 @@ endif()
 # instead with -DCPM_knot_SOURCE=<path>.
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
-  GIT_TAG 3ba3b6fb14fcafb21753371752af6b4567d23b9b
+  GIT_TAG 70ff36fe689794847da19936af9cc23a5c6d26f1
   LICENSE LicenseRef-proprietary
   SYSTEM NEVER
   TARGETS knot)
@@ -49,6 +49,10 @@ loom_module(loom_events src/events.cc knot)
 loom_module(loom_sync src/sync.cc loom_events knot)
 loom_module(loom_api src/api.cc loom_ids loom_events loom_sync knot)
 loom_module(loom src/loom.cc loom_ids loom_events loom_sync loom_api)
+
+# The client-server API, operation by operation, generated from the
+# specification by tools/generate.py.
+include(cmake/generated.cmake)
 
 add_library(loom::ids ALIAS loom_ids)
 add_library(loom::events ALIAS loom_events)
