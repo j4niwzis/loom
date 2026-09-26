@@ -5,6 +5,7 @@ export module loom.cs.peeking_events;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -13,9 +14,15 @@ export namespace loom::cs {
 struct peek_events {
   struct response_t {
     struct event_t {
-      struct unsigned_t {
+      struct unsigned_data_t {
+        std::optional<std::int64_t> age;
         std::optional<knot::value> redacted_because;
-        friend consteval auto json_schema(knot::type<unsigned_t>) { return knot::schema<unsigned_t>(); }
+        std::optional<std::string> transaction_id;
+        std::optional<knot::value> prev_content;
+        std::optional<std::string> prev_sender;
+        std::optional<std::string> replaces_state;
+        std::optional<std::string> membership;
+        friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
       };
       std::string event_id;
       std::string type;
@@ -23,7 +30,7 @@ struct peek_events {
       std::string sender;
       std::int64_t origin_server_ts;
       knot::value content;
-      std::optional<unsigned_t> unsigned_;
+      std::optional<unsigned_data_t> unsigned_;
       std::string room_id;
       friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"unsigned_">(knot::key("unsigned")); }
     };

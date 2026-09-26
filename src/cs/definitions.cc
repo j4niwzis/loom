@@ -5,6 +5,7 @@ export module loom.cs.definitions;
 
 import std;
 export import knot;
+export import loom.ev;
 
 export namespace loom::cs::def {
 
@@ -49,21 +50,6 @@ struct device_t {
   std::optional<std::string> last_seen_ip;
   std::optional<std::int64_t> last_seen_ts;
   friend consteval auto json_schema(knot::type<device_t>) { return knot::schema<device_t>(); }
-};
-struct client_event_t {
-  struct unsigned_t {
-    std::optional<knot::value> redacted_because;
-    friend consteval auto json_schema(knot::type<unsigned_t>) { return knot::schema<unsigned_t>(); }
-  };
-  std::string event_id;
-  std::string type;
-  std::optional<std::string> state_key;
-  std::string sender;
-  std::int64_t origin_server_ts;
-  knot::value content;
-  std::optional<unsigned_t> unsigned_;
-  std::string room_id;
-  friend consteval auto json_schema(knot::type<client_event_t>) { return knot::schema<client_event_t>().member<"unsigned_">(knot::key("unsigned")); }
 };
 struct filter_t {
   struct event_format_values {
@@ -215,11 +201,6 @@ struct identity_server_information_t {
   std::string base_url;
   friend consteval auto json_schema(knot::type<identity_server_information_t>) { return knot::schema<identity_server_information_t>(); }
 };
-struct event_t {
-  knot::value content;
-  std::string type;
-  friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>(); }
-};
 struct open_id_credentials_t {
   std::string access_token;
   std::string token_type;
@@ -251,33 +232,6 @@ struct push_ruleset_t {
   std::optional<std::vector<push_rule_t>> sender;
   std::optional<std::vector<push_rule_t>> underride;
   friend consteval auto json_schema(knot::type<push_ruleset_t>) { return knot::schema<push_ruleset_t>().member<"override_">(knot::key("override")); }
-};
-struct client_event_without_room_id_t {
-  struct unsigned_data_t {
-    std::optional<std::int64_t> age;
-    std::optional<knot::value> redacted_because;
-    std::optional<std::string> transaction_id;
-    std::optional<knot::value> prev_content;
-    std::optional<std::string> prev_sender;
-    std::optional<std::string> replaces_state;
-    std::optional<std::string> membership;
-    friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
-  };
-  std::string event_id;
-  std::string type;
-  std::optional<std::string> state_key;
-  std::string sender;
-  std::int64_t origin_server_ts;
-  knot::value content;
-  std::optional<unsigned_data_t> unsigned_;
-  friend consteval auto json_schema(knot::type<client_event_without_room_id_t>) { return knot::schema<client_event_without_room_id_t>().member<"unsigned_">(knot::key("unsigned")); }
-};
-struct stripped_state_event_t {
-  knot::value content;
-  std::string state_key;
-  std::string type;
-  std::string sender;
-  friend consteval auto json_schema(knot::type<stripped_state_event_t>) { return knot::schema<stripped_state_event_t>(); }
 };
 struct tag_t {
   std::optional<double> order;

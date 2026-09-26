@@ -5,6 +5,7 @@ export module loom.cs.event_context;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -13,9 +14,15 @@ export namespace loom::cs {
 struct get_event_context {
   struct response_t {
     struct client_event_t {
-      struct unsigned_t {
+      struct unsigned_data_t {
+        std::optional<std::int64_t> age;
         std::optional<knot::value> redacted_because;
-        friend consteval auto json_schema(knot::type<unsigned_t>) { return knot::schema<unsigned_t>(); }
+        std::optional<std::string> transaction_id;
+        std::optional<knot::value> prev_content;
+        std::optional<std::string> prev_sender;
+        std::optional<std::string> replaces_state;
+        std::optional<std::string> membership;
+        friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
       };
       std::string event_id;
       std::string type;
@@ -23,16 +30,16 @@ struct get_event_context {
       std::string sender;
       std::int64_t origin_server_ts;
       knot::value content;
-      std::optional<unsigned_t> unsigned_;
+      std::optional<unsigned_data_t> unsigned_;
       std::string room_id;
       friend consteval auto json_schema(knot::type<client_event_t>) { return knot::schema<client_event_t>().member<"unsigned_">(knot::key("unsigned")); }
     };
     std::optional<std::string> start;
     std::optional<std::string> end;
-    std::optional<std::vector<def::client_event_t>> events_before;
+    std::optional<std::vector<loom::ev::timeline_event>> events_before;
     std::optional<client_event_t> event;
-    std::optional<std::vector<def::client_event_t>> events_after;
-    std::optional<std::vector<def::client_event_t>> state;
+    std::optional<std::vector<loom::ev::timeline_event>> events_after;
+    std::optional<std::vector<loom::ev::timeline_event>> state;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
   };
   std::string room_id;

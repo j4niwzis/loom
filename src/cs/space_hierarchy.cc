@@ -5,6 +5,7 @@ export module loom.cs.space_hierarchy;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -13,6 +14,13 @@ export namespace loom::cs {
 struct get_space_hierarchy {
   struct response_t {
     struct room_summary_t {
+      struct encryption_values {
+        struct m_megolm_v1_aes_sha2 {
+          static constexpr std::string_view json_value = "m.megolm.v1.aes-sha2";
+          friend constexpr bool operator==(m_megolm_v1_aes_sha2, m_megolm_v1_aes_sha2) = default;
+        };
+      };
+      using encryption_t = std::variant<encryption_values::m_megolm_v1_aes_sha2, std::string>;
       struct stripped_state_event_t {
         knot::value content;
         std::string state_key;
@@ -30,10 +38,10 @@ struct get_space_hierarchy {
       bool guest_can_join;
       std::optional<std::string> avatar_url;
       std::optional<std::string> join_rule;
-      std::optional<knot::value> room_type;
-      std::optional<knot::value> allowed_room_ids;
-      std::optional<knot::value> encryption;
-      std::optional<knot::value> room_version;
+      std::optional<std::string> room_type;
+      std::optional<std::vector<std::string>> allowed_room_ids;
+      std::optional<encryption_t> encryption;
+      std::optional<std::string> room_version;
       std::vector<stripped_state_event_t> children_state;
       friend consteval auto json_schema(knot::type<room_summary_t>) { return knot::schema<room_summary_t>(); }
     };

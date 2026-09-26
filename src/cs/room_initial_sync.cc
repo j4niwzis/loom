@@ -5,6 +5,7 @@ export module loom.cs.room_initial_sync;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -34,7 +35,7 @@ struct room_initial_sync {
     struct pagination_chunk_t {
       std::optional<std::string> start;
       std::string end;
-      std::vector<def::client_event_t> chunk;
+      std::vector<loom::ev::timeline_event> chunk;
       friend consteval auto json_schema(knot::type<pagination_chunk_t>) { return knot::schema<pagination_chunk_t>(); }
     };
     struct visibility_values {
@@ -56,7 +57,7 @@ struct room_initial_sync {
     std::string room_id;
     std::optional<membership_t> membership;
     std::optional<pagination_chunk_t> messages;
-    std::optional<std::vector<def::client_event_t>> state;
+    std::optional<std::vector<loom::ev::timeline_event>> state;
     std::optional<visibility_t> visibility;
     std::optional<std::vector<event_t>> account_data;
     friend consteval auto json_schema(knot::type<room_info_t>) { return knot::schema<room_info_t>(); }

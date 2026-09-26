@@ -5,6 +5,7 @@ export module loom.cs.third_party_membership;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {

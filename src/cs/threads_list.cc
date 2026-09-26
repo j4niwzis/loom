@@ -5,6 +5,7 @@ export module loom.cs.threads_list;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -23,7 +24,7 @@ struct get_thread_roots {
   };
   using include_t = std::variant<include_values::all, include_values::participated, std::string>;
   struct response_t {
-    std::vector<def::client_event_t> chunk;
+    std::vector<loom::ev::timeline_event> chunk;
     std::optional<std::string> next_batch;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
   };

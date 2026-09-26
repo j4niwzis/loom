@@ -110,16 +110,33 @@ def main_events():
     lines.append('')
     lines.append('''// What a room event carries besides its content (the spec's ClientEvent and,
 // without room_id, ClientEventWithoutRoomID): state_key where it is state.
+// What the server adds to an event, not signed (the spec's UnsignedData):
+// prev_content and redacted_because as they came, and anything newer kept.
+struct unsigned_data {
+  std::optional<std::int64_t> age;
+  std::optional<std::string> membership;
+  std::optional<knot::value> prev_content;
+  std::optional<knot::value> redacted_because;
+  std::optional<std::string> transaction_id;
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<unsigned_data>) {
+    return knot::schema<unsigned_data>().member<"rest">(knot::rest);
+  }
+};
+
 template <class Content>
 struct room_event {
   Content content;
   std::string event_id;
   std::int64_t origin_server_ts = 0;
+  // Before room version 11, a redaction says what it redacts here, beside
+  // its content.
+  std::optional<std::string> redacts;
   std::optional<std::string> room_id;
   std::string sender;
   std::optional<std::string> state_key;
   std::string type;
-  std::optional<knot::value> unsigned_;
+  std::optional<unsigned_data> unsigned_;
   friend consteval auto json_schema(knot::type<room_event>) {
     return knot::schema<room_event>().template member<"unsigned_">(knot::key("unsigned"));
   }
@@ -139,6 +156,8 @@ struct stripped_event {
 template <class Content>
 struct basic_event {
   Content content;
+  // Presence and to-device events say who sent them; account data does not.
+  std::optional<std::string> sender;
   std::string type;
   friend consteval auto json_schema(knot::type<basic_event>) { return knot::schema<basic_event>(); }
 };

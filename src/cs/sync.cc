@@ -5,6 +5,7 @@ export module loom.cs.sync;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -36,25 +37,25 @@ struct sync {
           friend consteval auto json_schema(knot::type<room_summary_t>) { return knot::schema<room_summary_t>().member<"m_heroes">(knot::key("m.heroes")).member<"m_joined_member_count">(knot::key("m.joined_member_count")).member<"m_invited_member_count">(knot::key("m.invited_member_count")); }
         };
         struct state_t {
-          std::optional<std::vector<def::client_event_without_room_id_t>> events;
+          std::optional<std::vector<loom::ev::timeline_event>> events;
           friend consteval auto json_schema(knot::type<state_t>) { return knot::schema<state_t>(); }
         };
         struct state_2_t {
-          std::optional<std::vector<def::client_event_without_room_id_t>> events;
+          std::optional<std::vector<loom::ev::timeline_event>> events;
           friend consteval auto json_schema(knot::type<state_2_t>) { return knot::schema<state_2_t>(); }
         };
         struct timeline_t {
           std::optional<bool> limited;
           std::optional<std::string> prev_batch;
-          std::vector<def::client_event_without_room_id_t> events;
+          std::vector<loom::ev::timeline_event> events;
           friend consteval auto json_schema(knot::type<timeline_t>) { return knot::schema<timeline_t>(); }
         };
         struct ephemeral_t {
-          std::optional<std::vector<def::event_t>> events;
+          std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
           friend consteval auto json_schema(knot::type<ephemeral_t>) { return knot::schema<ephemeral_t>(); }
         };
         struct account_data_t {
-          std::optional<std::vector<def::event_t>> events;
+          std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
           friend consteval auto json_schema(knot::type<account_data_t>) { return knot::schema<account_data_t>(); }
         };
         struct unread_notification_counts_t {
@@ -79,7 +80,7 @@ struct sync {
       };
       struct invited_room_t {
         struct invite_state_t {
-          std::optional<std::vector<def::stripped_state_event_t>> events;
+          std::optional<std::vector<loom::ev::stripped_event<loom::ev::state_content>>> events;
           friend consteval auto json_schema(knot::type<invite_state_t>) { return knot::schema<invite_state_t>(); }
         };
         std::optional<invite_state_t> invite_state;
@@ -87,7 +88,7 @@ struct sync {
       };
       struct knocked_room_t {
         struct knock_state_t {
-          std::optional<std::vector<def::stripped_state_event_t>> events;
+          std::optional<std::vector<loom::ev::stripped_event<loom::ev::state_content>>> events;
           friend consteval auto json_schema(knot::type<knock_state_t>) { return knot::schema<knock_state_t>(); }
         };
         std::optional<knock_state_t> knock_state;
@@ -95,21 +96,21 @@ struct sync {
       };
       struct left_room_t {
         struct state_t {
-          std::optional<std::vector<def::client_event_without_room_id_t>> events;
+          std::optional<std::vector<loom::ev::timeline_event>> events;
           friend consteval auto json_schema(knot::type<state_t>) { return knot::schema<state_t>(); }
         };
         struct state_2_t {
-          std::optional<std::vector<def::client_event_without_room_id_t>> events;
+          std::optional<std::vector<loom::ev::timeline_event>> events;
           friend consteval auto json_schema(knot::type<state_2_t>) { return knot::schema<state_2_t>(); }
         };
         struct timeline_t {
           std::optional<bool> limited;
           std::optional<std::string> prev_batch;
-          std::vector<def::client_event_without_room_id_t> events;
+          std::vector<loom::ev::timeline_event> events;
           friend consteval auto json_schema(knot::type<timeline_t>) { return knot::schema<timeline_t>(); }
         };
         struct account_data_t {
-          std::optional<std::vector<def::event_t>> events;
+          std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
           friend consteval auto json_schema(knot::type<account_data_t>) { return knot::schema<account_data_t>(); }
         };
         std::optional<state_t> state;
@@ -125,11 +126,11 @@ struct sync {
       friend consteval auto json_schema(knot::type<rooms_t>) { return knot::schema<rooms_t>(); }
     };
     struct presence_t {
-      std::optional<std::vector<def::event_t>> events;
+      std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
       friend consteval auto json_schema(knot::type<presence_t>) { return knot::schema<presence_t>(); }
     };
     struct account_data_t {
-      std::optional<std::vector<def::event_t>> events;
+      std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
       friend consteval auto json_schema(knot::type<account_data_t>) { return knot::schema<account_data_t>(); }
     };
     std::string next_batch;

@@ -5,6 +5,7 @@ export module loom.cs.list_joined_rooms;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {

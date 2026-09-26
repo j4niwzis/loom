@@ -5,6 +5,7 @@ export module loom.cs.account_deactivation;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {

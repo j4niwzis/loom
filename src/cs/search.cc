@@ -5,6 +5,7 @@ export module loom.cs.search;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -99,9 +100,15 @@ struct search {
       struct result_room_events_t {
         struct result_t {
           struct event_t {
-            struct unsigned_t {
+            struct unsigned_data_t {
+              std::optional<std::int64_t> age;
               std::optional<knot::value> redacted_because;
-              friend consteval auto json_schema(knot::type<unsigned_t>) { return knot::schema<unsigned_t>(); }
+              std::optional<std::string> transaction_id;
+              std::optional<knot::value> prev_content;
+              std::optional<std::string> prev_sender;
+              std::optional<std::string> replaces_state;
+              std::optional<std::string> membership;
+              friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
             };
             std::string event_id;
             std::string type;
@@ -109,7 +116,7 @@ struct search {
             std::string sender;
             std::int64_t origin_server_ts;
             knot::value content;
-            std::optional<unsigned_t> unsigned_;
+            std::optional<unsigned_data_t> unsigned_;
             std::string room_id;
             friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"unsigned_">(knot::key("unsigned")); }
           };
@@ -122,8 +129,8 @@ struct search {
             std::optional<std::string> start;
             std::optional<std::string> end;
             std::optional<std::map<std::string, user_profile_t>> profile_info;
-            std::optional<std::vector<def::client_event_t>> events_before;
-            std::optional<std::vector<def::client_event_t>> events_after;
+            std::optional<std::vector<loom::ev::timeline_event>> events_before;
+            std::optional<std::vector<loom::ev::timeline_event>> events_after;
             friend consteval auto json_schema(knot::type<event_context_t>) { return knot::schema<event_context_t>(); }
           };
           std::optional<double> rank;
@@ -140,7 +147,7 @@ struct search {
         std::optional<std::int64_t> count;
         std::optional<std::vector<std::string>> highlights;
         std::optional<std::vector<result_t>> results;
-        std::optional<std::map<std::string, std::vector<def::client_event_t>>> state;
+        std::optional<std::map<std::string, std::vector<loom::ev::timeline_event>>> state;
         std::optional<std::map<std::string, std::map<std::string, group_value_t>>> groups;
         std::optional<std::string> next_batch;
         friend consteval auto json_schema(knot::type<result_room_events_t>) { return knot::schema<result_room_events_t>(); }

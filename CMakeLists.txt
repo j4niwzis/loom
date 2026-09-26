@@ -21,7 +21,7 @@ endif()
 # instead with -DCPM_knot_SOURCE=<path>.
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
-  GIT_TAG 70ff36fe689794847da19936af9cc23a5c6d26f1
+  GIT_TAG 260d4d5201c5d6634a93a7c97e9981d910b56d54
   LICENSE AGPL-3.0-only
   SYSTEM NEVER
   TARGETS knot)
@@ -56,6 +56,9 @@ include(cmake/generated.cmake)
 # Every event the spec defines (tools/generate_events.py).
 loom_module(loom_ev src/ev/events.cc knot)
 add_library(loom::ev ALIAS loom_ev)
+# What a client keeps between syncs, on the generated types.
+loom_module(loom_state src/state.cc loom_ev loom_cs_sync knot)
+add_library(loom::state ALIAS loom_state)
 
 add_library(loom::ids ALIAS loom_ids)
 add_library(loom::events ALIAS loom_events)

@@ -5,6 +5,7 @@ export module loom.cs.appservice_room_directory;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {

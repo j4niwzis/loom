@@ -5,6 +5,7 @@ export module loom.cs.rooms;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -13,7 +14,7 @@ export namespace loom::cs {
 struct get_one_room_event {
   std::string room_id;
   std::string event_id;
-  using response = def::client_event_t;
+  using response = loom::ev::timeline_event;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/event/" + percent_encoded(detail::text(event_id));
     return {method::get{}, std::move(target), "", true};
@@ -49,7 +50,7 @@ struct get_room_state_with_key {
 // GET /_matrix/client/v3/rooms/{roomId}/state: Get all state events in the current state of a room.
 struct get_room_state {
   std::string room_id;
-  using response = std::vector<def::client_event_t>;
+  using response = std::vector<loom::ev::timeline_event>;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/state";
     return {method::get{}, std::move(target), "", true};
@@ -105,7 +106,7 @@ struct get_members_by_room {
   };
   using not_membership_t = std::variant<not_membership_values::join, not_membership_values::invite, not_membership_values::knock, not_membership_values::leave, not_membership_values::ban, std::string>;
   struct response_t {
-    std::optional<std::vector<def::client_event_t>> chunk;
+    std::optional<std::vector<loom::ev::timeline_event>> chunk;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
   };
   std::string room_id;

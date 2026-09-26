@@ -5,6 +5,7 @@ export module loom.cs.room_event_by_timestamp;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {

@@ -63,6 +63,11 @@ foreach(one IN ITEMS loom)
   endforeach()
 endforeach()
 
+# The client's state, applied from /sync answers.
+add_executable(loom-state-test state_test.cc)
+target_link_libraries(loom-state-test PRIVATE loom_state ${loom_gtest})
+add_test(NAME state COMMAND loom-state-test)
+
 # The spec's examples, each read into its generated type: one test file for
 # each file of the specification, all in one program.
 file(GLOB loom_cs_test_sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/cs/*_test.cc)

@@ -5,6 +5,7 @@ export module loom.cs.old_sync;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -14,7 +15,7 @@ struct get_events {
   struct response_t {
     std::optional<std::string> start;
     std::optional<std::string> end;
-    std::optional<std::vector<def::client_event_t>> chunk;
+    std::optional<std::vector<loom::ev::timeline_event>> chunk;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
   };
   std::optional<std::string> from;
@@ -54,9 +55,15 @@ struct initial_sync {
       };
       using membership_t = std::variant<membership_values::invite, membership_values::join, membership_values::leave, membership_values::ban, std::string>;
       struct invite_event_t {
-        struct unsigned_t {
+        struct unsigned_data_t {
+          std::optional<std::int64_t> age;
           std::optional<knot::value> redacted_because;
-          friend consteval auto json_schema(knot::type<unsigned_t>) { return knot::schema<unsigned_t>(); }
+          std::optional<std::string> transaction_id;
+          std::optional<knot::value> prev_content;
+          std::optional<std::string> prev_sender;
+          std::optional<std::string> replaces_state;
+          std::optional<std::string> membership;
+          friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
         };
         std::string event_id;
         std::string type;
@@ -64,14 +71,14 @@ struct initial_sync {
         std::string sender;
         std::int64_t origin_server_ts;
         knot::value content;
-        std::optional<unsigned_t> unsigned_;
+        std::optional<unsigned_data_t> unsigned_;
         std::string room_id;
         friend consteval auto json_schema(knot::type<invite_event_t>) { return knot::schema<invite_event_t>().member<"unsigned_">(knot::key("unsigned")); }
       };
       struct pagination_chunk_t {
         std::optional<std::string> start;
         std::string end;
-        std::vector<def::client_event_t> chunk;
+        std::vector<loom::ev::timeline_event> chunk;
         friend consteval auto json_schema(knot::type<pagination_chunk_t>) { return knot::schema<pagination_chunk_t>(); }
       };
       struct visibility_values {
@@ -89,15 +96,15 @@ struct initial_sync {
       membership_t membership;
       std::optional<invite_event_t> invite;
       std::optional<pagination_chunk_t> messages;
-      std::optional<std::vector<def::client_event_t>> state;
+      std::optional<std::vector<loom::ev::timeline_event>> state;
       std::optional<visibility_t> visibility;
-      std::optional<std::vector<def::event_t>> account_data;
+      std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> account_data;
       friend consteval auto json_schema(knot::type<room_info_t>) { return knot::schema<room_info_t>(); }
     };
     std::string end;
-    std::vector<def::event_t> presence;
+    std::vector<loom::ev::basic_event<loom::ev::other_content>> presence;
     std::vector<room_info_t> rooms;
-    std::optional<std::vector<def::event_t>> account_data;
+    std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> account_data;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
   };
   std::optional<std::int64_t> limit;
@@ -116,7 +123,7 @@ struct initial_sync {
 // GET /_matrix/client/v3/events/{eventId}: Get a single event by event ID. (deprecated)
 struct get_one_event {
   std::string event_id;
-  using response = def::client_event_t;
+  using response = loom::ev::timeline_event;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/events/" + percent_encoded(detail::text(event_id));
     return {method::get{}, std::move(target), "", true};

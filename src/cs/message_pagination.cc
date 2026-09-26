@@ -5,6 +5,7 @@ export module loom.cs.message_pagination;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -25,8 +26,8 @@ struct get_room_events {
   struct response_t {
     std::string start;
     std::optional<std::string> end;
-    std::vector<def::client_event_t> chunk;
-    std::optional<std::vector<def::client_event_t>> state;
+    std::vector<loom::ev::timeline_event> chunk;
+    std::optional<std::vector<loom::ev::timeline_event>> state;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
   };
   std::string room_id;

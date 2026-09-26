@@ -5,6 +5,7 @@ export module loom.cs.relations;
 import std;
 export import knot;
 export import loom.api;
+export import loom.ev;
 export import loom.cs.definitions;
 
 export namespace loom::cs {
@@ -26,7 +27,7 @@ struct get_relating_events {
     std::optional<std::string> next_batch;
     std::optional<std::string> prev_batch;
     std::optional<std::int64_t> recursion_depth;
-    std::vector<def::client_event_t> chunk;
+    std::vector<loom::ev::timeline_event> chunk;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
   };
   std::string room_id;
@@ -70,7 +71,7 @@ struct get_relating_events_with_rel_type {
     std::optional<std::string> next_batch;
     std::optional<std::string> prev_batch;
     std::optional<std::int64_t> recursion_depth;
-    std::vector<def::client_event_t> chunk;
+    std::vector<loom::ev::timeline_event> chunk;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
   };
   std::string room_id;
@@ -115,7 +116,7 @@ struct get_relating_events_with_rel_type_and_event_type {
     std::optional<std::string> next_batch;
     std::optional<std::string> prev_batch;
     std::optional<std::int64_t> recursion_depth;
-    std::vector<def::client_event_t> chunk;
+    std::vector<loom::ev::timeline_event> chunk;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
   };
   std::string room_id;
