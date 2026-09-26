@@ -14,7 +14,8 @@ export namespace loom::cs {
 struct report_room {
   struct body_t {
     std::string reason;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   body_t body;
@@ -29,7 +30,8 @@ struct report_room {
 struct report_event {
   struct body_t {
     std::optional<std::string> reason;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   std::string event_id;
@@ -45,7 +47,8 @@ struct report_event {
 struct report_user {
   struct body_t {
     std::string reason;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
   body_t body;

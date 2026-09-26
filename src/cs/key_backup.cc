@@ -22,11 +22,13 @@ struct post_room_keys_version {
     using algorithm_t = std::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
     algorithm_t algorithm;
     knot::value auth_data;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string version;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = response_t;
@@ -51,7 +53,8 @@ struct get_room_keys_version_current {
     std::int64_t count;
     std::string etag;
     std::string version;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
   constexpr request to_send() const {
@@ -75,7 +78,8 @@ struct get_room_keys_version {
     std::int64_t count;
     std::string etag;
     std::string version;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string version;
   using response = response_t;
@@ -98,7 +102,8 @@ struct put_room_keys_version {
     algorithm_t algorithm;
     knot::value auth_data;
     std::optional<std::string> version;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string version;
   body_t body;
@@ -201,10 +206,12 @@ struct put_room_keys {
   struct body_t {
     struct room_key_backup_t {
       std::map<std::string, def::key_backup_data_t> sessions;
-      friend consteval auto json_schema(knot::type<room_key_backup_t>) { return knot::schema<room_key_backup_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<room_key_backup_t>) { return knot::schema<room_key_backup_t>().member<"rest">(knot::rest); }
     };
     std::map<std::string, room_key_backup_t> rooms;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string version;
   body_t body;
@@ -221,10 +228,12 @@ struct get_room_keys {
   struct response_t {
     struct room_key_backup_t {
       std::map<std::string, def::key_backup_data_t> sessions;
-      friend consteval auto json_schema(knot::type<room_key_backup_t>) { return knot::schema<room_key_backup_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<room_key_backup_t>) { return knot::schema<room_key_backup_t>().member<"rest">(knot::rest); }
     };
     std::map<std::string, room_key_backup_t> rooms;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string version;
   using response = response_t;

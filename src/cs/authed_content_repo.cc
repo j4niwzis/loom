@@ -88,7 +88,8 @@ struct get_url_preview_authed {
   struct response_t {
     std::optional<std::int64_t> matrix_image_size;
     std::optional<std::string> og_image;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"matrix_image_size">(knot::key("matrix:image:size")).member<"og_image">(knot::key("og:image")); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"matrix_image_size">(knot::key("matrix:image:size")).member<"og_image">(knot::key("og:image")).member<"rest">(knot::rest); }
   };
   std::string url;
   std::optional<std::int64_t> ts;
@@ -106,7 +107,8 @@ struct get_url_preview_authed {
 struct get_config_authed {
   struct response_t {
     std::optional<std::int64_t> m_upload_size;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"m_upload_size">(knot::key("m.upload.size")); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"m_upload_size">(knot::key("m.upload.size")).member<"rest">(knot::rest); }
   };
   using response = response_t;
   constexpr request to_send() const {

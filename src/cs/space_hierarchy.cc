@@ -27,7 +27,8 @@ struct get_space_hierarchy {
         std::string type;
         std::string sender;
         std::int64_t origin_server_ts;
-        friend consteval auto json_schema(knot::type<stripped_state_event_t>) { return knot::schema<stripped_state_event_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<stripped_state_event_t>) { return knot::schema<stripped_state_event_t>().member<"rest">(knot::rest); }
       };
       std::optional<std::string> canonical_alias;
       std::optional<std::string> name;
@@ -43,11 +44,13 @@ struct get_space_hierarchy {
       std::optional<encryption_t> encryption;
       std::optional<std::string> room_version;
       std::vector<stripped_state_event_t> children_state;
-      friend consteval auto json_schema(knot::type<room_summary_t>) { return knot::schema<room_summary_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<room_summary_t>) { return knot::schema<room_summary_t>().member<"rest">(knot::rest); }
     };
     std::vector<room_summary_t> rooms;
     std::optional<std::string> next_batch;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   std::optional<bool> suggested_only;

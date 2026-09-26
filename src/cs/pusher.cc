@@ -17,7 +17,8 @@ struct get_pushers {
       struct pusher_data_t {
         std::optional<std::string> url;
         std::optional<std::string> format;
-        friend consteval auto json_schema(knot::type<pusher_data_t>) { return knot::schema<pusher_data_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<pusher_data_t>) { return knot::schema<pusher_data_t>().member<"rest">(knot::rest); }
       };
       std::string pushkey;
       std::string kind;
@@ -27,10 +28,12 @@ struct get_pushers {
       std::optional<std::string> profile_tag;
       std::string lang;
       pusher_data_t data;
-      friend consteval auto json_schema(knot::type<pusher_t>) { return knot::schema<pusher_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<pusher_t>) { return knot::schema<pusher_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::vector<pusher_t>> pushers;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
   constexpr request to_send() const {
@@ -52,7 +55,8 @@ struct post_pusher {
       using format_t = std::variant<format_values::event_id_only, std::string>;
       std::optional<std::string> url;
       std::optional<format_t> format;
-      friend consteval auto json_schema(knot::type<pusher_data_t>) { return knot::schema<pusher_data_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<pusher_data_t>) { return knot::schema<pusher_data_t>().member<"rest">(knot::rest); }
     };
     std::string pushkey;
     std::string kind;
@@ -63,7 +67,8 @@ struct post_pusher {
     std::optional<std::string> lang;
     std::optional<pusher_data_t> data;
     std::optional<bool> append;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = knot::value;

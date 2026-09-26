@@ -107,7 +107,8 @@ struct get_members_by_room {
   using not_membership_t = std::variant<not_membership_values::join, not_membership_values::invite, not_membership_values::knock, not_membership_values::leave, not_membership_values::ban, std::string>;
   struct response_t {
     std::optional<std::vector<loom::ev::timeline_event>> chunk;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   std::optional<std::string> at;
@@ -132,10 +133,12 @@ struct get_joined_members_by_room {
     struct room_member_t {
       std::optional<std::string> display_name;
       std::optional<std::string> avatar_url;
-      friend consteval auto json_schema(knot::type<room_member_t>) { return knot::schema<room_member_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<room_member_t>) { return knot::schema<room_member_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::map<std::string, room_member_t>> joined;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   using response = response_t;

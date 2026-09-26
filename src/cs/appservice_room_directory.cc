@@ -25,7 +25,8 @@ struct update_appservice_room_directory_visibility {
     };
     using visibility_t = std::variant<visibility_values::public_, visibility_values::private_, std::string>;
     visibility_t visibility;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string network_id;
   std::string room_id;

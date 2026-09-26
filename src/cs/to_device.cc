@@ -14,7 +14,8 @@ export namespace loom::cs {
 struct send_to_device {
   struct body_t {
     std::map<std::string, std::map<std::string, knot::value>> messages;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string event_type;
   std::string txn_id;

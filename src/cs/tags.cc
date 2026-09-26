@@ -14,7 +14,8 @@ export namespace loom::cs {
 struct get_room_tags {
   struct response_t {
     std::optional<std::map<std::string, def::tag_t>> tags;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
   std::string room_id;

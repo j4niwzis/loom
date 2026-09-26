@@ -53,7 +53,8 @@ struct get_auth_metadata {
     std::optional<std::string> account_management_uri;
     std::optional<std::vector<account_management_actions_supported_item_t>> account_management_actions_supported;
     std::optional<std::string> device_authorization_endpoint;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
   constexpr request to_send() const {

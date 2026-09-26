@@ -15,18 +15,21 @@ struct search_user_directory {
   struct body_t {
     std::string search_term;
     std::optional<std::int64_t> limit;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     struct user_t {
       std::string user_id;
       std::optional<std::string> display_name;
       std::optional<std::string> avatar_url;
-      friend consteval auto json_schema(knot::type<user_t>) { return knot::schema<user_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<user_t>) { return knot::schema<user_t>().member<"rest">(knot::rest); }
     };
     std::vector<user_t> results;
     bool limited;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = response_t;

@@ -22,7 +22,8 @@ struct peek_events {
         std::optional<std::string> prev_sender;
         std::optional<std::string> replaces_state;
         std::optional<std::string> membership;
-        friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>().member<"rest">(knot::rest); }
       };
       std::string event_id;
       std::string type;
@@ -32,12 +33,14 @@ struct peek_events {
       knot::value content;
       std::optional<unsigned_data_t> unsigned_;
       std::string room_id;
-      friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"unsigned_">(knot::key("unsigned")); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"unsigned_">(knot::key("unsigned")).member<"rest">(knot::rest); }
     };
     std::optional<std::string> start;
     std::optional<std::string> end;
     std::optional<std::vector<event_t>> chunk;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::string> from;
   std::optional<std::int64_t> timeout;

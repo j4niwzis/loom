@@ -42,7 +42,8 @@ struct search {
           std::optional<std::vector<std::string>> not_rooms;
           std::optional<std::vector<std::string>> rooms;
           std::optional<bool> contains_url;
-          friend consteval auto json_schema(knot::type<filter_t>) { return knot::schema<filter_t>(); }
+          knot::value rest;
+          friend consteval auto json_schema(knot::type<filter_t>) { return knot::schema<filter_t>().member<"rest">(knot::rest); }
         };
         struct order_by_values {
           struct recent {
@@ -59,7 +60,8 @@ struct search {
           std::optional<std::int64_t> before_limit;
           std::optional<std::int64_t> after_limit;
           std::optional<bool> include_profile;
-          friend consteval auto json_schema(knot::type<include_event_context_t>) { return knot::schema<include_event_context_t>(); }
+          knot::value rest;
+          friend consteval auto json_schema(knot::type<include_event_context_t>) { return knot::schema<include_event_context_t>().member<"rest">(knot::rest); }
         };
         struct groupings_t {
           struct group_t {
@@ -75,10 +77,12 @@ struct search {
             };
             using key_t = std::variant<key_values::room_id, key_values::sender, std::string>;
             std::optional<key_t> key;
-            friend consteval auto json_schema(knot::type<group_t>) { return knot::schema<group_t>(); }
+            knot::value rest;
+            friend consteval auto json_schema(knot::type<group_t>) { return knot::schema<group_t>().member<"rest">(knot::rest); }
           };
           std::optional<std::vector<group_t>> group_by;
-          friend consteval auto json_schema(knot::type<groupings_t>) { return knot::schema<groupings_t>(); }
+          knot::value rest;
+          friend consteval auto json_schema(knot::type<groupings_t>) { return knot::schema<groupings_t>().member<"rest">(knot::rest); }
         };
         std::string search_term;
         std::optional<std::vector<keys_item_t>> keys;
@@ -87,13 +91,16 @@ struct search {
         std::optional<include_event_context_t> event_context;
         std::optional<bool> include_state;
         std::optional<groupings_t> groupings;
-        friend consteval auto json_schema(knot::type<room_events_criteria_t>) { return knot::schema<room_events_criteria_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<room_events_criteria_t>) { return knot::schema<room_events_criteria_t>().member<"rest">(knot::rest); }
       };
       std::optional<room_events_criteria_t> room_events;
-      friend consteval auto json_schema(knot::type<categories_t>) { return knot::schema<categories_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<categories_t>) { return knot::schema<categories_t>().member<"rest">(knot::rest); }
     };
     categories_t search_categories;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct results_t {
     struct result_categories_t {
@@ -108,7 +115,8 @@ struct search {
               std::optional<std::string> prev_sender;
               std::optional<std::string> replaces_state;
               std::optional<std::string> membership;
-              friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
+              knot::value rest;
+              friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>().member<"rest">(knot::rest); }
             };
             std::string event_id;
             std::string type;
@@ -118,31 +126,36 @@ struct search {
             knot::value content;
             std::optional<unsigned_data_t> unsigned_;
             std::string room_id;
-            friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"unsigned_">(knot::key("unsigned")); }
+            knot::value rest;
+            friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"unsigned_">(knot::key("unsigned")).member<"rest">(knot::rest); }
           };
           struct event_context_t {
             struct user_profile_t {
               std::optional<std::string> displayname;
               std::optional<std::string> avatar_url;
-              friend consteval auto json_schema(knot::type<user_profile_t>) { return knot::schema<user_profile_t>(); }
+              knot::value rest;
+              friend consteval auto json_schema(knot::type<user_profile_t>) { return knot::schema<user_profile_t>().member<"rest">(knot::rest); }
             };
             std::optional<std::string> start;
             std::optional<std::string> end;
             std::optional<std::map<std::string, user_profile_t>> profile_info;
             std::optional<std::vector<loom::ev::timeline_event>> events_before;
             std::optional<std::vector<loom::ev::timeline_event>> events_after;
-            friend consteval auto json_schema(knot::type<event_context_t>) { return knot::schema<event_context_t>(); }
+            knot::value rest;
+            friend consteval auto json_schema(knot::type<event_context_t>) { return knot::schema<event_context_t>().member<"rest">(knot::rest); }
           };
           std::optional<double> rank;
           std::optional<event_t> result;
           std::optional<event_context_t> context;
-          friend consteval auto json_schema(knot::type<result_t>) { return knot::schema<result_t>(); }
+          knot::value rest;
+          friend consteval auto json_schema(knot::type<result_t>) { return knot::schema<result_t>().member<"rest">(knot::rest); }
         };
         struct group_value_t {
           std::optional<std::string> next_batch;
           std::optional<std::int64_t> order;
           std::optional<std::vector<std::string>> results;
-          friend consteval auto json_schema(knot::type<group_value_t>) { return knot::schema<group_value_t>(); }
+          knot::value rest;
+          friend consteval auto json_schema(knot::type<group_value_t>) { return knot::schema<group_value_t>().member<"rest">(knot::rest); }
         };
         std::optional<std::int64_t> count;
         std::optional<std::vector<std::string>> highlights;
@@ -150,13 +163,16 @@ struct search {
         std::optional<std::map<std::string, std::vector<loom::ev::timeline_event>>> state;
         std::optional<std::map<std::string, std::map<std::string, group_value_t>>> groups;
         std::optional<std::string> next_batch;
-        friend consteval auto json_schema(knot::type<result_room_events_t>) { return knot::schema<result_room_events_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<result_room_events_t>) { return knot::schema<result_room_events_t>().member<"rest">(knot::rest); }
       };
       std::optional<result_room_events_t> room_events;
-      friend consteval auto json_schema(knot::type<result_categories_t>) { return knot::schema<result_categories_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<result_categories_t>) { return knot::schema<result_categories_t>().member<"rest">(knot::rest); }
     };
     result_categories_t search_categories;
-    friend consteval auto json_schema(knot::type<results_t>) { return knot::schema<results_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<results_t>) { return knot::schema<results_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::string> next_batch;
   body_t body;

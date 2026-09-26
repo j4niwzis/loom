@@ -28,11 +28,13 @@ struct get_wellknown_support {
       std::optional<std::string> matrix_id;
       std::optional<std::string> email_address;
       role_t role;
-      friend consteval auto json_schema(knot::type<contact_t>) { return knot::schema<contact_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<contact_t>) { return knot::schema<contact_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::vector<contact_t>> contacts;
     std::optional<std::string> support_page;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
   constexpr request to_send() const {

@@ -25,7 +25,8 @@ struct get_room_visibility_on_directory {
     };
     using visibility_t = std::variant<visibility_values::private_, visibility_values::public_, std::string>;
     std::optional<visibility_t> visibility;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   using response = response_t;
@@ -50,7 +51,8 @@ struct set_room_visibility_on_directory {
     };
     using visibility_t = std::variant<visibility_values::private_, visibility_values::public_, std::string>;
     std::optional<visibility_t> visibility;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   body_t body;
@@ -85,14 +87,16 @@ struct query_public_rooms {
     struct filter_t {
       std::optional<std::string> generic_search_term;
       std::optional<std::vector<std::string>> room_types;
-      friend consteval auto json_schema(knot::type<filter_t>) { return knot::schema<filter_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<filter_t>) { return knot::schema<filter_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::int64_t> limit;
     std::optional<std::string> since;
     std::optional<filter_t> filter;
     std::optional<bool> include_all_networks;
     std::optional<std::string> third_party_instance_id;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::string> server;
   body_t body;

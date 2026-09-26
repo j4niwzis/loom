@@ -23,7 +23,8 @@ struct get_notifications {
           std::optional<std::string> prev_sender;
           std::optional<std::string> replaces_state;
           std::optional<std::string> membership;
-          friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
+          knot::value rest;
+          friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>().member<"rest">(knot::rest); }
         };
         std::string event_id;
         std::string type;
@@ -32,7 +33,8 @@ struct get_notifications {
         std::int64_t origin_server_ts;
         knot::value content;
         std::optional<unsigned_data_t> unsigned_;
-        friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"unsigned_">(knot::key("unsigned")); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"unsigned_">(knot::key("unsigned")).member<"rest">(knot::rest); }
       };
       std::vector<knot::value> actions;
       event_t event;
@@ -40,11 +42,13 @@ struct get_notifications {
       bool read;
       std::string room_id;
       std::int64_t ts;
-      friend consteval auto json_schema(knot::type<notification_t>) { return knot::schema<notification_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<notification_t>) { return knot::schema<notification_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::string> next_token;
     std::vector<notification_t> notifications;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::string> from;
   std::optional<std::int64_t> limit;

@@ -16,7 +16,8 @@ struct get_events {
     std::optional<std::string> start;
     std::optional<std::string> end;
     std::optional<std::vector<loom::ev::timeline_event>> chunk;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::string> from;
   std::optional<std::int64_t> timeout;
@@ -63,7 +64,8 @@ struct initial_sync {
           std::optional<std::string> prev_sender;
           std::optional<std::string> replaces_state;
           std::optional<std::string> membership;
-          friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
+          knot::value rest;
+          friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>().member<"rest">(knot::rest); }
         };
         std::string event_id;
         std::string type;
@@ -73,13 +75,15 @@ struct initial_sync {
         knot::value content;
         std::optional<unsigned_data_t> unsigned_;
         std::string room_id;
-        friend consteval auto json_schema(knot::type<invite_event_t>) { return knot::schema<invite_event_t>().member<"unsigned_">(knot::key("unsigned")); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<invite_event_t>) { return knot::schema<invite_event_t>().member<"unsigned_">(knot::key("unsigned")).member<"rest">(knot::rest); }
       };
       struct pagination_chunk_t {
         std::optional<std::string> start;
         std::string end;
         std::vector<loom::ev::timeline_event> chunk;
-        friend consteval auto json_schema(knot::type<pagination_chunk_t>) { return knot::schema<pagination_chunk_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<pagination_chunk_t>) { return knot::schema<pagination_chunk_t>().member<"rest">(knot::rest); }
       };
       struct visibility_values {
         struct private_ {
@@ -99,13 +103,15 @@ struct initial_sync {
       std::optional<std::vector<loom::ev::timeline_event>> state;
       std::optional<visibility_t> visibility;
       std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> account_data;
-      friend consteval auto json_schema(knot::type<room_info_t>) { return knot::schema<room_info_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<room_info_t>) { return knot::schema<room_info_t>().member<"rest">(knot::rest); }
     };
     std::string end;
     std::vector<loom::ev::basic_event<loom::ev::other_content>> presence;
     std::vector<room_info_t> rooms;
     std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> account_data;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::int64_t> limit;
   std::optional<bool> archived;

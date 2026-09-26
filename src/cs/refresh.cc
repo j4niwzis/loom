@@ -14,13 +14,15 @@ export namespace loom::cs {
 struct refresh {
   struct body_t {
     std::string refresh_token;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string access_token;
     std::optional<std::string> refresh_token;
     std::optional<std::int64_t> expires_in_ms;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = response_t;

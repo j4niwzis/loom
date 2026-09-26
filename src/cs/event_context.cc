@@ -22,7 +22,8 @@ struct get_event_context {
         std::optional<std::string> prev_sender;
         std::optional<std::string> replaces_state;
         std::optional<std::string> membership;
-        friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>().member<"rest">(knot::rest); }
       };
       std::string event_id;
       std::string type;
@@ -32,7 +33,8 @@ struct get_event_context {
       knot::value content;
       std::optional<unsigned_data_t> unsigned_;
       std::string room_id;
-      friend consteval auto json_schema(knot::type<client_event_t>) { return knot::schema<client_event_t>().member<"unsigned_">(knot::key("unsigned")); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<client_event_t>) { return knot::schema<client_event_t>().member<"unsigned_">(knot::key("unsigned")).member<"rest">(knot::rest); }
     };
     std::optional<std::string> start;
     std::optional<std::string> end;
@@ -40,7 +42,8 @@ struct get_event_context {
     std::optional<client_event_t> event;
     std::optional<std::vector<loom::ev::timeline_event>> events_after;
     std::optional<std::vector<loom::ev::timeline_event>> state;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   std::string event_id;

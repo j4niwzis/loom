@@ -19,16 +19,19 @@ struct upload_keys {
       std::vector<std::string> algorithms;
       std::map<std::string, std::string> keys;
       std::map<std::string, std::map<std::string, std::string>> signatures;
-      friend consteval auto json_schema(knot::type<device_keys_t>) { return knot::schema<device_keys_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<device_keys_t>) { return knot::schema<device_keys_t>().member<"rest">(knot::rest); }
     };
     std::optional<device_keys_t> device_keys;
     std::optional<std::map<std::string, knot::value>> one_time_keys;
     std::optional<std::map<std::string, knot::value>> fallback_keys;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::map<std::string, std::int64_t> one_time_key_counts;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = response_t;
@@ -43,13 +46,15 @@ struct query_keys {
   struct body_t {
     std::optional<std::int64_t> timeout;
     std::map<std::string, std::vector<std::string>> device_keys;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     struct device_information_t {
       struct unsigned_device_info_t {
         std::optional<std::string> device_display_name;
-        friend consteval auto json_schema(knot::type<unsigned_device_info_t>) { return knot::schema<unsigned_device_info_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<unsigned_device_info_t>) { return knot::schema<unsigned_device_info_t>().member<"rest">(knot::rest); }
       };
       std::optional<unsigned_device_info_t> unsigned_;
       std::string user_id;
@@ -57,7 +62,8 @@ struct query_keys {
       std::vector<std::string> algorithms;
       std::map<std::string, std::string> keys;
       std::map<std::string, std::map<std::string, std::string>> signatures;
-      friend consteval auto json_schema(knot::type<device_information_t>) { return knot::schema<device_information_t>().member<"unsigned_">(knot::key("unsigned")); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<device_information_t>) { return knot::schema<device_information_t>().member<"unsigned_">(knot::key("unsigned")).member<"rest">(knot::rest); }
     };
     struct cross_signing_key_t {
       struct usage_item_values {
@@ -79,7 +85,8 @@ struct query_keys {
       std::vector<usage_item_t> usage;
       std::map<std::string, std::string> keys;
       std::optional<knot::value> signatures;
-      friend consteval auto json_schema(knot::type<cross_signing_key_t>) { return knot::schema<cross_signing_key_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<cross_signing_key_t>) { return knot::schema<cross_signing_key_t>().member<"rest">(knot::rest); }
     };
     struct cross_signing_key_2_t {
       struct usage_item_values {
@@ -101,7 +108,8 @@ struct query_keys {
       std::vector<usage_item_t> usage;
       std::map<std::string, std::string> keys;
       std::optional<knot::value> signatures;
-      friend consteval auto json_schema(knot::type<cross_signing_key_2_t>) { return knot::schema<cross_signing_key_2_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<cross_signing_key_2_t>) { return knot::schema<cross_signing_key_2_t>().member<"rest">(knot::rest); }
     };
     struct cross_signing_key_3_t {
       struct usage_item_values {
@@ -123,14 +131,16 @@ struct query_keys {
       std::vector<usage_item_t> usage;
       std::map<std::string, std::string> keys;
       std::optional<knot::value> signatures;
-      friend consteval auto json_schema(knot::type<cross_signing_key_3_t>) { return knot::schema<cross_signing_key_3_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<cross_signing_key_3_t>) { return knot::schema<cross_signing_key_3_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::map<std::string, knot::value>> failures;
     std::optional<std::map<std::string, std::map<std::string, device_information_t>>> device_keys;
     std::optional<std::map<std::string, cross_signing_key_t>> master_keys;
     std::optional<std::map<std::string, cross_signing_key_2_t>> self_signing_keys;
     std::optional<std::map<std::string, cross_signing_key_3_t>> user_signing_keys;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = response_t;
@@ -145,12 +155,14 @@ struct claim_keys {
   struct body_t {
     std::optional<std::int64_t> timeout;
     std::map<std::string, std::map<std::string, std::string>> one_time_keys;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::optional<std::map<std::string, knot::value>> failures;
     std::map<std::string, std::map<std::string, def::one_time_keys_t>> one_time_keys;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = response_t;
@@ -165,7 +177,8 @@ struct get_keys_changes {
   struct response_t {
     std::optional<std::vector<std::string>> changed;
     std::optional<std::vector<std::string>> left;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string from;
   std::string to;

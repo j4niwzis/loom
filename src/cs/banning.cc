@@ -15,7 +15,8 @@ struct ban {
   struct body_t {
     std::string user_id;
     std::optional<std::string> reason;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   body_t body;
@@ -31,7 +32,8 @@ struct unban {
   struct body_t {
     std::string user_id;
     std::optional<std::string> reason;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   body_t body;

@@ -248,11 +248,25 @@ class Emitter:
             members.append(f'  {t} {cpp};')
             if cpp != key:
                 keys.append((cpp, key))
+        # What the schema does not name is kept, not dropped: JSON Schema
+        # allows any other key unless additionalProperties says false, and
+        # Matrix says so of nothing a client reads -- an event's content
+        # carries m.relates_to, m.new_content, formatted_body and whatever
+        # comes after this spec, and a client that drops them cannot edit,
+        # reply or thread. Written back as they came.
+        rest = None
+        if schema.get('additionalProperties', True) is not False:
+            rest = 'rest'
+            while rest in used or rest == name:
+                rest += '_'
+            members.append(f'  knot::value {rest};')
         lines = [f'struct {name} {{']
         for l in inner['lines']:
             lines.append('  ' + l)
         lines += members
         schema_expr = f'knot::schema<{name}>()' + ''.join(f'.member<"{c}">(knot::key("{k}"))' for c, k in keys)
+        if rest:
+            schema_expr += f'.member<"{rest}">(knot::rest)'
         lines.append(f'  friend consteval auto json_schema(knot::type<{name}>) {{ return {schema_expr}; }}')
         lines.append('};')
         scope['lines'].extend(lines)

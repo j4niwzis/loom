@@ -19,10 +19,12 @@ struct get_push_rules {
       std::optional<std::vector<def::push_rule_t>> room;
       std::optional<std::vector<def::push_rule_t>> sender;
       std::optional<std::vector<def::push_rule_t>> underride;
-      friend consteval auto json_schema(knot::type<ruleset_t>) { return knot::schema<ruleset_t>().member<"override_">(knot::key("override")); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<ruleset_t>) { return knot::schema<ruleset_t>().member<"override_">(knot::key("override")).member<"rest">(knot::rest); }
     };
     ruleset_t global;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
   constexpr request to_send() const {
@@ -72,7 +74,8 @@ struct get_push_rule {
     std::string rule_id;
     std::optional<std::vector<def::push_condition_t>> conditions;
     std::optional<std::string> pattern;
-    friend consteval auto json_schema(knot::type<push_rule_t>) { return knot::schema<push_rule_t>().member<"default_">(knot::key("default")); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<push_rule_t>) { return knot::schema<push_rule_t>().member<"default_">(knot::key("default")).member<"rest">(knot::rest); }
   };
   kind_t kind;
   std::string rule_id;
@@ -146,7 +149,8 @@ struct set_push_rule {
     std::vector<knot::value> actions;
     std::optional<std::vector<def::push_condition_t>> conditions;
     std::optional<std::string> pattern;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
   std::string rule_id;
@@ -191,7 +195,8 @@ struct is_push_rule_enabled {
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct response_t {
     bool enabled;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
   std::string rule_id;
@@ -229,7 +234,8 @@ struct set_push_rule_enabled {
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct body_t {
     bool enabled;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
   std::string rule_id;
@@ -268,7 +274,8 @@ struct get_push_rule_actions {
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct response_t {
     std::vector<knot::value> actions;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
   std::string rule_id;
@@ -306,7 +313,8 @@ struct set_push_rule_actions {
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct body_t {
     std::vector<knot::value> actions;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
   std::string rule_id;

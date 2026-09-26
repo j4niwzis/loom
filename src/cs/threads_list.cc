@@ -26,7 +26,8 @@ struct get_thread_roots {
   struct response_t {
     std::vector<loom::ev::timeline_event> chunk;
     std::optional<std::string> next_batch;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   std::optional<include_t> include;

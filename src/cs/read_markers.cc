@@ -16,7 +16,8 @@ struct set_read_marker {
     std::optional<std::string> m_fully_read;
     std::optional<std::string> m_read;
     std::optional<std::string> m_read_private;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"m_fully_read">(knot::key("m.fully_read")).member<"m_read">(knot::key("m.read")).member<"m_read_private">(knot::key("m.read.private")); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"m_fully_read">(knot::key("m.fully_read")).member<"m_read">(knot::key("m.read")).member<"m_read_private">(knot::key("m.read.private")).member<"rest">(knot::rest); }
   };
   std::string room_id;
   body_t body;

@@ -30,7 +30,8 @@ struct set_presence {
     using presence_t = std::variant<presence_values::online, presence_values::offline, presence_values::unavailable, std::string>;
     presence_t presence;
     std::optional<std::string> status_msg;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
   body_t body;
@@ -63,7 +64,8 @@ struct get_presence {
     std::optional<std::int64_t> last_active_ago;
     std::optional<std::string> status_msg;
     std::optional<bool> currently_active;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
   using response = response_t;

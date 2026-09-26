@@ -50,7 +50,8 @@ struct get_user_profile {
     std::optional<std::string> avatar_url;
     std::optional<std::string> displayname;
     std::optional<std::string> m_tz;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"m_tz">(knot::key("m.tz")); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"m_tz">(knot::key("m.tz")).member<"rest">(knot::rest); }
   };
   std::string user_id;
   using response = response_t;

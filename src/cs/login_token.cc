@@ -16,15 +16,18 @@ struct generate_login_token {
     struct authentication_data_t {
       std::optional<std::string> type;
       std::optional<std::string> session;
-      friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>().member<"rest">(knot::rest); }
     };
     std::optional<authentication_data_t> auth;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string login_token;
     std::int64_t expires_in_ms;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = response_t;

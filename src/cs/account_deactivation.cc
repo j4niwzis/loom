@@ -16,12 +16,14 @@ struct deactivate_account {
     struct authentication_data_t {
       std::optional<std::string> type;
       std::optional<std::string> session;
-      friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>().member<"rest">(knot::rest); }
     };
     std::optional<authentication_data_t> auth;
     std::optional<std::string> id_server;
     std::optional<bool> erase;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     struct id_server_unbind_result_values {
@@ -36,7 +38,8 @@ struct deactivate_account {
     };
     using id_server_unbind_result_t = std::variant<id_server_unbind_result_values::success, id_server_unbind_result_values::no_support, std::string>;
     id_server_unbind_result_t id_server_unbind_result;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = response_t;

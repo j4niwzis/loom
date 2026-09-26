@@ -15,7 +15,8 @@ struct get_versions {
   struct response_t {
     std::vector<std::string> versions;
     std::optional<std::map<std::string, bool>> unstable_features;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
   constexpr request to_send() const {

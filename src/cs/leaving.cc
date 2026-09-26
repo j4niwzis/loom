@@ -14,7 +14,8 @@ export namespace loom::cs {
 struct leave_room {
   struct body_t {
     std::optional<std::string> reason;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   body_t body;

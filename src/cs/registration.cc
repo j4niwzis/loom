@@ -27,7 +27,8 @@ struct register_ {
     struct authentication_data_t {
       std::optional<std::string> type;
       std::optional<std::string> session;
-      friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>().member<"rest">(knot::rest); }
     };
     std::optional<authentication_data_t> auth;
     std::optional<std::string> username;
@@ -36,7 +37,8 @@ struct register_ {
     std::optional<std::string> initial_device_display_name;
     std::optional<bool> inhibit_login;
     std::optional<bool> refresh_token;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string user_id;
@@ -45,7 +47,8 @@ struct register_ {
     std::optional<std::int64_t> expires_in_ms;
     std::optional<std::string> home_server;
     std::optional<std::string> device_id;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::optional<kind_t> kind;
   body_t body;
@@ -82,7 +85,8 @@ struct request_token_to_register_msisdn {
 struct check_username_availability {
   struct response_t {
     std::optional<bool> available;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string username;
   using response = response_t;

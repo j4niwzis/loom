@@ -28,7 +28,8 @@ struct create_room {
       std::string type;
       std::optional<std::string> state_key;
       knot::value content;
-      friend consteval auto json_schema(knot::type<state_event_t>) { return knot::schema<state_event_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<state_event_t>) { return knot::schema<state_event_t>().member<"rest">(knot::rest); }
     };
     struct preset_values {
       struct private_chat {
@@ -57,11 +58,13 @@ struct create_room {
     std::optional<preset_t> preset;
     std::optional<bool> is_direct;
     std::optional<knot::value> power_level_content_override;
-    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string room_id;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
   using response = response_t;

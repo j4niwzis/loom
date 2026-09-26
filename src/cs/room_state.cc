@@ -14,7 +14,8 @@ export namespace loom::cs {
 struct set_room_state_with_key {
   struct response_t {
     std::string event_id;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   std::string event_type;

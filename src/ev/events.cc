@@ -26,7 +26,8 @@ struct stream_metadata_t {
   purpose_t purpose;
   std::optional<bool> audio_muted;
   std::optional<bool> video_muted;
-  friend consteval auto json_schema(knot::type<stream_metadata_t>) { return knot::schema<stream_metadata_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<stream_metadata_t>) { return knot::schema<stream_metadata_t>().member<"rest">(knot::rest); }
 };
 using sdp_stream_metadata_t = std::map<std::string, stream_metadata_t>;
 struct verification_relates_to_t {
@@ -39,7 +40,8 @@ struct verification_relates_to_t {
   using rel_type_t = std::variant<rel_type_values::m_reference, std::string>;
   std::optional<rel_type_t> rel_type;
   std::optional<std::string> event_id;
-  friend consteval auto json_schema(knot::type<verification_relates_to_t>) { return knot::schema<verification_relates_to_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<verification_relates_to_t>) { return knot::schema<verification_relates_to_t>().member<"rest">(knot::rest); }
 };
 struct push_condition_t {
   std::string kind;
@@ -47,7 +49,8 @@ struct push_condition_t {
   std::optional<std::string> pattern;
   std::optional<std::string> is;
   std::optional<knot::value> value;
-  friend consteval auto json_schema(knot::type<push_condition_t>) { return knot::schema<push_condition_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<push_condition_t>) { return knot::schema<push_condition_t>().member<"rest">(knot::rest); }
 };
 struct push_rule_t {
   std::vector<knot::value> actions;
@@ -56,29 +59,34 @@ struct push_rule_t {
   std::string rule_id;
   std::optional<std::vector<push_condition_t>> conditions;
   std::optional<std::string> pattern;
-  friend consteval auto json_schema(knot::type<push_rule_t>) { return knot::schema<push_rule_t>().member<"default_">(knot::key("default")); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<push_rule_t>) { return knot::schema<push_rule_t>().member<"default_">(knot::key("default")).member<"rest">(knot::rest); }
 };
 struct recent_emoji_t {
   std::string emoji;
   double total;
-  friend consteval auto json_schema(knot::type<recent_emoji_t>) { return knot::schema<recent_emoji_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<recent_emoji_t>) { return knot::schema<recent_emoji_t>().member<"rest">(knot::rest); }
 };
 struct signed_third_party_invite_t {
   std::string mxid;
   std::map<std::string, std::map<std::string, std::string>> signatures;
   std::string token;
-  friend consteval auto json_schema(knot::type<signed_third_party_invite_t>) { return knot::schema<signed_third_party_invite_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<signed_third_party_invite_t>) { return knot::schema<signed_third_party_invite_t>().member<"rest">(knot::rest); }
 };
 struct tag_t {
   std::optional<double> order;
-  friend consteval auto json_schema(knot::type<tag_t>) { return knot::schema<tag_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<tag_t>) { return knot::schema<tag_t>().member<"rest">(knot::rest); }
 };
 
 }  // namespace def
 
 struct m_accepted_terms_content_t {
   std::optional<std::vector<std::string>> accepted;
-  friend consteval auto json_schema(knot::type<m_accepted_terms_content_t>) { return knot::schema<m_accepted_terms_content_t>().tag("m.accepted_terms"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_accepted_terms_content_t>) { return knot::schema<m_accepted_terms_content_t>().member<"rest">(knot::rest).tag("m.accepted_terms"); }
 };
 struct m_call_answer_content_t {
   struct answer_t {
@@ -91,27 +99,31 @@ struct m_call_answer_content_t {
     using type_t = std::variant<type_values::answer, std::string>;
     type_t type;
     std::string sdp;
-    friend consteval auto json_schema(knot::type<answer_t>) { return knot::schema<answer_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<answer_t>) { return knot::schema<answer_t>().member<"rest">(knot::rest); }
   };
   answer_t answer;
   std::optional<def::sdp_stream_metadata_t> sdp_stream_metadata;
   std::string call_id;
   std::string version;
   std::string party_id;
-  friend consteval auto json_schema(knot::type<m_call_answer_content_t>) { return knot::schema<m_call_answer_content_t>().tag("m.call.answer"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_call_answer_content_t>) { return knot::schema<m_call_answer_content_t>().member<"rest">(knot::rest).tag("m.call.answer"); }
 };
 struct m_call_candidates_content_t {
   struct candidate_t {
     std::optional<std::string> sdp_mid;
     std::optional<double> sdp_m_line_index;
     std::string candidate;
-    friend consteval auto json_schema(knot::type<candidate_t>) { return knot::schema<candidate_t>().member<"sdp_mid">(knot::key("sdpMid")).member<"sdp_m_line_index">(knot::key("sdpMLineIndex")); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<candidate_t>) { return knot::schema<candidate_t>().member<"sdp_mid">(knot::key("sdpMid")).member<"sdp_m_line_index">(knot::key("sdpMLineIndex")).member<"rest">(knot::rest); }
   };
   std::vector<candidate_t> candidates;
   std::string call_id;
   std::string version;
   std::string party_id;
-  friend consteval auto json_schema(knot::type<m_call_candidates_content_t>) { return knot::schema<m_call_candidates_content_t>().tag("m.call.candidates"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_call_candidates_content_t>) { return knot::schema<m_call_candidates_content_t>().member<"rest">(knot::rest).tag("m.call.candidates"); }
 };
 struct m_call_hangup_content_t {
   struct reason_values {
@@ -149,7 +161,8 @@ struct m_call_hangup_content_t {
   std::string call_id;
   std::string version;
   std::string party_id;
-  friend consteval auto json_schema(knot::type<m_call_hangup_content_t>) { return knot::schema<m_call_hangup_content_t>().tag("m.call.hangup"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_call_hangup_content_t>) { return knot::schema<m_call_hangup_content_t>().member<"rest">(knot::rest).tag("m.call.hangup"); }
 };
 struct m_call_invite_content_t {
   struct offer_t {
@@ -162,7 +175,8 @@ struct m_call_invite_content_t {
     using type_t = std::variant<type_values::offer, std::string>;
     type_t type;
     std::string sdp;
-    friend consteval auto json_schema(knot::type<offer_t>) { return knot::schema<offer_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<offer_t>) { return knot::schema<offer_t>().member<"rest">(knot::rest); }
   };
   offer_t offer;
   std::int64_t lifetime;
@@ -171,7 +185,8 @@ struct m_call_invite_content_t {
   std::string call_id;
   std::string version;
   std::string party_id;
-  friend consteval auto json_schema(knot::type<m_call_invite_content_t>) { return knot::schema<m_call_invite_content_t>().tag("m.call.invite"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_call_invite_content_t>) { return knot::schema<m_call_invite_content_t>().member<"rest">(knot::rest).tag("m.call.invite"); }
 };
 struct m_call_negotiate_content_t {
   struct description_t {
@@ -188,7 +203,8 @@ struct m_call_negotiate_content_t {
     using type_t = std::variant<type_values::offer, type_values::answer, std::string>;
     type_t type;
     std::string sdp;
-    friend consteval auto json_schema(knot::type<description_t>) { return knot::schema<description_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<description_t>) { return knot::schema<description_t>().member<"rest">(knot::rest); }
   };
   description_t description;
   std::int64_t lifetime;
@@ -196,27 +212,31 @@ struct m_call_negotiate_content_t {
   std::string call_id;
   std::string version;
   std::string party_id;
-  friend consteval auto json_schema(knot::type<m_call_negotiate_content_t>) { return knot::schema<m_call_negotiate_content_t>().tag("m.call.negotiate"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_call_negotiate_content_t>) { return knot::schema<m_call_negotiate_content_t>().member<"rest">(knot::rest).tag("m.call.negotiate"); }
 };
 struct m_call_reject_content_t {
   std::string call_id;
   std::string version;
   std::string party_id;
-  friend consteval auto json_schema(knot::type<m_call_reject_content_t>) { return knot::schema<m_call_reject_content_t>().tag("m.call.reject"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_call_reject_content_t>) { return knot::schema<m_call_reject_content_t>().member<"rest">(knot::rest).tag("m.call.reject"); }
 };
 struct m_call_sdp_stream_metadata_changed_content_t {
   def::sdp_stream_metadata_t sdp_stream_metadata;
   std::string call_id;
   std::string version;
   std::string party_id;
-  friend consteval auto json_schema(knot::type<m_call_sdp_stream_metadata_changed_content_t>) { return knot::schema<m_call_sdp_stream_metadata_changed_content_t>().tag("m.call.sdp_stream_metadata_changed"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_call_sdp_stream_metadata_changed_content_t>) { return knot::schema<m_call_sdp_stream_metadata_changed_content_t>().member<"rest">(knot::rest).tag("m.call.sdp_stream_metadata_changed"); }
 };
 struct m_call_select_answer_content_t {
   std::string selected_party_id;
   std::string call_id;
   std::string version;
   std::string party_id;
-  friend consteval auto json_schema(knot::type<m_call_select_answer_content_t>) { return knot::schema<m_call_select_answer_content_t>().tag("m.call.select_answer"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_call_select_answer_content_t>) { return knot::schema<m_call_select_answer_content_t>().member<"rest">(knot::rest).tag("m.call.select_answer"); }
 };
 struct m_direct_content_t {
   knot::value rest;
@@ -235,23 +255,28 @@ struct m_forwarded_room_key_content_t {
   std::string sender_claimed_ed25519_key;
   std::vector<std::string> forwarding_curve25519_key_chain;
   std::optional<knot::value> withheld;
-  friend consteval auto json_schema(knot::type<m_forwarded_room_key_content_t>) { return knot::schema<m_forwarded_room_key_content_t>().tag("m.forwarded_room_key"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_forwarded_room_key_content_t>) { return knot::schema<m_forwarded_room_key_content_t>().member<"rest">(knot::rest).tag("m.forwarded_room_key"); }
 };
 struct m_fully_read_content_t {
   std::string event_id;
-  friend consteval auto json_schema(knot::type<m_fully_read_content_t>) { return knot::schema<m_fully_read_content_t>().tag("m.fully_read"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_fully_read_content_t>) { return knot::schema<m_fully_read_content_t>().member<"rest">(knot::rest).tag("m.fully_read"); }
 };
 struct m_identity_server_content_t {
   std::optional<knot::value> base_url;
-  friend consteval auto json_schema(knot::type<m_identity_server_content_t>) { return knot::schema<m_identity_server_content_t>().tag("m.identity_server"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_identity_server_content_t>) { return knot::schema<m_identity_server_content_t>().member<"rest">(knot::rest).tag("m.identity_server"); }
 };
 struct m_ignored_user_list_content_t {
   std::map<std::string, knot::value> ignored_users;
-  friend consteval auto json_schema(knot::type<m_ignored_user_list_content_t>) { return knot::schema<m_ignored_user_list_content_t>().tag("m.ignored_user_list"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_ignored_user_list_content_t>) { return knot::schema<m_ignored_user_list_content_t>().member<"rest">(knot::rest).tag("m.ignored_user_list"); }
 };
 struct m_image_pack_rooms_content_t {
   std::map<std::string, std::map<std::string, knot::value>> rooms;
-  friend consteval auto json_schema(knot::type<m_image_pack_rooms_content_t>) { return knot::schema<m_image_pack_rooms_content_t>().tag("m.image_pack.rooms"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_image_pack_rooms_content_t>) { return knot::schema<m_image_pack_rooms_content_t>().member<"rest">(knot::rest).tag("m.image_pack.rooms"); }
 };
 struct m_invite_permission_config_content_t {
   knot::value rest;
@@ -276,46 +301,53 @@ struct m_key_verification_accept_content_t {
   std::vector<short_authentication_string_item_t> short_authentication_string;
   std::string commitment;
   std::optional<def::verification_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_key_verification_accept_content_t>) { return knot::schema<m_key_verification_accept_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).tag("m.key.verification.accept"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_accept_content_t>) { return knot::schema<m_key_verification_accept_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.key.verification.accept"); }
 };
 struct m_key_verification_cancel_content_t {
   std::optional<std::string> transaction_id;
   std::string reason;
   std::string code;
   std::optional<def::verification_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_key_verification_cancel_content_t>) { return knot::schema<m_key_verification_cancel_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).tag("m.key.verification.cancel"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_cancel_content_t>) { return knot::schema<m_key_verification_cancel_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.key.verification.cancel"); }
 };
 struct m_key_verification_done_content_t {
   std::optional<std::string> transaction_id;
   std::optional<def::verification_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_key_verification_done_content_t>) { return knot::schema<m_key_verification_done_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).tag("m.key.verification.done"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_done_content_t>) { return knot::schema<m_key_verification_done_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.key.verification.done"); }
 };
 struct m_key_verification_key_content_t {
   std::optional<std::string> transaction_id;
   std::string key;
   std::optional<def::verification_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_key_verification_key_content_t>) { return knot::schema<m_key_verification_key_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).tag("m.key.verification.key"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_key_content_t>) { return knot::schema<m_key_verification_key_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.key.verification.key"); }
 };
 struct m_key_verification_mac_content_t {
   std::optional<std::string> transaction_id;
   std::map<std::string, std::string> mac;
   std::string keys;
   std::optional<def::verification_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_key_verification_mac_content_t>) { return knot::schema<m_key_verification_mac_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).tag("m.key.verification.mac"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_mac_content_t>) { return knot::schema<m_key_verification_mac_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.key.verification.mac"); }
 };
 struct m_key_verification_ready_content_t {
   std::string from_device;
   std::optional<std::string> transaction_id;
   std::vector<std::string> methods;
   std::optional<def::verification_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_key_verification_ready_content_t>) { return knot::schema<m_key_verification_ready_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).tag("m.key.verification.ready"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_ready_content_t>) { return knot::schema<m_key_verification_ready_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.key.verification.ready"); }
 };
 struct m_key_verification_request_content_t {
   std::string from_device;
   std::optional<std::string> transaction_id;
   std::vector<std::string> methods;
   std::optional<std::int64_t> timestamp;
-  friend consteval auto json_schema(knot::type<m_key_verification_request_content_t>) { return knot::schema<m_key_verification_request_content_t>().tag("m.key.verification.request"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_request_content_t>) { return knot::schema<m_key_verification_request_content_t>().member<"rest">(knot::rest).tag("m.key.verification.request"); }
 };
 struct m_key_verification_start_m_reciprocate_v1_content_t {
   struct method_values {
@@ -330,7 +362,8 @@ struct m_key_verification_start_m_reciprocate_v1_content_t {
   method_t method;
   std::string secret;
   std::optional<def::verification_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_key_verification_start_m_reciprocate_v1_content_t>) { return knot::schema<m_key_verification_start_m_reciprocate_v1_content_t>().member<"m_relates_to">(knot::key("m.relates_to")); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_start_m_reciprocate_v1_content_t>) { return knot::schema<m_key_verification_start_m_reciprocate_v1_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest); }
 };
 struct m_key_verification_start_m_sas_v1_content_t {
   struct method_values {
@@ -359,7 +392,8 @@ struct m_key_verification_start_m_sas_v1_content_t {
   std::vector<std::string> message_authentication_codes;
   std::vector<short_authentication_string_item_t> short_authentication_string;
   std::optional<def::verification_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_key_verification_start_m_sas_v1_content_t>) { return knot::schema<m_key_verification_start_m_sas_v1_content_t>().member<"m_relates_to">(knot::key("m.relates_to")); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_start_m_sas_v1_content_t>) { return knot::schema<m_key_verification_start_m_sas_v1_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest); }
 };
 struct m_key_verification_start_content_t {
   std::string from_device;
@@ -367,33 +401,39 @@ struct m_key_verification_start_content_t {
   std::string method;
   std::optional<std::string> next_method;
   std::optional<def::verification_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_key_verification_start_content_t>) { return knot::schema<m_key_verification_start_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).tag("m.key.verification.start"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_verification_start_content_t>) { return knot::schema<m_key_verification_start_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.key.verification.start"); }
 };
 struct m_key_backup_content_t {
   bool enabled;
-  friend consteval auto json_schema(knot::type<m_key_backup_content_t>) { return knot::schema<m_key_backup_content_t>().tag("m.key_backup"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_key_backup_content_t>) { return knot::schema<m_key_backup_content_t>().member<"rest">(knot::rest).tag("m.key_backup"); }
 };
 struct m_marked_unread_content_t {
   bool unread;
-  friend consteval auto json_schema(knot::type<m_marked_unread_content_t>) { return knot::schema<m_marked_unread_content_t>().tag("m.marked_unread"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_marked_unread_content_t>) { return knot::schema<m_marked_unread_content_t>().member<"rest">(knot::rest).tag("m.marked_unread"); }
 };
 struct m_policy_rule_room_content_t {
   std::string entity;
   std::string recommendation;
   std::string reason;
-  friend consteval auto json_schema(knot::type<m_policy_rule_room_content_t>) { return knot::schema<m_policy_rule_room_content_t>().tag("m.policy.rule.room"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_policy_rule_room_content_t>) { return knot::schema<m_policy_rule_room_content_t>().member<"rest">(knot::rest).tag("m.policy.rule.room"); }
 };
 struct m_policy_rule_server_content_t {
   std::string entity;
   std::string recommendation;
   std::string reason;
-  friend consteval auto json_schema(knot::type<m_policy_rule_server_content_t>) { return knot::schema<m_policy_rule_server_content_t>().tag("m.policy.rule.server"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_policy_rule_server_content_t>) { return knot::schema<m_policy_rule_server_content_t>().member<"rest">(knot::rest).tag("m.policy.rule.server"); }
 };
 struct m_policy_rule_user_content_t {
   std::string entity;
   std::string recommendation;
   std::string reason;
-  friend consteval auto json_schema(knot::type<m_policy_rule_user_content_t>) { return knot::schema<m_policy_rule_user_content_t>().tag("m.policy.rule.user"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_policy_rule_user_content_t>) { return knot::schema<m_policy_rule_user_content_t>().member<"rest">(knot::rest).tag("m.policy.rule.user"); }
 };
 struct m_presence_content_t {
   struct presence_values {
@@ -417,7 +457,8 @@ struct m_presence_content_t {
   presence_t presence;
   std::optional<bool> currently_active;
   std::optional<std::string> status_msg;
-  friend consteval auto json_schema(knot::type<m_presence_content_t>) { return knot::schema<m_presence_content_t>().tag("m.presence"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_presence_content_t>) { return knot::schema<m_presence_content_t>().member<"rest">(knot::rest).tag("m.presence"); }
 };
 struct m_push_rules_content_t {
   struct ruleset_t {
@@ -426,10 +467,12 @@ struct m_push_rules_content_t {
     std::optional<std::vector<def::push_rule_t>> room;
     std::optional<std::vector<def::push_rule_t>> sender;
     std::optional<std::vector<def::push_rule_t>> underride;
-    friend consteval auto json_schema(knot::type<ruleset_t>) { return knot::schema<ruleset_t>().member<"override_">(knot::key("override")); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<ruleset_t>) { return knot::schema<ruleset_t>().member<"override_">(knot::key("override")).member<"rest">(knot::rest); }
   };
   std::optional<ruleset_t> global;
-  friend consteval auto json_schema(knot::type<m_push_rules_content_t>) { return knot::schema<m_push_rules_content_t>().tag("m.push_rules"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_push_rules_content_t>) { return knot::schema<m_push_rules_content_t>().member<"rest">(knot::rest).tag("m.push_rules"); }
 };
 struct m_reaction_content_t {
   struct reaction_relates_to_t {
@@ -443,25 +486,30 @@ struct m_reaction_content_t {
     std::optional<rel_type_t> rel_type;
     std::optional<std::string> event_id;
     std::optional<std::string> key;
-    friend consteval auto json_schema(knot::type<reaction_relates_to_t>) { return knot::schema<reaction_relates_to_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<reaction_relates_to_t>) { return knot::schema<reaction_relates_to_t>().member<"rest">(knot::rest); }
   };
   std::optional<reaction_relates_to_t> m_relates_to;
-  friend consteval auto json_schema(knot::type<m_reaction_content_t>) { return knot::schema<m_reaction_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).tag("m.reaction"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_reaction_content_t>) { return knot::schema<m_reaction_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.reaction"); }
 };
 struct event_receipts_t {
   struct receipt_t {
     std::optional<std::int64_t> ts;
     std::optional<std::string> thread_id;
-    friend consteval auto json_schema(knot::type<receipt_t>) { return knot::schema<receipt_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<receipt_t>) { return knot::schema<receipt_t>().member<"rest">(knot::rest); }
   };
   struct receipt_2_t {
     std::optional<std::int64_t> ts;
     std::optional<std::string> thread_id;
-    friend consteval auto json_schema(knot::type<receipt_2_t>) { return knot::schema<receipt_2_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<receipt_2_t>) { return knot::schema<receipt_2_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::map<std::string, receipt_t>> m_read;
   std::optional<std::map<std::string, receipt_2_t>> m_read_private;
-  friend consteval auto json_schema(knot::type<event_receipts_t>) { return knot::schema<event_receipts_t>().member<"m_read">(knot::key("m.read")).member<"m_read_private">(knot::key("m.read.private")); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<event_receipts_t>) { return knot::schema<event_receipts_t>().member<"m_read">(knot::key("m.read")).member<"m_read_private">(knot::key("m.read.private")).member<"rest">(knot::rest); }
 };
 struct m_receipt_content_t {
   knot::value rest;
@@ -469,7 +517,8 @@ struct m_receipt_content_t {
 };
 struct m_recent_emoji_content_t {
   std::vector<def::recent_emoji_t> recent_emoji;
-  friend consteval auto json_schema(knot::type<m_recent_emoji_content_t>) { return knot::schema<m_recent_emoji_content_t>().tag("m.recent_emoji"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_recent_emoji_content_t>) { return knot::schema<m_recent_emoji_content_t>().member<"rest">(knot::rest).tag("m.recent_emoji"); }
 };
 struct m_room_avatar_content_t {
   struct avatar_info_t {
@@ -478,7 +527,8 @@ struct m_room_avatar_content_t {
       std::optional<std::int64_t> w;
       std::optional<std::string> mimetype;
       std::optional<std::int64_t> size;
-      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::int64_t> h;
     std::optional<std::int64_t> w;
@@ -486,22 +536,26 @@ struct m_room_avatar_content_t {
     std::optional<std::int64_t> size;
     std::optional<std::string> thumbnail_url;
     std::optional<thumbnail_info_t> thumbnail_info;
-    friend consteval auto json_schema(knot::type<avatar_info_t>) { return knot::schema<avatar_info_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<avatar_info_t>) { return knot::schema<avatar_info_t>().member<"rest">(knot::rest); }
   };
   std::optional<avatar_info_t> info;
   std::optional<std::string> url;
-  friend consteval auto json_schema(knot::type<m_room_avatar_content_t>) { return knot::schema<m_room_avatar_content_t>().tag("m.room.avatar"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_avatar_content_t>) { return knot::schema<m_room_avatar_content_t>().member<"rest">(knot::rest).tag("m.room.avatar"); }
 };
 struct m_room_canonical_alias_content_t {
   std::optional<std::string> alias;
   std::optional<std::vector<std::string>> alt_aliases;
-  friend consteval auto json_schema(knot::type<m_room_canonical_alias_content_t>) { return knot::schema<m_room_canonical_alias_content_t>().tag("m.room.canonical_alias"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_canonical_alias_content_t>) { return knot::schema<m_room_canonical_alias_content_t>().member<"rest">(knot::rest).tag("m.room.canonical_alias"); }
 };
 struct m_room_create_content_t {
   struct previous_room_t {
     std::string room_id;
     std::optional<std::string> event_id;
-    friend consteval auto json_schema(knot::type<previous_room_t>) { return knot::schema<previous_room_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<previous_room_t>) { return knot::schema<previous_room_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::string> creator;
   std::optional<bool> m_federate;
@@ -509,7 +563,8 @@ struct m_room_create_content_t {
   std::optional<std::string> type;
   std::optional<previous_room_t> predecessor;
   std::optional<std::vector<std::string>> additional_creators;
-  friend consteval auto json_schema(knot::type<m_room_create_content_t>) { return knot::schema<m_room_create_content_t>().member<"m_federate">(knot::key("m.federate")).tag("m.room.create"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_create_content_t>) { return knot::schema<m_room_create_content_t>().member<"m_federate">(knot::key("m.federate")).member<"rest">(knot::rest).tag("m.room.create"); }
 };
 struct m_room_encrypted_content_t {
   struct algorithm_values {
@@ -528,7 +583,8 @@ struct m_room_encrypted_content_t {
   std::optional<std::string> sender_key;
   std::optional<std::string> device_id;
   std::optional<std::string> session_id;
-  friend consteval auto json_schema(knot::type<m_room_encrypted_content_t>) { return knot::schema<m_room_encrypted_content_t>().tag("m.room.encrypted"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_encrypted_content_t>) { return knot::schema<m_room_encrypted_content_t>().member<"rest">(knot::rest).tag("m.room.encrypted"); }
 };
 struct m_room_encryption_content_t {
   struct algorithm_values {
@@ -541,7 +597,8 @@ struct m_room_encryption_content_t {
   algorithm_t algorithm;
   std::optional<std::int64_t> rotation_period_ms;
   std::optional<std::int64_t> rotation_period_msgs;
-  friend consteval auto json_schema(knot::type<m_room_encryption_content_t>) { return knot::schema<m_room_encryption_content_t>().tag("m.room.encryption"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_encryption_content_t>) { return knot::schema<m_room_encryption_content_t>().member<"rest">(knot::rest).tag("m.room.encryption"); }
 };
 struct m_room_guest_access_content_t {
   struct guest_access_values {
@@ -556,7 +613,8 @@ struct m_room_guest_access_content_t {
   };
   using guest_access_t = std::variant<guest_access_values::can_join, guest_access_values::forbidden, std::string>;
   guest_access_t guest_access;
-  friend consteval auto json_schema(knot::type<m_room_guest_access_content_t>) { return knot::schema<m_room_guest_access_content_t>().tag("m.room.guest_access"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_guest_access_content_t>) { return knot::schema<m_room_guest_access_content_t>().member<"rest">(knot::rest).tag("m.room.guest_access"); }
 };
 struct m_room_history_visibility_content_t {
   struct history_visibility_values {
@@ -579,7 +637,8 @@ struct m_room_history_visibility_content_t {
   };
   using history_visibility_t = std::variant<history_visibility_values::invited, history_visibility_values::joined, history_visibility_values::shared, history_visibility_values::world_readable, std::string>;
   history_visibility_t history_visibility;
-  friend consteval auto json_schema(knot::type<m_room_history_visibility_content_t>) { return knot::schema<m_room_history_visibility_content_t>().tag("m.room.history_visibility"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_history_visibility_content_t>) { return knot::schema<m_room_history_visibility_content_t>().member<"rest">(knot::rest).tag("m.room.history_visibility"); }
 };
 struct m_room_image_pack_content_t {
   struct image_pack_image_t {
@@ -589,7 +648,8 @@ struct m_room_image_pack_content_t {
         std::optional<std::int64_t> w;
         std::optional<std::string> mimetype;
         std::optional<std::int64_t> size;
-        friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
       };
       std::optional<std::int64_t> h;
       std::optional<std::int64_t> w;
@@ -599,12 +659,14 @@ struct m_room_image_pack_content_t {
       std::optional<knot::value> thumbnail_file;
       std::optional<thumbnail_info_t> thumbnail_info;
       std::optional<bool> is_animated;
-      friend consteval auto json_schema(knot::type<image_info_t>) { return knot::schema<image_info_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<image_info_t>) { return knot::schema<image_info_t>().member<"rest">(knot::rest); }
     };
     std::string url;
     std::optional<std::string> body;
     std::optional<image_info_t> info;
-    friend consteval auto json_schema(knot::type<image_pack_image_t>) { return knot::schema<image_pack_image_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<image_pack_image_t>) { return knot::schema<image_pack_image_t>().member<"rest">(knot::rest); }
   };
   struct image_pack_meta_t {
     struct usage_item_values {
@@ -622,11 +684,13 @@ struct m_room_image_pack_content_t {
     std::optional<std::string> avatar_url;
     std::optional<std::vector<usage_item_t>> usage;
     std::optional<std::string> attribution;
-    friend consteval auto json_schema(knot::type<image_pack_meta_t>) { return knot::schema<image_pack_meta_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<image_pack_meta_t>) { return knot::schema<image_pack_meta_t>().member<"rest">(knot::rest); }
   };
   std::map<std::string, image_pack_image_t> images;
   std::optional<image_pack_meta_t> pack;
-  friend consteval auto json_schema(knot::type<m_room_image_pack_content_t>) { return knot::schema<m_room_image_pack_content_t>().tag("m.room.image_pack"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_image_pack_content_t>) { return knot::schema<m_room_image_pack_content_t>().member<"rest">(knot::rest).tag("m.room.image_pack"); }
 };
 struct m_room_join_rules_content_t {
   struct join_rule_values {
@@ -666,11 +730,13 @@ struct m_room_join_rules_content_t {
     using type_t = std::variant<type_values::m_room_membership, std::string>;
     type_t type;
     std::optional<std::string> room_id;
-    friend consteval auto json_schema(knot::type<allow_condition_t>) { return knot::schema<allow_condition_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<allow_condition_t>) { return knot::schema<allow_condition_t>().member<"rest">(knot::rest); }
   };
   join_rule_t join_rule;
   std::optional<std::vector<allow_condition_t>> allow;
-  friend consteval auto json_schema(knot::type<m_room_join_rules_content_t>) { return knot::schema<m_room_join_rules_content_t>().tag("m.room.join_rules"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_join_rules_content_t>) { return knot::schema<m_room_join_rules_content_t>().member<"rest">(knot::rest).tag("m.room.join_rules"); }
 };
 struct m_room_member_content_t {
   struct membership_values {
@@ -699,7 +765,8 @@ struct m_room_member_content_t {
   struct third_party_invite_t {
     std::string display_name;
     def::signed_third_party_invite_t signed_;
-    friend consteval auto json_schema(knot::type<third_party_invite_t>) { return knot::schema<third_party_invite_t>().member<"signed_">(knot::key("signed")); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<third_party_invite_t>) { return knot::schema<third_party_invite_t>().member<"signed_">(knot::key("signed")).member<"rest">(knot::rest); }
   };
   std::optional<std::string> avatar_url;
   std::optional<std::string> displayname;
@@ -708,14 +775,16 @@ struct m_room_member_content_t {
   std::optional<std::string> join_authorised_via_users_server;
   std::optional<std::string> reason;
   std::optional<third_party_invite_t> third_party_invite;
-  friend consteval auto json_schema(knot::type<m_room_member_content_t>) { return knot::schema<m_room_member_content_t>().tag("m.room.member"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_member_content_t>) { return knot::schema<m_room_member_content_t>().member<"rest">(knot::rest).tag("m.room.member"); }
 };
 struct m_room_message_m_audio_content_t {
   struct audio_info_t {
     std::optional<std::int64_t> duration;
     std::optional<std::string> mimetype;
     std::optional<std::int64_t> size;
-    friend consteval auto json_schema(knot::type<audio_info_t>) { return knot::schema<audio_info_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<audio_info_t>) { return knot::schema<audio_info_t>().member<"rest">(knot::rest); }
   };
   struct msgtype_values {
     struct m_audio {
@@ -732,7 +801,8 @@ struct m_room_message_m_audio_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::value> file;
-  friend consteval auto json_schema(knot::type<m_room_message_m_audio_content_t>) { return knot::schema<m_room_message_m_audio_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_audio_content_t>) { return knot::schema<m_room_message_m_audio_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_m_emote_content_t {
   struct msgtype_values {
@@ -746,7 +816,8 @@ struct m_room_message_m_emote_content_t {
   msgtype_t msgtype;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
-  friend consteval auto json_schema(knot::type<m_room_message_m_emote_content_t>) { return knot::schema<m_room_message_m_emote_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_emote_content_t>) { return knot::schema<m_room_message_m_emote_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_m_file_content_t {
   struct file_info_t {
@@ -755,14 +826,16 @@ struct m_room_message_m_file_content_t {
       std::optional<std::int64_t> w;
       std::optional<std::string> mimetype;
       std::optional<std::int64_t> size;
-      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::string> mimetype;
     std::optional<std::int64_t> size;
     std::optional<std::string> thumbnail_url;
     std::optional<knot::value> thumbnail_file;
     std::optional<thumbnail_info_t> thumbnail_info;
-    friend consteval auto json_schema(knot::type<file_info_t>) { return knot::schema<file_info_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<file_info_t>) { return knot::schema<file_info_t>().member<"rest">(knot::rest); }
   };
   struct msgtype_values {
     struct m_file {
@@ -779,7 +852,8 @@ struct m_room_message_m_file_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::value> file;
-  friend consteval auto json_schema(knot::type<m_room_message_m_file_content_t>) { return knot::schema<m_room_message_m_file_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_file_content_t>) { return knot::schema<m_room_message_m_file_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_m_image_content_t {
   struct image_info_t {
@@ -788,7 +862,8 @@ struct m_room_message_m_image_content_t {
       std::optional<std::int64_t> w;
       std::optional<std::string> mimetype;
       std::optional<std::int64_t> size;
-      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::int64_t> h;
     std::optional<std::int64_t> w;
@@ -798,7 +873,8 @@ struct m_room_message_m_image_content_t {
     std::optional<knot::value> thumbnail_file;
     std::optional<thumbnail_info_t> thumbnail_info;
     std::optional<bool> is_animated;
-    friend consteval auto json_schema(knot::type<image_info_t>) { return knot::schema<image_info_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<image_info_t>) { return knot::schema<image_info_t>().member<"rest">(knot::rest); }
   };
   struct msgtype_values {
     struct m_image {
@@ -815,7 +891,8 @@ struct m_room_message_m_image_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::value> file;
-  friend consteval auto json_schema(knot::type<m_room_message_m_image_content_t>) { return knot::schema<m_room_message_m_image_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_image_content_t>) { return knot::schema<m_room_message_m_image_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_m_key_verification_request_content_t {
   struct msgtype_values {
@@ -832,7 +909,8 @@ struct m_room_message_m_key_verification_request_content_t {
   std::vector<std::string> methods;
   std::string to;
   msgtype_t msgtype;
-  friend consteval auto json_schema(knot::type<m_room_message_m_key_verification_request_content_t>) { return knot::schema<m_room_message_m_key_verification_request_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_key_verification_request_content_t>) { return knot::schema<m_room_message_m_key_verification_request_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_m_location_content_t {
   struct msgtype_values {
@@ -848,18 +926,21 @@ struct m_room_message_m_location_content_t {
       std::optional<std::int64_t> w;
       std::optional<std::string> mimetype;
       std::optional<std::int64_t> size;
-      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::string> thumbnail_url;
     std::optional<knot::value> thumbnail_file;
     std::optional<thumbnail_info_t> thumbnail_info;
-    friend consteval auto json_schema(knot::type<location_info_t>) { return knot::schema<location_info_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<location_info_t>) { return knot::schema<location_info_t>().member<"rest">(knot::rest); }
   };
   std::string body;
   std::string geo_uri;
   msgtype_t msgtype;
   std::optional<location_info_t> info;
-  friend consteval auto json_schema(knot::type<m_room_message_m_location_content_t>) { return knot::schema<m_room_message_m_location_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_location_content_t>) { return knot::schema<m_room_message_m_location_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_m_notice_content_t {
   struct msgtype_values {
@@ -873,7 +954,8 @@ struct m_room_message_m_notice_content_t {
   msgtype_t msgtype;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
-  friend consteval auto json_schema(knot::type<m_room_message_m_notice_content_t>) { return knot::schema<m_room_message_m_notice_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_notice_content_t>) { return knot::schema<m_room_message_m_notice_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_m_server_notice_content_t {
   struct msgtype_values {
@@ -888,7 +970,8 @@ struct m_room_message_m_server_notice_content_t {
   std::string server_notice_type;
   std::optional<std::string> admin_contact;
   std::optional<std::string> limit_type;
-  friend consteval auto json_schema(knot::type<m_room_message_m_server_notice_content_t>) { return knot::schema<m_room_message_m_server_notice_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_server_notice_content_t>) { return knot::schema<m_room_message_m_server_notice_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_m_text_content_t {
   struct msgtype_values {
@@ -902,7 +985,8 @@ struct m_room_message_m_text_content_t {
   msgtype_t msgtype;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
-  friend consteval auto json_schema(knot::type<m_room_message_m_text_content_t>) { return knot::schema<m_room_message_m_text_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_text_content_t>) { return knot::schema<m_room_message_m_text_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_m_video_content_t {
   struct video_info_t {
@@ -911,7 +995,8 @@ struct m_room_message_m_video_content_t {
       std::optional<std::int64_t> w;
       std::optional<std::string> mimetype;
       std::optional<std::int64_t> size;
-      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::int64_t> duration;
     std::optional<std::int64_t> h;
@@ -921,7 +1006,8 @@ struct m_room_message_m_video_content_t {
     std::optional<std::string> thumbnail_url;
     std::optional<knot::value> thumbnail_file;
     std::optional<thumbnail_info_t> thumbnail_info;
-    friend consteval auto json_schema(knot::type<video_info_t>) { return knot::schema<video_info_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<video_info_t>) { return knot::schema<video_info_t>().member<"rest">(knot::rest); }
   };
   struct msgtype_values {
     struct m_video {
@@ -938,34 +1024,41 @@ struct m_room_message_m_video_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::value> file;
-  friend consteval auto json_schema(knot::type<m_room_message_m_video_content_t>) { return knot::schema<m_room_message_m_video_content_t>(); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_m_video_content_t>) { return knot::schema<m_room_message_m_video_content_t>().member<"rest">(knot::rest); }
 };
 struct m_room_message_content_t {
   std::string body;
   std::string msgtype;
-  friend consteval auto json_schema(knot::type<m_room_message_content_t>) { return knot::schema<m_room_message_content_t>().tag("m.room.message"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_message_content_t>) { return knot::schema<m_room_message_content_t>().member<"rest">(knot::rest).tag("m.room.message"); }
 };
 struct m_room_name_content_t {
   std::string name;
-  friend consteval auto json_schema(knot::type<m_room_name_content_t>) { return knot::schema<m_room_name_content_t>().tag("m.room.name"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_name_content_t>) { return knot::schema<m_room_name_content_t>().member<"rest">(knot::rest).tag("m.room.name"); }
 };
 struct m_room_pinned_events_content_t {
   std::vector<std::string> pinned;
-  friend consteval auto json_schema(knot::type<m_room_pinned_events_content_t>) { return knot::schema<m_room_pinned_events_content_t>().tag("m.room.pinned_events"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_pinned_events_content_t>) { return knot::schema<m_room_pinned_events_content_t>().member<"rest">(knot::rest).tag("m.room.pinned_events"); }
 };
 struct m_room_policy_content_t {
   struct public_keys_t {
     std::string ed25519;
-    friend consteval auto json_schema(knot::type<public_keys_t>) { return knot::schema<public_keys_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<public_keys_t>) { return knot::schema<public_keys_t>().member<"rest">(knot::rest); }
   };
   std::string via;
   public_keys_t public_keys;
-  friend consteval auto json_schema(knot::type<m_room_policy_content_t>) { return knot::schema<m_room_policy_content_t>().tag("m.room.policy"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_policy_content_t>) { return knot::schema<m_room_policy_content_t>().member<"rest">(knot::rest).tag("m.room.policy"); }
 };
 struct m_room_power_levels_content_t {
   struct notifications_t {
     std::optional<std::int64_t> room;
-    friend consteval auto json_schema(knot::type<notifications_t>) { return knot::schema<notifications_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<notifications_t>) { return knot::schema<notifications_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::int64_t> ban;
   std::optional<std::map<std::string, std::int64_t>> events;
@@ -977,49 +1070,58 @@ struct m_room_power_levels_content_t {
   std::optional<std::map<std::string, std::int64_t>> users;
   std::optional<std::int64_t> users_default;
   std::optional<notifications_t> notifications;
-  friend consteval auto json_schema(knot::type<m_room_power_levels_content_t>) { return knot::schema<m_room_power_levels_content_t>().tag("m.room.power_levels"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_power_levels_content_t>) { return knot::schema<m_room_power_levels_content_t>().member<"rest">(knot::rest).tag("m.room.power_levels"); }
 };
 struct m_room_redaction_content_t {
   std::optional<std::string> redacts;
   std::optional<std::string> reason;
-  friend consteval auto json_schema(knot::type<m_room_redaction_content_t>) { return knot::schema<m_room_redaction_content_t>().tag("m.room.redaction"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_redaction_content_t>) { return knot::schema<m_room_redaction_content_t>().member<"rest">(knot::rest).tag("m.room.redaction"); }
 };
 struct m_room_server_acl_content_t {
   std::optional<bool> allow_ip_literals;
   std::optional<std::vector<std::string>> allow;
   std::optional<std::vector<std::string>> deny;
-  friend consteval auto json_schema(knot::type<m_room_server_acl_content_t>) { return knot::schema<m_room_server_acl_content_t>().tag("m.room.server_acl"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_server_acl_content_t>) { return knot::schema<m_room_server_acl_content_t>().member<"rest">(knot::rest).tag("m.room.server_acl"); }
 };
 struct m_room_third_party_invite_content_t {
   struct public_keys_t {
     std::optional<std::string> key_validity_url;
     std::string public_key;
-    friend consteval auto json_schema(knot::type<public_keys_t>) { return knot::schema<public_keys_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<public_keys_t>) { return knot::schema<public_keys_t>().member<"rest">(knot::rest); }
   };
   std::string display_name;
   std::string key_validity_url;
   std::string public_key;
   std::optional<std::vector<public_keys_t>> public_keys;
-  friend consteval auto json_schema(knot::type<m_room_third_party_invite_content_t>) { return knot::schema<m_room_third_party_invite_content_t>().tag("m.room.third_party_invite"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_third_party_invite_content_t>) { return knot::schema<m_room_third_party_invite_content_t>().member<"rest">(knot::rest).tag("m.room.third_party_invite"); }
 };
 struct m_room_tombstone_content_t {
   std::string body;
   std::string replacement_room;
-  friend consteval auto json_schema(knot::type<m_room_tombstone_content_t>) { return knot::schema<m_room_tombstone_content_t>().tag("m.room.tombstone"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_tombstone_content_t>) { return knot::schema<m_room_tombstone_content_t>().member<"rest">(knot::rest).tag("m.room.tombstone"); }
 };
 struct m_room_topic_content_t {
   struct topic_content_block_t {
     struct textual_representation_t {
       std::optional<std::string> mimetype;
       std::string body;
-      friend consteval auto json_schema(knot::type<textual_representation_t>) { return knot::schema<textual_representation_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<textual_representation_t>) { return knot::schema<textual_representation_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::vector<textual_representation_t>> m_text;
-    friend consteval auto json_schema(knot::type<topic_content_block_t>) { return knot::schema<topic_content_block_t>().member<"m_text">(knot::key("m.text")); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<topic_content_block_t>) { return knot::schema<topic_content_block_t>().member<"m_text">(knot::key("m.text")).member<"rest">(knot::rest); }
   };
   std::string topic;
   std::optional<topic_content_block_t> m_topic;
-  friend consteval auto json_schema(knot::type<m_room_topic_content_t>) { return knot::schema<m_room_topic_content_t>().member<"m_topic">(knot::key("m.topic")).tag("m.room.topic"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_topic_content_t>) { return knot::schema<m_room_topic_content_t>().member<"m_topic">(knot::key("m.topic")).member<"rest">(knot::rest).tag("m.room.topic"); }
 };
 struct m_room_key_withheld_content_t {
   struct algorithm_values {
@@ -1062,7 +1164,8 @@ struct m_room_key_withheld_content_t {
   std::string sender_key;
   code_t code;
   std::optional<std::string> reason;
-  friend consteval auto json_schema(knot::type<m_room_key_withheld_content_t>) { return knot::schema<m_room_key_withheld_content_t>().tag("m.room_key.withheld"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_key_withheld_content_t>) { return knot::schema<m_room_key_withheld_content_t>().member<"rest">(knot::rest).tag("m.room_key.withheld"); }
 };
 struct m_room_key_content_t {
   struct algorithm_values {
@@ -1077,12 +1180,14 @@ struct m_room_key_content_t {
   std::string session_id;
   std::string session_key;
   std::optional<bool> shared_history;
-  friend consteval auto json_schema(knot::type<m_room_key_content_t>) { return knot::schema<m_room_key_content_t>().tag("m.room_key"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_key_content_t>) { return knot::schema<m_room_key_content_t>().member<"rest">(knot::rest).tag("m.room_key"); }
 };
 struct m_room_key_bundle_content_t {
   std::string room_id;
   knot::value file;
-  friend consteval auto json_schema(knot::type<m_room_key_bundle_content_t>) { return knot::schema<m_room_key_bundle_content_t>().tag("m.room_key_bundle"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_key_bundle_content_t>) { return knot::schema<m_room_key_bundle_content_t>().member<"rest">(knot::rest).tag("m.room_key_bundle"); }
 };
 struct m_room_key_request_content_t {
   struct requested_key_info_t {
@@ -1090,7 +1195,8 @@ struct m_room_key_request_content_t {
     std::string room_id;
     std::optional<std::string> sender_key;
     std::string session_id;
-    friend consteval auto json_schema(knot::type<requested_key_info_t>) { return knot::schema<requested_key_info_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<requested_key_info_t>) { return knot::schema<requested_key_info_t>().member<"rest">(knot::rest); }
   };
   struct action_values {
     struct request_ {
@@ -1107,7 +1213,8 @@ struct m_room_key_request_content_t {
   action_t action;
   std::string requesting_device_id;
   std::string request_id;
-  friend consteval auto json_schema(knot::type<m_room_key_request_content_t>) { return knot::schema<m_room_key_request_content_t>().tag("m.room_key_request"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_room_key_request_content_t>) { return knot::schema<m_room_key_request_content_t>().member<"rest">(knot::rest).tag("m.room_key_request"); }
 };
 struct m_secret_request_content_t {
   struct action_values {
@@ -1125,23 +1232,27 @@ struct m_secret_request_content_t {
   action_t action;
   std::string requesting_device_id;
   std::string request_id;
-  friend consteval auto json_schema(knot::type<m_secret_request_content_t>) { return knot::schema<m_secret_request_content_t>().tag("m.secret.request"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_secret_request_content_t>) { return knot::schema<m_secret_request_content_t>().member<"rest">(knot::rest).tag("m.secret.request"); }
 };
 struct m_secret_send_content_t {
   std::string request_id;
   std::string secret;
-  friend consteval auto json_schema(knot::type<m_secret_send_content_t>) { return knot::schema<m_secret_send_content_t>().tag("m.secret.send"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_secret_send_content_t>) { return knot::schema<m_secret_send_content_t>().member<"rest">(knot::rest).tag("m.secret.send"); }
 };
 struct m_space_child_content_t {
   std::vector<std::string> via;
   std::optional<std::string> order;
   std::optional<bool> suggested;
-  friend consteval auto json_schema(knot::type<m_space_child_content_t>) { return knot::schema<m_space_child_content_t>().tag("m.space.child"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_space_child_content_t>) { return knot::schema<m_space_child_content_t>().member<"rest">(knot::rest).tag("m.space.child"); }
 };
 struct m_space_parent_content_t {
   std::vector<std::string> via;
   std::optional<bool> canonical;
-  friend consteval auto json_schema(knot::type<m_space_parent_content_t>) { return knot::schema<m_space_parent_content_t>().tag("m.space.parent"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_space_parent_content_t>) { return knot::schema<m_space_parent_content_t>().member<"rest">(knot::rest).tag("m.space.parent"); }
 };
 struct m_sticker_content_t {
   struct image_info_t {
@@ -1150,7 +1261,8 @@ struct m_sticker_content_t {
       std::optional<std::int64_t> w;
       std::optional<std::string> mimetype;
       std::optional<std::int64_t> size;
-      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>(); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::int64_t> h;
     std::optional<std::int64_t> w;
@@ -1160,20 +1272,24 @@ struct m_sticker_content_t {
     std::optional<knot::value> thumbnail_file;
     std::optional<thumbnail_info_t> thumbnail_info;
     std::optional<bool> is_animated;
-    friend consteval auto json_schema(knot::type<image_info_t>) { return knot::schema<image_info_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<image_info_t>) { return knot::schema<image_info_t>().member<"rest">(knot::rest); }
   };
   std::string body;
   image_info_t info;
   std::string url;
-  friend consteval auto json_schema(knot::type<m_sticker_content_t>) { return knot::schema<m_sticker_content_t>().tag("m.sticker"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_sticker_content_t>) { return knot::schema<m_sticker_content_t>().member<"rest">(knot::rest).tag("m.sticker"); }
 };
 struct m_tag_content_t {
   std::optional<std::map<std::string, def::tag_t>> tags;
-  friend consteval auto json_schema(knot::type<m_tag_content_t>) { return knot::schema<m_tag_content_t>().tag("m.tag"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_tag_content_t>) { return knot::schema<m_tag_content_t>().member<"rest">(knot::rest).tag("m.tag"); }
 };
 struct m_typing_content_t {
   std::vector<std::string> user_ids;
-  friend consteval auto json_schema(knot::type<m_typing_content_t>) { return knot::schema<m_typing_content_t>().tag("m.typing"); }
+  knot::value rest;
+  friend consteval auto json_schema(knot::type<m_typing_content_t>) { return knot::schema<m_typing_content_t>().member<"rest">(knot::rest).tag("m.typing"); }
 };
 
 // The content of a state event, by its type. Any other type is kept as knot::value.

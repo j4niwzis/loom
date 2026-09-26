@@ -28,18 +28,21 @@ struct get_capabilities {
         using available_value_t = std::variant<available_value_values::stable, available_value_values::unstable, std::string>;
         std::string default_;
         std::map<std::string, available_value_t> available;
-        friend consteval auto json_schema(knot::type<room_versions_capability_t>) { return knot::schema<room_versions_capability_t>().member<"default_">(knot::key("default")); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<room_versions_capability_t>) { return knot::schema<room_versions_capability_t>().member<"default_">(knot::key("default")).member<"rest">(knot::rest); }
       };
       struct profile_fields_capability_t {
         std::optional<std::vector<std::string>> allowed;
         std::optional<std::vector<std::string>> disallowed;
         bool enabled;
-        friend consteval auto json_schema(knot::type<profile_fields_capability_t>) { return knot::schema<profile_fields_capability_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<profile_fields_capability_t>) { return knot::schema<profile_fields_capability_t>().member<"rest">(knot::rest); }
       };
       struct account_moderation_capability_t {
         std::optional<bool> suspend;
         std::optional<bool> lock;
-        friend consteval auto json_schema(knot::type<account_moderation_capability_t>) { return knot::schema<account_moderation_capability_t>(); }
+        knot::value rest;
+        friend consteval auto json_schema(knot::type<account_moderation_capability_t>) { return knot::schema<account_moderation_capability_t>().member<"rest">(knot::rest); }
       };
       std::optional<def::boolean_capability_t> m_change_password;
       std::optional<def::boolean_capability_t> m_forget_forced_upon_leave;
@@ -50,10 +53,12 @@ struct get_capabilities {
       std::optional<def::boolean_capability_t> m_get_login_token;
       std::optional<profile_fields_capability_t> m_profile_fields;
       std::optional<account_moderation_capability_t> m_account_moderation;
-      friend consteval auto json_schema(knot::type<capabilities_t>) { return knot::schema<capabilities_t>().member<"m_change_password">(knot::key("m.change_password")).member<"m_forget_forced_upon_leave">(knot::key("m.forget_forced_upon_leave")).member<"m_room_versions">(knot::key("m.room_versions")).member<"m_set_displayname">(knot::key("m.set_displayname")).member<"m_set_avatar_url">(knot::key("m.set_avatar_url")).member<"m_3pid_changes">(knot::key("m.3pid_changes")).member<"m_get_login_token">(knot::key("m.get_login_token")).member<"m_profile_fields">(knot::key("m.profile_fields")).member<"m_account_moderation">(knot::key("m.account_moderation")); }
+      knot::value rest;
+      friend consteval auto json_schema(knot::type<capabilities_t>) { return knot::schema<capabilities_t>().member<"m_change_password">(knot::key("m.change_password")).member<"m_forget_forced_upon_leave">(knot::key("m.forget_forced_upon_leave")).member<"m_room_versions">(knot::key("m.room_versions")).member<"m_set_displayname">(knot::key("m.set_displayname")).member<"m_set_avatar_url">(knot::key("m.set_avatar_url")).member<"m_3pid_changes">(knot::key("m.3pid_changes")).member<"m_get_login_token">(knot::key("m.get_login_token")).member<"m_profile_fields">(knot::key("m.profile_fields")).member<"m_account_moderation">(knot::key("m.account_moderation")).member<"rest">(knot::rest); }
     };
     capabilities_t capabilities;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>(); }
+    knot::value rest;
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
   constexpr request to_send() const {
