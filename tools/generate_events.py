@@ -93,6 +93,10 @@ def main_events():
         contents.append((event_type, variant or None, kind_of(doc, path), name, stem))
 
     by_kind = {k: [c for c in contents if c[2] == k and not c[1]] for k in ('state', 'room', 'other')}
+    # An m.room.* event built on the bare core event rather than on the room
+    # event is a room event all the same -- m.room.encrypted is built that
+    # way because it is sent to devices as well -- so it is in both unions.
+    by_kind['room'] += [c for c in by_kind['other'] if c[0].startswith('m.room.')]
     unions = [
         ('state_content', 'The content of a state event, by its type.', by_kind['state']),
         ('message_content', 'The content of a message-like room event, by its type.', by_kind['room']),
