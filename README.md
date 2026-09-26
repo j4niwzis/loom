@@ -40,3 +40,10 @@ End-to-end encryption is not here yet.
 CMake 4.3.4 or newer, Ninja, clang with libc++ and `import std`. knot and
 googletest come through cmake-everywhere, pinned; knot is private, so git has
 to be able to authenticate, or `-DCPM_knot_SOURCE=<path>` given.
+
+## Licence
+
+GNU Affero General Public License, version 3 only (`AGPL-3.0-only`) -- the
+text is in `LICENSE`. A program that uses this library is a work based on
+it; whoever interacts with such a program over a network is offered its
+source, as the licence's section 13 says.

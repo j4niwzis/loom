@@ -1,0 +1,198 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: AGPL-3.0-only
+# loom's event generator: every event the Matrix specification defines
+# (matrix-spec: data/event-schemas/schema), its content as a C++ type with its
+# knot schema, tagged with its event type; the unions a timeline, room state
+# and the rest are read into; and the spec's examples of each as tests.
+#
+#   PYTHONPATH=<PyYAML> tools/generate_events.py <matrix-spec checkout> <loom checkout>
+#
+# The type mapping is generate.py's, shared.
+import json, os, re, sys, glob
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+source = open(os.path.join(HERE, 'generate.py')).read()
+source = source[:source.rindex('\nmain()')]
+exec(compile(source, 'generate.py', 'exec'))
+
+SCHEMA = os.path.join(SPEC, 'data/event-schemas/schema')
+EXAMPLES = os.path.join(SPEC, 'data/event-schemas/examples')
+
+
+def kind_of(doc, path):
+    """state, room (message-like: in a timeline) or other (account data,
+    ephemeral, to-device), by the core schema the event is made of."""
+    seen = set()
+
+    def walk(node, base, depth=0):
+        if depth > 10 or not isinstance(node, dict):
+            return
+        for part in node.get('allOf', []):
+            if isinstance(part, dict) and '$ref' in part:
+                target = os.path.normpath(os.path.join(os.path.dirname(base), part['$ref'].partition('#')[0]))
+                seen.add(os.path.basename(target))
+                walk(load(target), target, depth + 1)
+    walk(doc, path)
+    if 'state_event.yaml' in seen or 'sync_state_event.yaml' in seen or 'stripped_state.yaml' in seen:
+        return 'state'
+    if 'room_event.yaml' in seen or 'sync_room_event.yaml' in seen or 'call_event.yaml' in seen:
+        return 'room'
+    return 'other'
+
+
+def tag_struct(lines, name, tag):
+    marker = f'json_schema(knot::type<{name}>) {{ return knot::schema<{name}>()'
+    for i, line in enumerate(lines):
+        if marker in line:
+            lines[i] = line.replace('; }', f'.tag({json.dumps(tag)}); }}', 1)
+            return True
+    return False
+
+
+def main_events():
+    g = Generator()
+    scope = {'names': set(), 'lines': []}
+    emitter = Emitter(g, 'def::')
+    contents = []   # (event type, msgtype or None, kind, C++ name, schema file)
+    for path in sorted(glob.glob(os.path.join(SCHEMA, '*.yaml'))):
+        stem = os.path.basename(path)[:-5]
+        doc = load(path)
+        schema, base = merged(doc, path)
+        props = schema.get('properties', {}) if isinstance(schema, dict) else {}
+        event_type, _, variant = stem.partition('$')
+        type_prop = props.get('type')
+        if isinstance(type_prop, dict):
+            type_prop = resolve(type_prop, base)[0]
+            if isinstance(type_prop, dict) and type_prop.get('enum'):
+                event_type = type_prop['enum'][0]
+        content = props.get('content')
+        if content is None:
+            continue
+        if isinstance(content, dict) and '$ref_base' in content:
+            base, content = content['$ref_base'], content['schema']
+        content_schema, content_base = merged(content, base)
+        hint = snake(stem.replace('$', '_')) + '_content'
+        if isinstance(content_schema, dict) and content_schema.get('properties'):
+            content_schema = dict(content_schema)
+            content_schema.pop('title', None)
+            name = emitter.structure(content_schema, content_base, hint, scope, 0)
+        else:
+            name = hint + '_t'
+            t = emitter.type_of(content_schema, content_base, hint, scope, 0)
+            if t.startswith('std::') or t == 'knot::value' or t.startswith('def::'):
+                # Content that is not an object of known keys: kept whole, in a
+                # struct of its own so that the union can tell it by its tag.
+                scope['lines'].append(f'struct {name} {{\n  knot::value rest;\n'
+                                      f'  friend consteval auto json_schema(knot::type<{name}>) '
+                                      f'{{ return knot::schema<{name}>().member<"rest">(knot::rest); }}\n}};')
+            scope['names'].add(name)
+        # A msgtype's content is m.room.message's, read again by msgtype: not
+        # in the union by event type.
+        if not variant:
+            tag_struct(scope['lines'], name, event_type)
+        contents.append((event_type, variant or None, kind_of(doc, path), name, stem))
+
+    by_kind = {k: [c for c in contents if c[2] == k and not c[1]] for k in ('state', 'room', 'other')}
+    unions = [
+        ('state_content', 'The content of a state event, by its type.', by_kind['state']),
+        ('message_content', 'The content of a message-like room event, by its type.', by_kind['room']),
+        ('timeline_content', 'The content of any room event -- a timeline holds both kinds.',
+         by_kind['room'] + by_kind['state']),
+        ('other_content', 'The content of an event outside a room\'s timeline: account data, '
+         'ephemeral, to-device.', by_kind['other']),
+    ]
+    lines = list(scope['lines'])
+    lines.append('')
+    for name, what, members in unions:
+        lines.append(f'// {what} Any other type is kept as knot::value.')
+        alternatives = ', '.join(m[3] for m in members)
+        lines.append(f'using {name} = knot::tagged<"type", {alternatives}, knot::value>;')
+    lines.append('')
+    lines.append('''// What a room event carries besides its content (the spec's ClientEvent and,
+// without room_id, ClientEventWithoutRoomID): state_key where it is state.
+template <class Content>
+struct room_event {
+  Content content;
+  std::string event_id;
+  std::int64_t origin_server_ts = 0;
+  std::optional<std::string> room_id;
+  std::string sender;
+  std::optional<std::string> state_key;
+  std::string type;
+  std::optional<knot::value> unsigned_;
+  friend consteval auto json_schema(knot::type<room_event>) {
+    return knot::schema<room_event>().template member<"unsigned_">(knot::key("unsigned"));
+  }
+};
+
+// A stripped state event, as invites and knocks give them.
+template <class Content>
+struct stripped_event {
+  Content content;
+  std::string sender;
+  std::string state_key;
+  std::string type;
+  friend consteval auto json_schema(knot::type<stripped_event>) { return knot::schema<stripped_event>(); }
+};
+
+// An event outside a room: its type and content only.
+template <class Content>
+struct basic_event {
+  Content content;
+  std::string type;
+  friend consteval auto json_schema(knot::type<basic_event>) { return knot::schema<basic_event>(); }
+};
+
+using timeline_event = room_event<timeline_content>;
+using state_event = room_event<state_content>;
+using account_data_event = basic_event<other_content>;''')
+
+    text = ('// SPDX-License-Identifier: AGPL-3.0-only\n// Generated by tools/generate_events.py from matrix-spec data/event-schemas: do not edit.\n'
+            '// Every event the specification defines: its content as a type, tagged with its event\n'
+            '// type, and the unions events are read into.\n'
+            'export module loom.ev;\n\nimport std;\nexport import knot;\n\n'
+            'export namespace loom::ev {\n\nnamespace def {\n\n' + '\n'.join(g.def_lines) +
+            '\n\n}  // namespace def\n\n' + '\n'.join(lines) + '\n\n}  // namespace loom::ev\n')
+    os.makedirs(os.path.join(LOOM, 'src/ev'), exist_ok=True)
+    open(os.path.join(LOOM, 'src/ev/events.cc'), 'w').write(text)
+
+    # The spec's examples: each read into its envelope, its content into its type.
+    tests = []
+    for event_type, variant, kind, name, stem in contents:
+        example = os.path.join(EXAMPLES, stem + '.yaml')
+        if not os.path.exists(example):
+            example = os.path.join(EXAMPLES, stem + '.json')
+        if not os.path.exists(example):
+            continue
+        value = expanded(load(example), example)
+        test = snake(stem.replace('$', '_'))
+        if variant:
+            # A msgtype: the content read into its own type.
+            tests.append((test, f'CONSTEXPR_TEST(events, {test}) {{\n'
+                         f'  const auto got = knot::try_read<loom::ev::{name}>({cpp_json(value.get("content", {}))});\n'
+                         f'  CONSTEXPR_EXPECT_TRUE(got.has_value());\n}}\n'))
+            continue
+        envelope = {'state': 'loom::ev::state_event', 'room': 'loom::ev::timeline_event',
+                    'other': 'loom::ev::account_data_event'}[kind]
+        if kind != 'other' and 'event_id' not in value:
+            envelope = 'loom::ev::basic_event<loom::ev::timeline_content>'
+        tests.append((test, f'CONSTEXPR_TEST(events, {test}) {{\n'
+                     f'  const auto got = knot::try_read<{envelope}>({cpp_json(value)});\n'
+                     f'  if !consteval {{\n    if (!got) std::println("{{}} at {{}}", got.error().message, got.error().offset);\n  }}\n'
+                     f'  CONSTEXPR_EXPECT_TRUE(got.has_value());\n'
+                     f'  if (got)\n    CONSTEXPR_EXPECT_TRUE(got->content.template is<loom::ev::{name}>());\n}}\n'))
+    # One test to a file: each is a constant expression too, over unions of
+    # dozens of types, and more than one is more than the compiler's memory holds.
+    os.makedirs(os.path.join(LOOM, 'test/ev'), exist_ok=True)
+    for old in glob.glob(os.path.join(LOOM, 'test/ev/*_test.cc')):
+        os.remove(old)
+    for test_name, test in tests:
+        open(os.path.join(LOOM, f'test/ev/{test_name}_test.cc'), 'w').write(
+            '// SPDX-License-Identifier: AGPL-3.0-only\n// Generated by tools/generate_events.py: the spec\'s example of each event, read into its type.\n'
+            'import std;\nimport knot;\nimport loom.ev;\nimport gtest;\n\n'
+            '#include "gtest/gtest-macros.h"\n#include "../constexpr_test.h"\n\n' + test)
+    print(len(contents), 'event contents,', sum(1 for c in contents if not c[1]), 'by type,',
+          len(tests), 'example tests;', {k: len(v) for k, v in by_kind.items()})
+
+
+main_events()

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // /sync: what it answers, read into types, and a store of the rooms a client
 // keeps between syncs, which each answer is applied to.
 export module loom.sync;

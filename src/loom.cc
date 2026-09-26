@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // All of loom: import loom;
 export module loom;
 

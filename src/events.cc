@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Room events: the envelope, and the content chosen by the event's "type"
 // with knot::tagged -- read straight into its type, the ones loom knows;
 // any other kept as a knot::value.

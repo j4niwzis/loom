@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // The client-server API as values: each endpoint made into what to send --
 // method, target, JSON body -- and what comes back read straight into its
 // response, or into the homeserver's error. Sending is the caller's.

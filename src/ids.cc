@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Matrix's identifiers (client-server API, appendix "Identifier grammar"):
 // a user, a room, an alias, an event -- a sigil, a local part, and but for
 // events a server -- and a piece of a path, as it is sent.

@@ -22,7 +22,7 @@ endif()
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
   GIT_TAG 70ff36fe689794847da19936af9cc23a5c6d26f1
-  LICENSE LicenseRef-proprietary
+  LICENSE AGPL-3.0-only
   SYSTEM NEVER
   TARGETS knot)
 cme_options(knot "KNOT_TESTS OFF")
@@ -53,6 +53,9 @@ loom_module(loom src/loom.cc loom_ids loom_events loom_sync loom_api)
 # The client-server API, operation by operation, generated from the
 # specification by tools/generate.py.
 include(cmake/generated.cmake)
+# Every event the spec defines (tools/generate_events.py).
+loom_module(loom_ev src/ev/events.cc knot)
+add_library(loom::ev ALIAS loom_ev)
 
 add_library(loom::ids ALIAS loom_ids)
 add_library(loom::events ALIAS loom_events)

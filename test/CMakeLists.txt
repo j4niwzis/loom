@@ -89,3 +89,29 @@ if(LOOM_CONSTEXPR_TESTS)
     endforeach()
   endforeach()
 endif()
+
+# The spec's example of each event, read into its type: a few to a file.
+file(GLOB loom_ev_test_sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ev/*_test.cc)
+add_executable(loom-ev-test ${loom_ev_test_sources})
+target_link_libraries(loom-ev-test PRIVATE loom_ev ${loom_gtest})
+add_test(NAME ev COMMAND loom-ev-test)
+if(LOOM_CONSTEXPR_TESTS)
+  target_compile_definitions(loom-ev-test PRIVATE
+    LOOM_CONSTEXPR_TESTS
+    "LOOM_TEST_CMAKE=\"${CMAKE_COMMAND}\""
+    "LOOM_TEST_BUILD_DIR=\"${CMAKE_BINARY_DIR}\""
+    $<${loom_multi_config}:LOOM_TEST_CONFIG="$<CONFIG>">)
+  foreach(source IN LISTS loom_ev_test_sources)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${source})
+    file(STRINGS ${source} declared REGEX "^CONSTEXPR_TEST\\(")
+    foreach(line IN LISTS declared)
+      if(line MATCHES "^CONSTEXPR_TEST\\(([A-Za-z0-9_]+), *([A-Za-z0-9_]+)\\)")
+        set(test ${CMAKE_MATCH_1}.${CMAKE_MATCH_2})
+        add_library(loom-constexpr-${test} OBJECT EXCLUDE_FROM_ALL ${source})
+        target_link_libraries(loom-constexpr-${test} PRIVATE loom_ev ${loom_gtest})
+        target_compile_definitions(loom-constexpr-${test} PRIVATE
+          LOOM_CONSTEXPR_TESTS "LOOM_CONSTEXPR_DIAGNOSE=\"${test}\"")
+      endif()
+    endforeach()
+  endforeach()
+endif()
