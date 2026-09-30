@@ -793,6 +793,53 @@ struct m_room_message_m_audio_content_t {
     };
   };
   using msgtype_t = std::variant<msgtype_values::m_audio, std::string>;
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
@@ -801,8 +848,11 @@ struct m_room_message_m_audio_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::raw> file;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_audio_content_t>) { return knot::schema<m_room_message_m_audio_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_audio_content_t>) { return knot::schema<m_room_message_m_audio_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_emote_content_t {
   struct msgtype_values {
@@ -812,12 +862,62 @@ struct m_room_message_m_emote_content_t {
     };
   };
   using msgtype_t = std::variant<msgtype_values::m_emote, std::string>;
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   msgtype_t msgtype;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_emote_content_t>) { return knot::schema<m_room_message_m_emote_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_emote_content_t>) { return knot::schema<m_room_message_m_emote_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_file_content_t {
   struct file_info_t {
@@ -844,6 +944,53 @@ struct m_room_message_m_file_content_t {
     };
   };
   using msgtype_t = std::variant<msgtype_values::m_file, std::string>;
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
@@ -852,8 +999,11 @@ struct m_room_message_m_file_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::raw> file;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_file_content_t>) { return knot::schema<m_room_message_m_file_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_file_content_t>) { return knot::schema<m_room_message_m_file_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_image_content_t {
   struct image_info_t {
@@ -883,6 +1033,53 @@ struct m_room_message_m_image_content_t {
     };
   };
   using msgtype_t = std::variant<msgtype_values::m_image, std::string>;
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
@@ -891,8 +1088,11 @@ struct m_room_message_m_image_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::raw> file;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_image_content_t>) { return knot::schema<m_room_message_m_image_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_image_content_t>) { return knot::schema<m_room_message_m_image_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_key_verification_request_content_t {
   struct msgtype_values {
@@ -902,6 +1102,53 @@ struct m_room_message_m_key_verification_request_content_t {
     };
   };
   using msgtype_t = std::variant<msgtype_values::m_key_verification_request, std::string>;
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::optional<std::string> body;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
@@ -909,8 +1156,11 @@ struct m_room_message_m_key_verification_request_content_t {
   std::vector<std::string> methods;
   std::string to;
   msgtype_t msgtype;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_key_verification_request_content_t>) { return knot::schema<m_room_message_m_key_verification_request_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_key_verification_request_content_t>) { return knot::schema<m_room_message_m_key_verification_request_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_location_content_t {
   struct msgtype_values {
@@ -935,12 +1185,62 @@ struct m_room_message_m_location_content_t {
     knot::raw rest;
     friend consteval auto json_schema(knot::type<location_info_t>) { return knot::schema<location_info_t>().member<"rest">(knot::rest); }
   };
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   std::string geo_uri;
   msgtype_t msgtype;
   std::optional<location_info_t> info;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_location_content_t>) { return knot::schema<m_room_message_m_location_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_location_content_t>) { return knot::schema<m_room_message_m_location_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_notice_content_t {
   struct msgtype_values {
@@ -950,12 +1250,62 @@ struct m_room_message_m_notice_content_t {
     };
   };
   using msgtype_t = std::variant<msgtype_values::m_notice, std::string>;
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   msgtype_t msgtype;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_notice_content_t>) { return knot::schema<m_room_message_m_notice_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_notice_content_t>) { return knot::schema<m_room_message_m_notice_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_server_notice_content_t {
   struct msgtype_values {
@@ -965,13 +1315,63 @@ struct m_room_message_m_server_notice_content_t {
     };
   };
   using msgtype_t = std::variant<msgtype_values::m_server_notice, std::string>;
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   msgtype_t msgtype;
   std::string server_notice_type;
   std::optional<std::string> admin_contact;
   std::optional<std::string> limit_type;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_server_notice_content_t>) { return knot::schema<m_room_message_m_server_notice_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_server_notice_content_t>) { return knot::schema<m_room_message_m_server_notice_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_text_content_t {
   struct msgtype_values {
@@ -981,12 +1381,62 @@ struct m_room_message_m_text_content_t {
     };
   };
   using msgtype_t = std::variant<msgtype_values::m_text, std::string>;
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   msgtype_t msgtype;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_text_content_t>) { return knot::schema<m_room_message_m_text_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_text_content_t>) { return knot::schema<m_room_message_m_text_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_video_content_t {
   struct video_info_t {
@@ -1016,6 +1466,53 @@ struct m_room_message_m_video_content_t {
     };
   };
   using msgtype_t = std::variant<msgtype_values::m_video, std::string>;
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
@@ -1024,14 +1521,67 @@ struct m_room_message_m_video_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::raw> file;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_video_content_t>) { return knot::schema<m_room_message_m_video_content_t>().member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_video_content_t>) { return knot::schema<m_room_message_m_video_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_content_t {
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   std::string msgtype;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_content_t>) { return knot::schema<m_room_message_content_t>().member<"rest">(knot::rest).tag("m.room.message"); }
+  friend consteval auto json_schema(knot::type<m_room_message_content_t>) { return knot::schema<m_room_message_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest).tag("m.room.message"); }
 };
 struct m_room_name_content_t {
   std::string name;
@@ -1275,11 +1825,61 @@ struct m_sticker_content_t {
     knot::raw rest;
     friend consteval auto json_schema(knot::type<image_info_t>) { return knot::schema<image_info_t>().member<"rest">(knot::rest); }
   };
+  struct m_relates_to_t {
+    struct rel_type_values {
+      struct m_replace {
+        static constexpr std::string_view json_value = "m.replace";
+        friend constexpr bool operator==(m_replace, m_replace) = default;
+      };
+      struct m_thread {
+        static constexpr std::string_view json_value = "m.thread";
+        friend constexpr bool operator==(m_thread, m_thread) = default;
+      };
+      struct m_annotation {
+        static constexpr std::string_view json_value = "m.annotation";
+        friend constexpr bool operator==(m_annotation, m_annotation) = default;
+      };
+      struct m_reference {
+        static constexpr std::string_view json_value = "m.reference";
+        friend constexpr bool operator==(m_reference, m_reference) = default;
+      };
+    };
+    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    struct m_in_reply_to_t {
+      std::optional<std::string> event_id;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<m_in_reply_to_t>) { return knot::schema<m_in_reply_to_t>().member<"rest">(knot::rest); }
+    };
+    std::optional<rel_type_t> rel_type;
+    std::optional<std::string> event_id;
+    std::optional<std::string> key;
+    std::optional<bool> is_falling_back;
+    std::optional<m_in_reply_to_t> m_in_reply_to;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"m_in_reply_to">(knot::key("m.in_reply_to")).member<"rest">(knot::rest); }
+  };
+  struct m_mentions_t {
+    std::optional<std::vector<std::string>> user_ids;
+    std::optional<bool> room;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_mentions_t>) { return knot::schema<m_mentions_t>().member<"rest">(knot::rest); }
+  };
+  struct m_new_content_t {
+    std::optional<std::string> msgtype;
+    std::optional<std::string> body;
+    std::optional<std::string> format;
+    std::optional<std::string> formatted_body;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_new_content_t>) { return knot::schema<m_new_content_t>().member<"rest">(knot::rest); }
+  };
   std::string body;
   image_info_t info;
   std::string url;
+  std::optional<m_relates_to_t> m_relates_to;
+  std::optional<m_mentions_t> m_mentions;
+  std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_sticker_content_t>) { return knot::schema<m_sticker_content_t>().member<"rest">(knot::rest).tag("m.sticker"); }
+  friend consteval auto json_schema(knot::type<m_sticker_content_t>) { return knot::schema<m_sticker_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest).tag("m.sticker"); }
 };
 struct m_tag_content_t {
   std::optional<std::map<std::string, def::tag_t>> tags;

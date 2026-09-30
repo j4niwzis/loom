@@ -49,6 +49,54 @@ def tag_struct(lines, name, tag):
     return False
 
 
+# What a message's content carries that the spec defines apart from the
+# message schemas -- relations (replies, edits, threads: the spec's
+# m.relates_to sections), intentional mentions and an edit's new content --
+# added to every m.room.message msgtype and to m.sticker, so that they are
+# read into types like the rest, not dug out of what is kept as text.
+NEW_CONTENT = {
+    'type': 'object',
+    'properties': {
+        'msgtype': {'type': 'string'},
+        'body': {'type': 'string'},
+        'format': {'type': 'string'},
+        'formatted_body': {'type': 'string'},
+    },
+}
+MESSAGE_EXTRAS = {
+    'm.relates_to': {
+        'type': 'object',
+        'properties': {
+            'rel_type': {'type': 'string', 'enum': ['m.replace', 'm.thread', 'm.annotation', 'm.reference']},
+            'event_id': {'type': 'string'},
+            'key': {'type': 'string'},
+            'is_falling_back': {'type': 'boolean'},
+            'm.in_reply_to': {'type': 'object', 'properties': {'event_id': {'type': 'string'}}},
+        },
+    },
+    'm.mentions': {
+        'type': 'object',
+        'properties': {
+            'user_ids': {'type': 'array', 'items': {'type': 'string'}},
+            'room': {'type': 'boolean'},
+        },
+    },
+    'm.new_content': NEW_CONTENT,
+}
+
+
+def with_message_extras(event_type, schema):
+    if event_type not in ('m.room.message', 'm.sticker') or not isinstance(schema, dict) \
+            or not schema.get('properties'):
+        return schema
+    schema = dict(schema)
+    properties = dict(schema['properties'])
+    for key, extra in MESSAGE_EXTRAS.items():
+        properties.setdefault(key, extra)
+    schema['properties'] = properties
+    return schema
+
+
 def main_events():
     g = Generator()
     scope = {'names': set(), 'lines': []}
@@ -71,6 +119,7 @@ def main_events():
         if isinstance(content, dict) and '$ref_base' in content:
             base, content = content['$ref_base'], content['schema']
         content_schema, content_base = merged(content, base)
+        content_schema = with_message_extras(event_type, content_schema)
         hint = snake(stem.replace('$', '_')) + '_content'
         if isinstance(content_schema, dict) and content_schema.get('properties'):
             content_schema = dict(content_schema)
