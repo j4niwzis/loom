@@ -628,6 +628,43 @@ inline ev::m_room_message_m_image_content_t picture_message(const media_said& sa
   content.info->h = height;
   return content;
 }
+namespace detail {
+// What an edit's new content keeps of a picture besides its text: where it
+// is, its name and what it is -- m.new_content is the whole of it again.
+struct picture_kept {
+  struct info_t {
+    std::string mimetype;
+    std::int64_t size = 0;
+    std::int64_t w = 0;
+    std::int64_t h = 0;
+    friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>(); }
+  };
+  std::string filename;
+  std::string url;
+  info_t info;
+  friend consteval auto json_schema(knot::type<picture_kept>) { return knot::schema<picture_kept>(); }
+};
+}  // namespace detail
+// An edit of a picture's caption (MSC2530): the picture kept, its caption
+// the new text -- its name where there is none -- and "* " before the body
+// for clients that do not know edits.
+inline ev::m_room_message_m_image_content_t edit_picture(std::string_view event, const media_said& said,
+                                                         std::int64_t width, std::int64_t height) {
+  media_said kept = said;
+  kept.reply_to.reset();
+  auto content = picture_message(kept, width, height);
+  const std::string text = content.body;
+  content.body = "* " + text;
+  auto& now = content.m_new_content.emplace();
+  now.msgtype = "m.image";
+  now.body = text;
+  now.rest = knot::raw{knot::to_json_string(detail::picture_kept{
+      .filename = said.name, .url = said.uri, .info = {.mimetype = said.mimetype, .size = said.size, .w = width, .h = height}})};
+  auto& relates = content.m_relates_to.emplace();
+  relates.rel_type = ev::m_room_message_m_image_content_t::m_relates_to_t::rel_type_values::m_replace{};
+  relates.event_id = std::string(event);
+  return content;
+}
 inline ev::m_room_message_m_file_content_t file_message(const media_said& said) {
   ev::m_room_message_m_file_content_t content;
   detail::fill_media(content, said);
