@@ -243,9 +243,46 @@ struct unsigned_data {
   std::optional<knot::raw> prev_content;
   std::optional<knot::raw> redacted_because;
   std::optional<std::string> transaction_id;
+  // What the server aggregates of the event's relations (m.relations): its
+  // thread, where it is a thread's root -- how many replies, the latest of
+  // them, whether the user took part.
+  struct relations_t {
+    struct thread_t {
+      struct latest_t {
+        struct content_t {
+          std::optional<std::string> body;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<content_t>) {
+            return knot::schema<content_t>().member<"rest">(knot::rest);
+          }
+        };
+        content_t content;
+        std::string event_id;
+        std::int64_t origin_server_ts = 0;
+        std::string sender;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<latest_t>) {
+          return knot::schema<latest_t>().member<"rest">(knot::rest);
+        }
+      };
+      std::optional<latest_t> latest_event;
+      std::int64_t count = 0;
+      bool current_user_participated = false;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<thread_t>) {
+        return knot::schema<thread_t>().member<"rest">(knot::rest);
+      }
+    };
+    std::optional<thread_t> m_thread;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<relations_t>) {
+      return knot::schema<relations_t>().member<"m_thread">(knot::key("m.thread")).member<"rest">(knot::rest);
+    }
+  };
+  std::optional<relations_t> m_relations;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<unsigned_data>) {
-    return knot::schema<unsigned_data>().member<"rest">(knot::rest);
+    return knot::schema<unsigned_data>().member<"m_relations">(knot::key("m.relations")).member<"rest">(knot::rest);
   }
 };
 

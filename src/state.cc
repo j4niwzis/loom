@@ -554,6 +554,10 @@ struct text_said {
   std::optional<std::string> html;
   std::optional<std::string> reply_to;
   std::vector<std::string> mentions;
+  // In a thread: its root, and its latest event -- what a client that
+  // does not know threads shows it as an answer to, where it answers none.
+  std::optional<std::string> thread;
+  std::optional<std::string> thread_latest;
 };
 inline ev::m_room_message_m_text_content_t text_message(const text_said& said) {
   ev::m_room_message_m_text_content_t content;
@@ -562,8 +566,17 @@ inline ev::m_room_message_m_text_content_t text_message(const text_said& said) {
     content.format = std::string(kHtml);
     content.formatted_body = *said.html;
   }
-  if (said.reply_to)
+  if (said.thread) {
+    // A thread's (m.thread): its root; an answer in it, or -- falling back
+    // -- an answer to its latest event, for clients that do not know threads.
+    auto& relates = content.m_relates_to.emplace();
+    relates.rel_type = ev::m_room_message_m_text_content_t::m_relates_to_t::rel_type_values::m_thread{};
+    relates.event_id = *said.thread;
+    relates.is_falling_back = !said.reply_to;
+    relates.m_in_reply_to.emplace().event_id = said.reply_to ? *said.reply_to : said.thread_latest.value_or(*said.thread);
+  } else if (said.reply_to) {
     content.m_relates_to.emplace().m_in_reply_to.emplace().event_id = *said.reply_to;
+  }
   if (!said.mentions.empty())
     content.m_mentions.emplace().user_ids = said.mentions;
   return content;
