@@ -3,6 +3,7 @@
 export module loom.cs.profile;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;

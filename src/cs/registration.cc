@@ -3,6 +3,7 @@
 export module loom.cs.registration;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -22,7 +23,7 @@ struct register_ {
       friend constexpr bool operator==(user, user) = default;
     };
   };
-  using kind_t = std::variant<kind_values::guest, kind_values::user, std::string>;
+  using kind_t = splice::variant<kind_values::guest, kind_values::user, std::string>;
   struct body_t {
     struct authentication_data_t {
       std::optional<std::string> type;

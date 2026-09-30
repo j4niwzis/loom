@@ -3,6 +3,7 @@
 export module loom.cs.support;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -24,7 +25,7 @@ struct get_wellknown_support {
           friend constexpr bool operator==(m_role_security, m_role_security) = default;
         };
       };
-      using role_t = std::variant<role_values::m_role_admin, role_values::m_role_security, std::string>;
+      using role_t = splice::variant<role_values::m_role_admin, role_values::m_role_security, std::string>;
       std::optional<std::string> matrix_id;
       std::optional<std::string> email_address;
       role_t role;

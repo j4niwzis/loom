@@ -5,6 +5,7 @@
 export module loom.api;
 
 import std;
+import splice;
 export import knot;
 export import loom.ids;
 export import loom.events;
@@ -22,13 +23,13 @@ struct delete_ { static constexpr std::string_view name = "DELETE"; };
 // What to send, from the homeserver's base URL; with the access token as
 // "Authorization: Bearer", where authenticated.
 struct request {
-  std::variant<method::get, method::post, method::put, method::delete_> method;
+  splice::variant<method::get, method::post, method::put, method::delete_> method;
   std::string target;
   std::string body;  // JSON, or nothing
   bool authenticated = true;
 
   constexpr std::string_view method_name() const {
-    return std::visit([](auto one) { return decltype(one)::name; }, method);
+    return splice::visit([](auto one) { return decltype(one)::name; }, method);
   }
 };
 
@@ -79,8 +80,8 @@ constexpr std::string text(double one) {
 constexpr std::string text(const knot::raw& one) { return one.text; }
 // A choice: the string its alternative names, or the one it keeps.
 template <class... Alternatives>
-constexpr std::string text(const std::variant<Alternatives...>& one) {
-  return std::visit(
+constexpr std::string text(const splice::variant<Alternatives...>& one) {
+  return splice::visit(
       [](const auto& held) -> std::string {
         if constexpr (requires { std::remove_cvref_t<decltype(held)>::json_value; }) {
           return std::string(std::remove_cvref_t<decltype(held)>::json_value);

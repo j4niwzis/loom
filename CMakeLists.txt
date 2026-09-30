@@ -16,20 +16,34 @@ if(NOT COMMAND cme_find_package)
   include(${CMAKE_CURRENT_LIST_DIR}/cmake/get_cme.cmake)
 endif()
 
+set(LOOM_CONSTEXPR_STEPS 300000000 CACHE STRING
+  "clang's -fconstexpr-steps for loom and what imports it")
+
+# splice: the variant loom's choices are, and the visiting -- the one knot
+# holds its own in, at the commit knot asks for.
+set(SPLICE_CONSTEXPR_STEPS ${LOOM_CONSTEXPR_STEPS} CACHE STRING
+  "clang's -fconstexpr-steps for splice, as loom sets it")
+cme_declare_port(NAME splice PROVIDES splice
+  GITHUB_REPOSITORY j4niwzis/splice
+  GIT_TAG 4668680e970afb6bafa83c908551c3b84bd1adf3
+  LICENSE GPL-3.0-only
+  SYSTEM NEVER
+  TARGETS splice)
+cme_options(splice "SPLICE_TESTS OFF")
+cme_find_package(splice REQUIRED)
+
 # knot, for the JSON: a cme port, pinned to a commit, fetched from GitHub.
 # It is private, so git has to be able to authenticate. A checkout is used
 # instead with -DCPM_knot_SOURCE=<path>.
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
-  GIT_TAG 49039355f299e81a0c408c38d5cbf7b9b29b4e6f
+  GIT_TAG 4b6f3e206e08f3cb7b20117e0f1dc841b98413b9
   LICENSE AGPL-3.0-only
   SYSTEM NEVER
   TARGETS knot)
 cme_options(knot "KNOT_TESTS OFF")
 cme_find_package(knot REQUIRED)
 
-set(LOOM_CONSTEXPR_STEPS 300000000 CACHE STRING
-  "clang's -fconstexpr-steps for loom and what imports it")
 
 # One module to a target, as in knot, chevron and tern.
 # ---- One library, and what of it is built ----
@@ -108,7 +122,7 @@ message(STATUS "loom: ${loom_part_count} parts of the API; ${loom_asked}")
 add_library(loom)
 target_sources(loom PUBLIC FILE_SET CXX_MODULES BASE_DIRS src FILES ${loom_files})
 target_compile_features(loom PUBLIC cxx_std_26)
-target_link_libraries(loom PUBLIC knot)
+target_link_libraries(loom PUBLIC knot splice)
 target_compile_options(loom PUBLIC
   $<$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>:-fconstexpr-steps=${LOOM_CONSTEXPR_STEPS}>)
 

@@ -3,6 +3,7 @@
 export module loom.cs.room_event_by_timestamp;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -22,7 +23,7 @@ struct get_event_by_timestamp {
       friend constexpr bool operator==(b, b) = default;
     };
   };
-  using dir_t = std::variant<dir_values::f, dir_values::b, std::string>;
+  using dir_t = splice::variant<dir_values::f, dir_values::b, std::string>;
   struct response_t {
     std::string event_id;
     std::int64_t origin_server_ts;

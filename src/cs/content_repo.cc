@@ -3,6 +3,7 @@
 export module loom.cs.content_repo;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -119,7 +120,7 @@ struct get_content_thumbnail {
       friend constexpr bool operator==(scale, scale) = default;
     };
   };
-  using method_t = std::variant<method_values::crop, method_values::scale, std::string>;
+  using method_t = splice::variant<method_values::crop, method_values::scale, std::string>;
   std::string server_name;
   std::string media_id;
   std::int64_t width;

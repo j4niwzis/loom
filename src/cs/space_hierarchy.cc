@@ -3,6 +3,7 @@
 export module loom.cs.space_hierarchy;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -20,7 +21,7 @@ struct get_space_hierarchy {
           friend constexpr bool operator==(m_megolm_v1_aes_sha2, m_megolm_v1_aes_sha2) = default;
         };
       };
-      using encryption_t = std::variant<encryption_values::m_megolm_v1_aes_sha2, std::string>;
+      using encryption_t = splice::variant<encryption_values::m_megolm_v1_aes_sha2, std::string>;
       struct stripped_state_event_t {
         knot::raw content;
         std::string state_key;

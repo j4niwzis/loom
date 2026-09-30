@@ -3,6 +3,7 @@
 export module loom.cs.search;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -29,7 +30,7 @@ struct search {
             friend constexpr bool operator==(content_topic, content_topic) = default;
           };
         };
-        using keys_item_t = std::variant<keys_item_values::content_body, keys_item_values::content_name, keys_item_values::content_topic, std::string>;
+        using keys_item_t = splice::variant<keys_item_values::content_body, keys_item_values::content_name, keys_item_values::content_topic, std::string>;
         struct filter_t {
           std::optional<std::int64_t> limit;
           std::optional<std::vector<std::string>> not_senders;
@@ -55,7 +56,7 @@ struct search {
             friend constexpr bool operator==(rank, rank) = default;
           };
         };
-        using order_by_t = std::variant<order_by_values::recent, order_by_values::rank, std::string>;
+        using order_by_t = splice::variant<order_by_values::recent, order_by_values::rank, std::string>;
         struct include_event_context_t {
           std::optional<std::int64_t> before_limit;
           std::optional<std::int64_t> after_limit;
@@ -75,7 +76,7 @@ struct search {
                 friend constexpr bool operator==(sender, sender) = default;
               };
             };
-            using key_t = std::variant<key_values::room_id, key_values::sender, std::string>;
+            using key_t = splice::variant<key_values::room_id, key_values::sender, std::string>;
             std::optional<key_t> key;
             knot::raw rest;
             friend consteval auto json_schema(knot::type<group_t>) { return knot::schema<group_t>().member<"rest">(knot::rest); }

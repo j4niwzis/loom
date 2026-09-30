@@ -3,6 +3,7 @@
 export module loom.cs.filter;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -23,7 +24,7 @@ struct define_filter {
         friend constexpr bool operator==(federation, federation) = default;
       };
     };
-    using event_format_t = std::variant<event_format_values::client, event_format_values::federation, std::string>;
+    using event_format_t = splice::variant<event_format_values::client, event_format_values::federation, std::string>;
     struct event_filter_t {
       std::optional<std::int64_t> limit;
       std::optional<std::vector<std::string>> not_senders;

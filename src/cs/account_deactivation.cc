@@ -3,6 +3,7 @@
 export module loom.cs.account_deactivation;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -36,7 +37,7 @@ struct deactivate_account {
         friend constexpr bool operator==(no_support, no_support) = default;
       };
     };
-    using id_server_unbind_result_t = std::variant<id_server_unbind_result_values::success, id_server_unbind_result_values::no_support, std::string>;
+    using id_server_unbind_result_t = splice::variant<id_server_unbind_result_values::success, id_server_unbind_result_values::no_support, std::string>;
     id_server_unbind_result_t id_server_unbind_result;
     knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }

@@ -3,6 +3,7 @@
 export module loom.cs.message_pagination;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -22,7 +23,7 @@ struct get_room_events {
       friend constexpr bool operator==(f, f) = default;
     };
   };
-  using dir_t = std::variant<dir_values::b, dir_values::f, std::string>;
+  using dir_t = splice::variant<dir_values::b, dir_values::f, std::string>;
   struct response_t {
     std::string start;
     std::optional<std::string> end;

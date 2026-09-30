@@ -3,6 +3,7 @@
 export module loom.cs.administrative_contact;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -24,7 +25,7 @@ struct get_account3_pi_ds {
           friend constexpr bool operator==(msisdn, msisdn) = default;
         };
       };
-      using medium_t = std::variant<medium_values::email, medium_values::msisdn, std::string>;
+      using medium_t = splice::variant<medium_values::email, medium_values::msisdn, std::string>;
       medium_t medium;
       std::string address;
       std::int64_t validated_at;
@@ -125,7 +126,7 @@ struct delete3pid_from_account {
         friend constexpr bool operator==(msisdn, msisdn) = default;
       };
     };
-    using medium_t = std::variant<medium_values::email, medium_values::msisdn, std::string>;
+    using medium_t = splice::variant<medium_values::email, medium_values::msisdn, std::string>;
     std::optional<std::string> id_server;
     medium_t medium;
     std::string address;
@@ -143,7 +144,7 @@ struct delete3pid_from_account {
         friend constexpr bool operator==(success, success) = default;
       };
     };
-    using id_server_unbind_result_t = std::variant<id_server_unbind_result_values::no_support, id_server_unbind_result_values::success, std::string>;
+    using id_server_unbind_result_t = splice::variant<id_server_unbind_result_values::no_support, id_server_unbind_result_values::success, std::string>;
     id_server_unbind_result_t id_server_unbind_result;
     knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
@@ -169,7 +170,7 @@ struct unbind3pid_from_account {
         friend constexpr bool operator==(msisdn, msisdn) = default;
       };
     };
-    using medium_t = std::variant<medium_values::email, medium_values::msisdn, std::string>;
+    using medium_t = splice::variant<medium_values::email, medium_values::msisdn, std::string>;
     std::optional<std::string> id_server;
     medium_t medium;
     std::string address;
@@ -187,7 +188,7 @@ struct unbind3pid_from_account {
         friend constexpr bool operator==(success, success) = default;
       };
     };
-    using id_server_unbind_result_t = std::variant<id_server_unbind_result_values::no_support, id_server_unbind_result_values::success, std::string>;
+    using id_server_unbind_result_t = splice::variant<id_server_unbind_result_values::no_support, id_server_unbind_result_values::success, std::string>;
     id_server_unbind_result_t id_server_unbind_result;
     knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }

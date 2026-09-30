@@ -5,6 +5,7 @@
 export module loom.ev;
 
 import std;
+export import splice;
 export import knot;
 
 export namespace loom::ev {
@@ -22,7 +23,7 @@ struct stream_metadata_t {
       friend constexpr bool operator==(m_screenshare, m_screenshare) = default;
     };
   };
-  using purpose_t = std::variant<purpose_values::m_usermedia, purpose_values::m_screenshare, std::string>;
+  using purpose_t = splice::variant<purpose_values::m_usermedia, purpose_values::m_screenshare, std::string>;
   purpose_t purpose;
   std::optional<bool> audio_muted;
   std::optional<bool> video_muted;
@@ -37,7 +38,7 @@ struct verification_relates_to_t {
       friend constexpr bool operator==(m_reference, m_reference) = default;
     };
   };
-  using rel_type_t = std::variant<rel_type_values::m_reference, std::string>;
+  using rel_type_t = splice::variant<rel_type_values::m_reference, std::string>;
   std::optional<rel_type_t> rel_type;
   std::optional<std::string> event_id;
   knot::raw rest;
@@ -96,7 +97,7 @@ struct m_call_answer_content_t {
         friend constexpr bool operator==(answer, answer) = default;
       };
     };
-    using type_t = std::variant<type_values::answer, std::string>;
+    using type_t = splice::variant<type_values::answer, std::string>;
     type_t type;
     std::string sdp;
     knot::raw rest;
@@ -156,7 +157,7 @@ struct m_call_hangup_content_t {
       friend constexpr bool operator==(unknown_error, unknown_error) = default;
     };
   };
-  using reason_t = std::variant<reason_values::ice_timeout, reason_values::ice_failed, reason_values::invite_timeout, reason_values::user_hangup, reason_values::user_media_failed, reason_values::user_busy, reason_values::unknown_error, std::string>;
+  using reason_t = splice::variant<reason_values::ice_timeout, reason_values::ice_failed, reason_values::invite_timeout, reason_values::user_hangup, reason_values::user_media_failed, reason_values::user_busy, reason_values::unknown_error, std::string>;
   reason_t reason;
   std::string call_id;
   std::string version;
@@ -172,7 +173,7 @@ struct m_call_invite_content_t {
         friend constexpr bool operator==(offer, offer) = default;
       };
     };
-    using type_t = std::variant<type_values::offer, std::string>;
+    using type_t = splice::variant<type_values::offer, std::string>;
     type_t type;
     std::string sdp;
     knot::raw rest;
@@ -200,7 +201,7 @@ struct m_call_negotiate_content_t {
         friend constexpr bool operator==(answer, answer) = default;
       };
     };
-    using type_t = std::variant<type_values::offer, type_values::answer, std::string>;
+    using type_t = splice::variant<type_values::offer, type_values::answer, std::string>;
     type_t type;
     std::string sdp;
     knot::raw rest;
@@ -293,7 +294,7 @@ struct m_key_verification_accept_content_t {
       friend constexpr bool operator==(emoji, emoji) = default;
     };
   };
-  using short_authentication_string_item_t = std::variant<short_authentication_string_item_values::decimal, short_authentication_string_item_values::emoji, std::string>;
+  using short_authentication_string_item_t = splice::variant<short_authentication_string_item_values::decimal, short_authentication_string_item_values::emoji, std::string>;
   std::optional<std::string> transaction_id;
   std::string key_agreement_protocol;
   std::string hash;
@@ -356,7 +357,7 @@ struct m_key_verification_start_m_reciprocate_v1_content_t {
       friend constexpr bool operator==(m_reciprocate_v1, m_reciprocate_v1) = default;
     };
   };
-  using method_t = std::variant<method_values::m_reciprocate_v1, std::string>;
+  using method_t = splice::variant<method_values::m_reciprocate_v1, std::string>;
   std::string from_device;
   std::optional<std::string> transaction_id;
   method_t method;
@@ -372,7 +373,7 @@ struct m_key_verification_start_m_sas_v1_content_t {
       friend constexpr bool operator==(m_sas_v1, m_sas_v1) = default;
     };
   };
-  using method_t = std::variant<method_values::m_sas_v1, std::string>;
+  using method_t = splice::variant<method_values::m_sas_v1, std::string>;
   struct short_authentication_string_item_values {
     struct decimal {
       static constexpr std::string_view json_value = "decimal";
@@ -383,7 +384,7 @@ struct m_key_verification_start_m_sas_v1_content_t {
       friend constexpr bool operator==(emoji, emoji) = default;
     };
   };
-  using short_authentication_string_item_t = std::variant<short_authentication_string_item_values::decimal, short_authentication_string_item_values::emoji, std::string>;
+  using short_authentication_string_item_t = splice::variant<short_authentication_string_item_values::decimal, short_authentication_string_item_values::emoji, std::string>;
   std::string from_device;
   std::optional<std::string> transaction_id;
   method_t method;
@@ -450,7 +451,7 @@ struct m_presence_content_t {
       friend constexpr bool operator==(unavailable, unavailable) = default;
     };
   };
-  using presence_t = std::variant<presence_values::online, presence_values::offline, presence_values::unavailable, std::string>;
+  using presence_t = splice::variant<presence_values::online, presence_values::offline, presence_values::unavailable, std::string>;
   std::optional<std::string> avatar_url;
   std::optional<std::string> displayname;
   std::optional<double> last_active_ago;
@@ -482,7 +483,7 @@ struct m_reaction_content_t {
         friend constexpr bool operator==(m_annotation, m_annotation) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_annotation, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_annotation, std::string>;
     std::optional<rel_type_t> rel_type;
     std::optional<std::string> event_id;
     std::optional<std::string> key;
@@ -577,7 +578,7 @@ struct m_room_encrypted_content_t {
       friend constexpr bool operator==(m_megolm_v1_aes_sha2, m_megolm_v1_aes_sha2) = default;
     };
   };
-  using algorithm_t = std::variant<algorithm_values::m_olm_v1_curve25519_aes_sha2, algorithm_values::m_megolm_v1_aes_sha2, std::string>;
+  using algorithm_t = splice::variant<algorithm_values::m_olm_v1_curve25519_aes_sha2, algorithm_values::m_megolm_v1_aes_sha2, std::string>;
   algorithm_t algorithm;
   knot::raw ciphertext;
   std::optional<std::string> sender_key;
@@ -593,7 +594,7 @@ struct m_room_encryption_content_t {
       friend constexpr bool operator==(m_megolm_v1_aes_sha2, m_megolm_v1_aes_sha2) = default;
     };
   };
-  using algorithm_t = std::variant<algorithm_values::m_megolm_v1_aes_sha2, std::string>;
+  using algorithm_t = splice::variant<algorithm_values::m_megolm_v1_aes_sha2, std::string>;
   algorithm_t algorithm;
   std::optional<std::int64_t> rotation_period_ms;
   std::optional<std::int64_t> rotation_period_msgs;
@@ -611,7 +612,7 @@ struct m_room_guest_access_content_t {
       friend constexpr bool operator==(forbidden, forbidden) = default;
     };
   };
-  using guest_access_t = std::variant<guest_access_values::can_join, guest_access_values::forbidden, std::string>;
+  using guest_access_t = splice::variant<guest_access_values::can_join, guest_access_values::forbidden, std::string>;
   guest_access_t guest_access;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_room_guest_access_content_t>) { return knot::schema<m_room_guest_access_content_t>().member<"rest">(knot::rest).tag("m.room.guest_access"); }
@@ -635,7 +636,7 @@ struct m_room_history_visibility_content_t {
       friend constexpr bool operator==(world_readable, world_readable) = default;
     };
   };
-  using history_visibility_t = std::variant<history_visibility_values::invited, history_visibility_values::joined, history_visibility_values::shared, history_visibility_values::world_readable, std::string>;
+  using history_visibility_t = splice::variant<history_visibility_values::invited, history_visibility_values::joined, history_visibility_values::shared, history_visibility_values::world_readable, std::string>;
   history_visibility_t history_visibility;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_room_history_visibility_content_t>) { return knot::schema<m_room_history_visibility_content_t>().member<"rest">(knot::rest).tag("m.room.history_visibility"); }
@@ -679,7 +680,7 @@ struct m_room_image_pack_content_t {
         friend constexpr bool operator==(sticker, sticker) = default;
       };
     };
-    using usage_item_t = std::variant<usage_item_values::emoticon, usage_item_values::sticker, std::string>;
+    using usage_item_t = splice::variant<usage_item_values::emoticon, usage_item_values::sticker, std::string>;
     std::optional<std::string> display_name;
     std::optional<std::string> avatar_url;
     std::optional<std::vector<usage_item_t>> usage;
@@ -719,7 +720,7 @@ struct m_room_join_rules_content_t {
       friend constexpr bool operator==(knock_restricted, knock_restricted) = default;
     };
   };
-  using join_rule_t = std::variant<join_rule_values::public_, join_rule_values::knock, join_rule_values::invite, join_rule_values::private_, join_rule_values::restricted, join_rule_values::knock_restricted, std::string>;
+  using join_rule_t = splice::variant<join_rule_values::public_, join_rule_values::knock, join_rule_values::invite, join_rule_values::private_, join_rule_values::restricted, join_rule_values::knock_restricted, std::string>;
   struct allow_condition_t {
     struct type_values {
       struct m_room_membership {
@@ -727,7 +728,7 @@ struct m_room_join_rules_content_t {
         friend constexpr bool operator==(m_room_membership, m_room_membership) = default;
       };
     };
-    using type_t = std::variant<type_values::m_room_membership, std::string>;
+    using type_t = splice::variant<type_values::m_room_membership, std::string>;
     type_t type;
     std::optional<std::string> room_id;
     knot::raw rest;
@@ -761,7 +762,7 @@ struct m_room_member_content_t {
       friend constexpr bool operator==(ban, ban) = default;
     };
   };
-  using membership_t = std::variant<membership_values::invite, membership_values::join, membership_values::knock, membership_values::leave, membership_values::ban, std::string>;
+  using membership_t = splice::variant<membership_values::invite, membership_values::join, membership_values::knock, membership_values::leave, membership_values::ban, std::string>;
   struct third_party_invite_t {
     std::string display_name;
     def::signed_third_party_invite_t signed_;
@@ -792,7 +793,7 @@ struct m_room_message_m_audio_content_t {
       friend constexpr bool operator==(m_audio, m_audio) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_audio, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_audio, std::string>;
   struct m_relates_to_t {
     struct rel_type_values {
       struct m_replace {
@@ -812,7 +813,7 @@ struct m_room_message_m_audio_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -861,7 +862,7 @@ struct m_room_message_m_emote_content_t {
       friend constexpr bool operator==(m_emote, m_emote) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_emote, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_emote, std::string>;
   struct m_relates_to_t {
     struct rel_type_values {
       struct m_replace {
@@ -881,7 +882,7 @@ struct m_room_message_m_emote_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -943,7 +944,7 @@ struct m_room_message_m_file_content_t {
       friend constexpr bool operator==(m_file, m_file) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_file, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_file, std::string>;
   struct m_relates_to_t {
     struct rel_type_values {
       struct m_replace {
@@ -963,7 +964,7 @@ struct m_room_message_m_file_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -1032,7 +1033,7 @@ struct m_room_message_m_image_content_t {
       friend constexpr bool operator==(m_image, m_image) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_image, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_image, std::string>;
   struct m_relates_to_t {
     struct rel_type_values {
       struct m_replace {
@@ -1052,7 +1053,7 @@ struct m_room_message_m_image_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -1101,7 +1102,7 @@ struct m_room_message_m_key_verification_request_content_t {
       friend constexpr bool operator==(m_key_verification_request, m_key_verification_request) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_key_verification_request, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_key_verification_request, std::string>;
   struct m_relates_to_t {
     struct rel_type_values {
       struct m_replace {
@@ -1121,7 +1122,7 @@ struct m_room_message_m_key_verification_request_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -1169,7 +1170,7 @@ struct m_room_message_m_location_content_t {
       friend constexpr bool operator==(m_location, m_location) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_location, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_location, std::string>;
   struct location_info_t {
     struct thumbnail_info_t {
       std::optional<std::int64_t> h;
@@ -1204,7 +1205,7 @@ struct m_room_message_m_location_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -1251,7 +1252,7 @@ struct m_room_message_m_notice_content_t {
       friend constexpr bool operator==(m_notice, m_notice) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_notice, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_notice, std::string>;
   struct m_relates_to_t {
     struct rel_type_values {
       struct m_replace {
@@ -1271,7 +1272,7 @@ struct m_room_message_m_notice_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -1316,7 +1317,7 @@ struct m_room_message_m_server_notice_content_t {
       friend constexpr bool operator==(m_server_notice, m_server_notice) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_server_notice, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_server_notice, std::string>;
   struct m_relates_to_t {
     struct rel_type_values {
       struct m_replace {
@@ -1336,7 +1337,7 @@ struct m_room_message_m_server_notice_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -1384,7 +1385,7 @@ struct m_room_message_m_text_content_t {
       friend constexpr bool operator==(m_text, m_text) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_text, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_text, std::string>;
   struct m_relates_to_t {
     struct rel_type_values {
       struct m_replace {
@@ -1404,7 +1405,7 @@ struct m_room_message_m_text_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -1469,7 +1470,7 @@ struct m_room_message_m_video_content_t {
       friend constexpr bool operator==(m_video, m_video) = default;
     };
   };
-  using msgtype_t = std::variant<msgtype_values::m_video, std::string>;
+  using msgtype_t = splice::variant<msgtype_values::m_video, std::string>;
   struct m_relates_to_t {
     struct rel_type_values {
       struct m_replace {
@@ -1489,7 +1490,7 @@ struct m_room_message_m_video_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -1551,7 +1552,7 @@ struct m_room_message_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;
@@ -1686,7 +1687,7 @@ struct m_room_key_withheld_content_t {
       friend constexpr bool operator==(m_megolm_v1_aes_sha2, m_megolm_v1_aes_sha2) = default;
     };
   };
-  using algorithm_t = std::variant<algorithm_values::m_megolm_v1_aes_sha2, std::string>;
+  using algorithm_t = splice::variant<algorithm_values::m_megolm_v1_aes_sha2, std::string>;
   struct code_values {
     struct m_blacklisted {
       static constexpr std::string_view json_value = "m.blacklisted";
@@ -1713,7 +1714,7 @@ struct m_room_key_withheld_content_t {
       friend constexpr bool operator==(m_history_not_shared, m_history_not_shared) = default;
     };
   };
-  using code_t = std::variant<code_values::m_blacklisted, code_values::m_unverified, code_values::m_unauthorised, code_values::m_unavailable, code_values::m_no_olm, code_values::m_history_not_shared, std::string>;
+  using code_t = splice::variant<code_values::m_blacklisted, code_values::m_unverified, code_values::m_unauthorised, code_values::m_unavailable, code_values::m_no_olm, code_values::m_history_not_shared, std::string>;
   algorithm_t algorithm;
   std::optional<std::string> room_id;
   std::optional<std::string> session_id;
@@ -1730,7 +1731,7 @@ struct m_room_key_content_t {
       friend constexpr bool operator==(m_megolm_v1_aes_sha2, m_megolm_v1_aes_sha2) = default;
     };
   };
-  using algorithm_t = std::variant<algorithm_values::m_megolm_v1_aes_sha2, std::string>;
+  using algorithm_t = splice::variant<algorithm_values::m_megolm_v1_aes_sha2, std::string>;
   algorithm_t algorithm;
   std::string room_id;
   std::string session_id;
@@ -1764,7 +1765,7 @@ struct m_room_key_request_content_t {
       friend constexpr bool operator==(request_cancellation, request_cancellation) = default;
     };
   };
-  using action_t = std::variant<action_values::request_, action_values::request_cancellation, std::string>;
+  using action_t = splice::variant<action_values::request_, action_values::request_cancellation, std::string>;
   std::optional<requested_key_info_t> body;
   action_t action;
   std::string requesting_device_id;
@@ -1783,7 +1784,7 @@ struct m_secret_request_content_t {
       friend constexpr bool operator==(request_cancellation, request_cancellation) = default;
     };
   };
-  using action_t = std::variant<action_values::request_, action_values::request_cancellation, std::string>;
+  using action_t = splice::variant<action_values::request_, action_values::request_cancellation, std::string>;
   std::optional<std::string> name;
   action_t action;
   std::string requesting_device_id;
@@ -1850,7 +1851,7 @@ struct m_sticker_content_t {
         friend constexpr bool operator==(m_reference, m_reference) = default;
       };
     };
-    using rel_type_t = std::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
+    using rel_type_t = splice::variant<rel_type_values::m_replace, rel_type_values::m_thread, rel_type_values::m_annotation, rel_type_values::m_reference, std::string>;
     struct m_in_reply_to_t {
       std::optional<std::string> event_id;
       knot::raw rest;

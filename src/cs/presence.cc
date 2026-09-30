@@ -3,6 +3,7 @@
 export module loom.cs.presence;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -27,7 +28,7 @@ struct set_presence {
         friend constexpr bool operator==(unavailable, unavailable) = default;
       };
     };
-    using presence_t = std::variant<presence_values::online, presence_values::offline, presence_values::unavailable, std::string>;
+    using presence_t = splice::variant<presence_values::online, presence_values::offline, presence_values::unavailable, std::string>;
     presence_t presence;
     std::optional<std::string> status_msg;
     knot::raw rest;
@@ -59,7 +60,7 @@ struct get_presence {
         friend constexpr bool operator==(unavailable, unavailable) = default;
       };
     };
-    using presence_t = std::variant<presence_values::online, presence_values::offline, presence_values::unavailable, std::string>;
+    using presence_t = splice::variant<presence_values::online, presence_values::offline, presence_values::unavailable, std::string>;
     presence_t presence;
     std::optional<std::int64_t> last_active_ago;
     std::optional<std::string> status_msg;

@@ -8,6 +8,7 @@
 export module loom.state;
 
 import std;
+import splice;
 export import knot;
 export import loom.ev;
 export import loom.cs.sync;
@@ -16,8 +17,8 @@ export namespace loom::client {
 
 // The string a choice holds: the one its alternative names, or the one kept.
 template <class... Alternatives>
-constexpr std::string_view choice_text(const std::variant<Alternatives...>& one) {
-  return std::visit(
+constexpr std::string_view choice_text(const splice::variant<Alternatives...>& one) {
+  return splice::visit(
       [](const auto& held) -> std::string_view {
         using type = std::remove_cvref_t<decltype(held)>;
         if constexpr (requires { type::json_value; })

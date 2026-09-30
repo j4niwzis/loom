@@ -3,6 +3,7 @@
 export module loom.cs.sync;
 
 import std;
+export import splice;
 export import knot;
 export import loom.api;
 export import loom.ev;
@@ -26,7 +27,7 @@ struct sync {
       friend constexpr bool operator==(unavailable, unavailable) = default;
     };
   };
-  using set_presence_t = std::variant<set_presence_values::offline, set_presence_values::online, set_presence_values::unavailable, std::string>;
+  using set_presence_t = splice::variant<set_presence_values::offline, set_presence_values::online, set_presence_values::unavailable, std::string>;
   struct response_t {
     struct rooms_t {
       struct joined_room_t {
