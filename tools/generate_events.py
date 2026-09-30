@@ -64,8 +64,39 @@ NEW_CONTENT = {
         'formatted_body': {'type': 'string'},
     },
 }
+# What a picture, a file or a video says of itself, as clients send it: the
+# spec's info, and the BlurHash of MSC2448 (as "xyz.amorgan.blurhash").
+MEDIA_INFO = {
+    'type': 'object',
+    'properties': {
+        'mimetype': {'type': 'string'},
+        'size': {'type': 'integer'},
+        'w': {'type': 'integer'},
+        'h': {'type': 'integer'},
+        'duration': {'type': 'integer'},
+        'thumbnail_url': {'type': 'string'},
+        'thumbnail_info': {'type': 'object', 'properties': {'w': {'type': 'integer'}, 'h': {'type': 'integer'},
+                                                             'mimetype': {'type': 'string'}}},
+        'xyz.amorgan.blurhash': {'type': 'string'},
+    },
+}
 MESSAGE_EXTRAS = {
     'format': {'type': 'string'},
+    # What a message carries, of any msgtype: where it is kept, its name, its
+    # facts -- and a gallery's items (MSC4274), each as a message of its own.
+    'url': {'type': 'string'},
+    'filename': {'type': 'string'},
+    'info': MEDIA_INFO,
+    'itemtypes': {'type': 'array', 'items': {
+        'type': 'object',
+        'properties': {
+            'itemtype': {'type': 'string'},
+            'body': {'type': 'string'},
+            'url': {'type': 'string'},
+            'filename': {'type': 'string'},
+            'info': MEDIA_INFO,
+        },
+    }},
     'formatted_body': {'type': 'string'},
     'm.relates_to': {
         'type': 'object',
