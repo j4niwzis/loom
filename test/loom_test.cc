@@ -114,7 +114,7 @@ CONSTEXPR_TEST(Sync, Applied) {
     CONSTEXPR_EXPECT_TRUE(room.timeline[1].content.is<loom::content::message>());
     if (room.timeline[1].content.is<loom::content::message>())
       CONSTEXPR_EXPECT_EQ(room.timeline[1].content.as<loom::content::message>().body, "hello");
-    CONSTEXPR_EXPECT_TRUE(room.timeline[2].content.is<knot::value>());  // no type here for it: kept as it came
+    CONSTEXPR_EXPECT_TRUE(room.timeline[2].content.is<knot::raw>());  // no type here for it: kept as its text
   }
   CONSTEXPR_EXPECT_TRUE(kept.invited.contains("!def:example.org"));
 }

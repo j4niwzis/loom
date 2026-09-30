@@ -21,7 +21,7 @@ endif()
 # instead with -DCPM_knot_SOURCE=<path>.
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
-  GIT_TAG 38fe006706f08e9dbbf8953c6698ee98c0e5af25
+  GIT_TAG ba3ce92ba93f45f97f8b8784b24915da163efd0c
   LICENSE AGPL-3.0-only
   SYSTEM NEVER
   TARGETS knot)
