@@ -50,8 +50,9 @@ def tag_struct(lines, name, tag):
 
 
 # What a message's content carries that the spec defines apart from the
-# message schemas -- relations (replies, edits, threads: the spec's
-# m.relates_to sections), intentional mentions and an edit's new content --
+# message schemas -- its rich text (defined per msgtype, read of any),
+# relations (replies, edits, threads: the spec's m.relates_to sections),
+# intentional mentions and an edit's new content --
 # added to every m.room.message msgtype and to m.sticker, so that they are
 # read into types like the rest, not dug out of what is kept as text.
 NEW_CONTENT = {
@@ -64,6 +65,8 @@ NEW_CONTENT = {
     },
 }
 MESSAGE_EXTRAS = {
+    'format': {'type': 'string'},
+    'formatted_body': {'type': 'string'},
     'm.relates_to': {
         'type': 'object',
         'properties': {

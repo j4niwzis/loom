@@ -1236,6 +1236,8 @@ struct m_room_message_m_location_content_t {
   std::string geo_uri;
   msgtype_t msgtype;
   std::optional<location_info_t> info;
+  std::optional<std::string> format;
+  std::optional<std::string> formatted_body;
   std::optional<m_relates_to_t> m_relates_to;
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
@@ -1367,6 +1369,8 @@ struct m_room_message_m_server_notice_content_t {
   std::string server_notice_type;
   std::optional<std::string> admin_contact;
   std::optional<std::string> limit_type;
+  std::optional<std::string> format;
+  std::optional<std::string> formatted_body;
   std::optional<m_relates_to_t> m_relates_to;
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
@@ -1577,6 +1581,8 @@ struct m_room_message_content_t {
   };
   std::string body;
   std::string msgtype;
+  std::optional<std::string> format;
+  std::optional<std::string> formatted_body;
   std::optional<m_relates_to_t> m_relates_to;
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
@@ -1875,6 +1881,8 @@ struct m_sticker_content_t {
   std::string body;
   image_info_t info;
   std::string url;
+  std::optional<std::string> format;
+  std::optional<std::string> formatted_body;
   std::optional<m_relates_to_t> m_relates_to;
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
