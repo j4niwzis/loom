@@ -151,17 +151,9 @@ struct room_state {
   }
   constexpr bool encrypted() const { return find("m.room.encryption") != nullptr; }
   constexpr std::string room_version() const {
-    if (const auto* got = find("m.room.create"))
-      if (auto tree = knot::to_value(*got); tree.is<knot::value::object>()) {
-        const auto& all = tree.as<knot::value::object>();
-        if (const auto content = all.find("content");
-            content != all.end() && content->second.is<knot::value::object>()) {
-          const auto& inner = content->second.as<knot::value::object>();
-          if (const auto version = inner.find("room_version");
-              version != inner.end() && version->second.is<std::string>())
-            return version->second.as<std::string>();
-        }
-      }
+    if (const auto* got = content<ev::m_room_create_content_t>("m.room.create"))
+      if (got->room_version)
+        return *got->room_version;
     return "1";  // m.room.create's default
   }
   // A user's membership, as its string ("join", "leave", ...).
