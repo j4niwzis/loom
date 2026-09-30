@@ -16,7 +16,7 @@ struct get_token_owner {
     std::string user_id;
     std::optional<std::string> device_id;
     std::optional<bool> is_guest;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;

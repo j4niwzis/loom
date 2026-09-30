@@ -14,7 +14,7 @@ export namespace loom::cs {
 struct upload_content {
   struct response_t {
     std::string content_uri;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::string> filename;
@@ -36,7 +36,7 @@ struct upload_content_to_mxc {
   std::optional<std::string> filename;
   std::string body;  // the bytes, as the content type says
   std::string content_type = "application/octet-stream";
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix") + "/media/v3/upload/" + percent_encoded(detail::text(server_name)) + "/" + percent_encoded(detail::text(media_id));
     if (filename)
@@ -50,7 +50,7 @@ struct create_content {
   struct response_t {
     std::string content_uri;
     std::optional<std::int64_t> unused_expires_at;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
@@ -156,7 +156,7 @@ struct get_url_preview {
   struct response_t {
     std::optional<std::int64_t> matrix_image_size;
     std::optional<std::string> og_image;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"matrix_image_size">(knot::key("matrix:image:size")).member<"og_image">(knot::key("og:image")).member<"rest">(knot::rest); }
   };
   std::string url;
@@ -175,7 +175,7 @@ struct get_url_preview {
 struct get_config {
   struct response_t {
     std::optional<std::int64_t> m_upload_size;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"m_upload_size">(knot::key("m.upload.size")).member<"rest">(knot::rest); }
   };
   using response = response_t;

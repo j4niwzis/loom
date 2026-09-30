@@ -19,11 +19,11 @@ struct get_push_rules {
       std::optional<std::vector<def::push_rule_t>> room;
       std::optional<std::vector<def::push_rule_t>> sender;
       std::optional<std::vector<def::push_rule_t>> underride;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<ruleset_t>) { return knot::schema<ruleset_t>().member<"override_">(knot::key("override")).member<"rest">(knot::rest); }
     };
     ruleset_t global;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
@@ -68,13 +68,13 @@ struct get_push_rule {
   };
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct push_rule_t {
-    std::vector<knot::value> actions;
+    std::vector<knot::raw> actions;
     bool default_;
     bool enabled;
     std::string rule_id;
     std::optional<std::vector<def::push_condition_t>> conditions;
     std::optional<std::string> pattern;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<push_rule_t>) { return knot::schema<push_rule_t>().member<"default_">(knot::key("default")).member<"rest">(knot::rest); }
   };
   kind_t kind;
@@ -113,7 +113,7 @@ struct delete_push_rule {
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   kind_t kind;
   std::string rule_id;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id));
     return {method::delete_{}, std::move(target), "", true};
@@ -146,10 +146,10 @@ struct set_push_rule {
   };
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct body_t {
-    std::vector<knot::value> actions;
+    std::vector<knot::raw> actions;
     std::optional<std::vector<def::push_condition_t>> conditions;
     std::optional<std::string> pattern;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
@@ -157,7 +157,7 @@ struct set_push_rule {
   std::optional<std::string> before;
   std::optional<std::string> after;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id));
     if (before)
@@ -195,7 +195,7 @@ struct is_push_rule_enabled {
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct response_t {
     bool enabled;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
@@ -234,13 +234,13 @@ struct set_push_rule_enabled {
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct body_t {
     bool enabled;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
   std::string rule_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id)) + "/enabled";
     return {method::put{}, std::move(target), detail::json(body), true};
@@ -273,8 +273,8 @@ struct get_push_rule_actions {
   };
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct response_t {
-    std::vector<knot::value> actions;
-    knot::value rest;
+    std::vector<knot::raw> actions;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
@@ -312,14 +312,14 @@ struct set_push_rule_actions {
   };
   using kind_t = std::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct body_t {
-    std::vector<knot::value> actions;
-    knot::value rest;
+    std::vector<knot::raw> actions;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   kind_t kind;
   std::string rule_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id)) + "/actions";
     return {method::put{}, std::move(target), detail::json(body), true};

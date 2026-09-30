@@ -27,8 +27,8 @@ struct create_room {
     struct state_event_t {
       std::string type;
       std::optional<std::string> state_key;
-      knot::value content;
-      knot::value rest;
+      knot::raw content;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<state_event_t>) { return knot::schema<state_event_t>().member<"rest">(knot::rest); }
     };
     struct preset_values {
@@ -53,17 +53,17 @@ struct create_room {
     std::optional<std::vector<std::string>> invite;
     std::optional<std::vector<def::invite3pid_t>> invite_3pid;
     std::optional<std::string> room_version;
-    std::optional<knot::value> creation_content;
+    std::optional<knot::raw> creation_content;
     std::optional<std::vector<state_event_t>> initial_state;
     std::optional<preset_t> preset;
     std::optional<bool> is_direct;
-    std::optional<knot::value> power_level_content_override;
-    knot::value rest;
+    std::optional<knot::raw> power_level_content_override;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string room_id;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;

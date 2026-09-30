@@ -14,8 +14,8 @@ export namespace loom::cs {
 struct set_account_data {
   std::string user_id;
   std::string type;
-  knot::value body;
-  using response = knot::value;
+  knot::raw body;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/account_data/" + percent_encoded(detail::text(type));
     return {method::put{}, std::move(target), detail::json(body), true};
@@ -26,7 +26,7 @@ struct set_account_data {
 struct get_account_data {
   std::string user_id;
   std::string type;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/account_data/" + percent_encoded(detail::text(type));
     return {method::get{}, std::move(target), "", true};
@@ -38,8 +38,8 @@ struct set_account_data_per_room {
   std::string user_id;
   std::string room_id;
   std::string type;
-  knot::value body;
-  using response = knot::value;
+  knot::raw body;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/rooms/" + percent_encoded(detail::text(room_id)) + "/account_data/" + percent_encoded(detail::text(type));
     return {method::put{}, std::move(target), detail::json(body), true};
@@ -51,7 +51,7 @@ struct get_account_data_per_room {
   std::string user_id;
   std::string room_id;
   std::string type;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/rooms/" + percent_encoded(detail::text(room_id)) + "/account_data/" + percent_encoded(detail::text(type));
     return {method::get{}, std::move(target), "", true};

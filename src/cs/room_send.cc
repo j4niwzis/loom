@@ -14,13 +14,13 @@ export namespace loom::cs {
 struct send_message {
   struct response_t {
     std::string event_id;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   std::string event_type;
   std::string txn_id;
-  knot::value body;
+  knot::raw body;
   using response = response_t;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/send/" + percent_encoded(detail::text(event_type)) + "/" + percent_encoded(detail::text(txn_id));

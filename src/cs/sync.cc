@@ -34,46 +34,46 @@ struct sync {
           std::optional<std::vector<std::string>> m_heroes;
           std::optional<std::int64_t> m_joined_member_count;
           std::optional<std::int64_t> m_invited_member_count;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<room_summary_t>) { return knot::schema<room_summary_t>().member<"m_heroes">(knot::key("m.heroes")).member<"m_joined_member_count">(knot::key("m.joined_member_count")).member<"m_invited_member_count">(knot::key("m.invited_member_count")).member<"rest">(knot::rest); }
         };
         struct state_t {
           std::optional<std::vector<loom::ev::timeline_event>> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<state_t>) { return knot::schema<state_t>().member<"rest">(knot::rest); }
         };
         struct state_2_t {
           std::optional<std::vector<loom::ev::timeline_event>> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<state_2_t>) { return knot::schema<state_2_t>().member<"rest">(knot::rest); }
         };
         struct timeline_t {
           std::optional<bool> limited;
           std::optional<std::string> prev_batch;
           std::vector<loom::ev::timeline_event> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<timeline_t>) { return knot::schema<timeline_t>().member<"rest">(knot::rest); }
         };
         struct ephemeral_t {
           std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<ephemeral_t>) { return knot::schema<ephemeral_t>().member<"rest">(knot::rest); }
         };
         struct account_data_t {
           std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<account_data_t>) { return knot::schema<account_data_t>().member<"rest">(knot::rest); }
         };
         struct unread_notification_counts_t {
           std::optional<std::int64_t> highlight_count;
           std::optional<std::int64_t> notification_count;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<unread_notification_counts_t>) { return knot::schema<unread_notification_counts_t>().member<"rest">(knot::rest); }
         };
         struct thread_notification_counts_t {
           std::optional<std::int64_t> highlight_count;
           std::optional<std::int64_t> notification_count;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<thread_notification_counts_t>) { return knot::schema<thread_notification_counts_t>().member<"rest">(knot::rest); }
         };
         std::optional<room_summary_t> summary;
@@ -84,84 +84,84 @@ struct sync {
         std::optional<account_data_t> account_data;
         std::optional<unread_notification_counts_t> unread_notifications;
         std::optional<std::map<std::string, thread_notification_counts_t>> unread_thread_notifications;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<joined_room_t>) { return knot::schema<joined_room_t>().member<"rest">(knot::rest); }
       };
       struct invited_room_t {
         struct invite_state_t {
           std::optional<std::vector<loom::ev::stripped_event<loom::ev::state_content>>> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<invite_state_t>) { return knot::schema<invite_state_t>().member<"rest">(knot::rest); }
         };
         std::optional<invite_state_t> invite_state;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<invited_room_t>) { return knot::schema<invited_room_t>().member<"rest">(knot::rest); }
       };
       struct knocked_room_t {
         struct knock_state_t {
           std::optional<std::vector<loom::ev::stripped_event<loom::ev::state_content>>> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<knock_state_t>) { return knot::schema<knock_state_t>().member<"rest">(knot::rest); }
         };
         std::optional<knock_state_t> knock_state;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<knocked_room_t>) { return knot::schema<knocked_room_t>().member<"rest">(knot::rest); }
       };
       struct left_room_t {
         struct state_t {
           std::optional<std::vector<loom::ev::timeline_event>> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<state_t>) { return knot::schema<state_t>().member<"rest">(knot::rest); }
         };
         struct state_2_t {
           std::optional<std::vector<loom::ev::timeline_event>> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<state_2_t>) { return knot::schema<state_2_t>().member<"rest">(knot::rest); }
         };
         struct timeline_t {
           std::optional<bool> limited;
           std::optional<std::string> prev_batch;
           std::vector<loom::ev::timeline_event> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<timeline_t>) { return knot::schema<timeline_t>().member<"rest">(knot::rest); }
         };
         struct account_data_t {
           std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<account_data_t>) { return knot::schema<account_data_t>().member<"rest">(knot::rest); }
         };
         std::optional<state_t> state;
         std::optional<state_2_t> state_after;
         std::optional<timeline_t> timeline;
         std::optional<account_data_t> account_data;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<left_room_t>) { return knot::schema<left_room_t>().member<"rest">(knot::rest); }
       };
       std::optional<std::map<std::string, joined_room_t>> join;
       std::optional<std::map<std::string, invited_room_t>> invite;
       std::optional<std::map<std::string, knocked_room_t>> knock;
       std::optional<std::map<std::string, left_room_t>> leave;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<rooms_t>) { return knot::schema<rooms_t>().member<"rest">(knot::rest); }
     };
     struct presence_t {
       std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<presence_t>) { return knot::schema<presence_t>().member<"rest">(knot::rest); }
     };
     struct account_data_t {
       std::optional<std::vector<loom::ev::basic_event<loom::ev::other_content>>> events;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<account_data_t>) { return knot::schema<account_data_t>().member<"rest">(knot::rest); }
     };
     std::string next_batch;
     std::optional<rooms_t> rooms;
     std::optional<presence_t> presence;
     std::optional<account_data_t> account_data;
-    std::optional<knot::value> to_device;
-    std::optional<knot::value> device_lists;
+    std::optional<knot::raw> to_device;
+    std::optional<knot::raw> device_lists;
     std::optional<std::map<std::string, std::int64_t>> device_one_time_keys_count;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::string> filter;

@@ -16,12 +16,12 @@ struct set_read_marker {
     std::optional<std::string> m_fully_read;
     std::optional<std::string> m_read;
     std::optional<std::string> m_read_private;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"m_fully_read">(knot::key("m.fully_read")).member<"m_read">(knot::key("m.read")).member<"m_read_private">(knot::key("m.read.private")).member<"rest">(knot::rest); }
   };
   std::string room_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/read_markers";
     return {method::post{}, std::move(target), detail::json(body), true};

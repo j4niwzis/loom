@@ -14,8 +14,8 @@ export namespace loom::cs {
 struct set_profile_field {
   std::string user_id;
   std::string key_name;
-  knot::value body;
-  using response = knot::value;
+  knot::raw body;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/profile/" + percent_encoded(detail::text(user_id)) + "/" + percent_encoded(detail::text(key_name));
     return {method::put{}, std::move(target), detail::json(body), true};
@@ -26,7 +26,7 @@ struct set_profile_field {
 struct get_profile_field {
   std::string user_id;
   std::string key_name;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/profile/" + percent_encoded(detail::text(user_id)) + "/" + percent_encoded(detail::text(key_name));
     return {method::get{}, std::move(target), "", false};
@@ -37,7 +37,7 @@ struct get_profile_field {
 struct delete_profile_field {
   std::string user_id;
   std::string key_name;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/profile/" + percent_encoded(detail::text(user_id)) + "/" + percent_encoded(detail::text(key_name));
     return {method::delete_{}, std::move(target), "", true};
@@ -50,7 +50,7 @@ struct get_user_profile {
     std::optional<std::string> avatar_url;
     std::optional<std::string> displayname;
     std::optional<std::string> m_tz;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"m_tz">(knot::key("m.tz")).member<"rest">(knot::rest); }
   };
   std::string user_id;

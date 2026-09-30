@@ -17,7 +17,7 @@ struct get_turn_server {
     std::string password;
     std::vector<std::string> uris;
     std::int64_t ttl;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;

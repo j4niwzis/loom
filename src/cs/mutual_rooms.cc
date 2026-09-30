@@ -16,7 +16,7 @@ struct get_mutual_rooms {
     std::vector<std::string> joined;
     std::int64_t count;
     std::optional<std::string> next_batch;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;

@@ -107,9 +107,9 @@ TEST(State, Applied) {
 }
 
 TEST(State, RedactionRulesByVersion) {
-  const knot::value member = *knot::try_read<knot::value>(
+  const knot::raw member{
       R"({"membership":"join","displayname":"B","join_authorised_via_users_server":"@s:x.org",)"
-      R"("third_party_invite":{"display_name":"b","signed":{"mxid":"@b:x.org"}}})");
+      R"("third_party_invite":{"display_name":"b","signed":{"mxid":"@b:x.org"}}})"};
   EXPECT_EQ(knot::to_json_string(loom::client::redaction_rules::of("1").redact("m.room.member", member)),
             R"({"membership":"join"})");
   EXPECT_EQ(knot::to_json_string(loom::client::redaction_rules::of("9").redact("m.room.member", member)),
@@ -117,7 +117,7 @@ TEST(State, RedactionRulesByVersion) {
   EXPECT_EQ(knot::to_json_string(loom::client::redaction_rules::of("11").redact("m.room.member", member)),
             R"({"join_authorised_via_users_server":"@s:x.org","membership":"join",)"
             R"("third_party_invite":{"signed":{"mxid":"@b:x.org"}}})");
-  const knot::value create = *knot::try_read<knot::value>(R"({"creator":"@a:x.org","room_version":"10","m.federate":false})");
+  const knot::raw create{R"({"creator":"@a:x.org","room_version":"10","m.federate":false})"};
   EXPECT_EQ(knot::to_json_string(loom::client::redaction_rules::of("10").redact("m.room.create", create)),
             R"({"creator":"@a:x.org"})");
   EXPECT_EQ(knot::to_json_string(loom::client::redaction_rules::of("11").redact("m.room.create", create)),

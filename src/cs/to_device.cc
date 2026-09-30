@@ -13,14 +13,14 @@ export namespace loom::cs {
 // PUT /_matrix/client/v3/sendToDevice/{eventType}/{txnId}: Send an event to a given set of devices.
 struct send_to_device {
   struct body_t {
-    std::map<std::string, std::map<std::string, knot::value>> messages;
-    knot::value rest;
+    std::map<std::string, std::map<std::string, knot::raw>> messages;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string event_type;
   std::string txn_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/sendToDevice/" + percent_encoded(detail::text(event_type)) + "/" + percent_encoded(detail::text(txn_id));
     return {method::put{}, std::move(target), detail::json(body), true};

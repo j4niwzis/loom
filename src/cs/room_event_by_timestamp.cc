@@ -26,7 +26,7 @@ struct get_event_by_timestamp {
   struct response_t {
     std::string event_id;
     std::int64_t origin_server_ts;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;

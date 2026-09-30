@@ -28,7 +28,7 @@ struct get_relating_events {
     std::optional<std::string> prev_batch;
     std::optional<std::int64_t> recursion_depth;
     std::vector<loom::ev::timeline_event> chunk;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
@@ -73,7 +73,7 @@ struct get_relating_events_with_rel_type {
     std::optional<std::string> prev_batch;
     std::optional<std::int64_t> recursion_depth;
     std::vector<loom::ev::timeline_event> chunk;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
@@ -119,7 +119,7 @@ struct get_relating_events_with_rel_type_and_event_type {
     std::optional<std::string> prev_batch;
     std::optional<std::int64_t> recursion_depth;
     std::vector<loom::ev::timeline_event> chunk;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;

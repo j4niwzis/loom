@@ -28,7 +28,7 @@ struct get_room_events {
     std::optional<std::string> end;
     std::vector<loom::ev::timeline_event> chunk;
     std::optional<std::vector<loom::ev::timeline_event>> state;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;

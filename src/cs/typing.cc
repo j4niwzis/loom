@@ -15,13 +15,13 @@ struct set_typing {
   struct body_t {
     bool typing;
     std::optional<std::int64_t> timeout;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
   std::string room_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/typing/" + percent_encoded(detail::text(user_id));
     return {method::put{}, std::move(target), detail::json(body), true};

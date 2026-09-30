@@ -14,12 +14,12 @@ export namespace loom::cs {
 struct report_room {
   struct body_t {
     std::string reason;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/report";
     return {method::post{}, std::move(target), detail::json(body), true};
@@ -30,13 +30,13 @@ struct report_room {
 struct report_event {
   struct body_t {
     std::optional<std::string> reason;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   std::string event_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/report/" + percent_encoded(detail::text(event_id));
     return {method::post{}, std::move(target), detail::json(body), true};
@@ -47,12 +47,12 @@ struct report_event {
 struct report_user {
   struct body_t {
     std::string reason;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/users/" + percent_encoded(detail::text(user_id)) + "/report";
     return {method::post{}, std::move(target), detail::json(body), true};

@@ -14,7 +14,7 @@ export namespace loom::cs {
 struct get_joined_rooms {
   struct response_t {
     std::vector<std::string> joined_rooms;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;

@@ -16,17 +16,17 @@ struct change_password {
     struct authentication_data_t {
       std::optional<std::string> type;
       std::optional<std::string> session;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>().member<"rest">(knot::rest); }
     };
     std::string new_password;
     std::optional<bool> logout_devices;
     std::optional<authentication_data_t> auth;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/password";
     return {method::post{}, std::move(target), detail::json(body), true};

@@ -14,7 +14,7 @@ export namespace loom::cs {
 struct registration_token_validity {
   struct response_t {
     bool valid;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string token;

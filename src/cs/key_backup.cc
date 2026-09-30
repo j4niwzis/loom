@@ -21,13 +21,13 @@ struct post_room_keys_version {
     };
     using algorithm_t = std::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
     algorithm_t algorithm;
-    knot::value auth_data;
-    knot::value rest;
+    knot::raw auth_data;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string version;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
@@ -49,11 +49,11 @@ struct get_room_keys_version_current {
     };
     using algorithm_t = std::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
     algorithm_t algorithm;
-    knot::value auth_data;
+    knot::raw auth_data;
     std::int64_t count;
     std::string etag;
     std::string version;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
@@ -74,11 +74,11 @@ struct get_room_keys_version {
     };
     using algorithm_t = std::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
     algorithm_t algorithm;
-    knot::value auth_data;
+    knot::raw auth_data;
     std::int64_t count;
     std::string etag;
     std::string version;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string version;
@@ -100,14 +100,14 @@ struct put_room_keys_version {
     };
     using algorithm_t = std::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
     algorithm_t algorithm;
-    knot::value auth_data;
+    knot::raw auth_data;
     std::optional<std::string> version;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string version;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/version/" + percent_encoded(detail::text(version));
     return {method::put{}, std::move(target), detail::json(body), true};
@@ -117,7 +117,7 @@ struct put_room_keys_version {
 // DELETE /_matrix/client/v3/room_keys/version/{version}: Delete an existing key backup.
 struct delete_room_keys_version {
   std::string version;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/version/" + percent_encoded(detail::text(version));
     return {method::delete_{}, std::move(target), "", true};
@@ -206,11 +206,11 @@ struct put_room_keys {
   struct body_t {
     struct room_key_backup_t {
       std::map<std::string, def::key_backup_data_t> sessions;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<room_key_backup_t>) { return knot::schema<room_key_backup_t>().member<"rest">(knot::rest); }
     };
     std::map<std::string, room_key_backup_t> rooms;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string version;
@@ -228,11 +228,11 @@ struct get_room_keys {
   struct response_t {
     struct room_key_backup_t {
       std::map<std::string, def::key_backup_data_t> sessions;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<room_key_backup_t>) { return knot::schema<room_key_backup_t>().member<"rest">(knot::rest); }
     };
     std::map<std::string, room_key_backup_t> rooms;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string version;

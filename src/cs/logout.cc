@@ -12,7 +12,7 @@ export namespace loom::cs {
 
 // POST /_matrix/client/v3/logout: Invalidates a user access token
 struct logout {
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/logout";
     return {method::post{}, std::move(target), "{}", true};
@@ -21,7 +21,7 @@ struct logout {
 
 // POST /_matrix/client/v3/logout/all: Invalidates all access tokens for a user
 struct logout_all {
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/logout/all";
     return {method::post{}, std::move(target), "{}", true};

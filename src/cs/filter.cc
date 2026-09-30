@@ -30,7 +30,7 @@ struct define_filter {
       std::optional<std::vector<std::string>> not_types;
       std::optional<std::vector<std::string>> senders;
       std::optional<std::vector<std::string>> types;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<event_filter_t>) { return knot::schema<event_filter_t>().member<"rest">(knot::rest); }
     };
     struct event_filter_2_t {
@@ -39,7 +39,7 @@ struct define_filter {
       std::optional<std::vector<std::string>> not_types;
       std::optional<std::vector<std::string>> senders;
       std::optional<std::vector<std::string>> types;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<event_filter_2_t>) { return knot::schema<event_filter_2_t>().member<"rest">(knot::rest); }
     };
     struct room_filter_t {
@@ -55,7 +55,7 @@ struct define_filter {
         std::optional<std::vector<std::string>> not_rooms;
         std::optional<std::vector<std::string>> rooms;
         std::optional<bool> contains_url;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<event_filter_t>) { return knot::schema<event_filter_t>().member<"rest">(knot::rest); }
       };
       struct event_filter_2_t {
@@ -70,7 +70,7 @@ struct define_filter {
         std::optional<std::vector<std::string>> not_rooms;
         std::optional<std::vector<std::string>> rooms;
         std::optional<bool> contains_url;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<event_filter_2_t>) { return knot::schema<event_filter_2_t>().member<"rest">(knot::rest); }
       };
       struct event_filter_3_t {
@@ -85,7 +85,7 @@ struct define_filter {
         std::optional<std::vector<std::string>> not_rooms;
         std::optional<std::vector<std::string>> rooms;
         std::optional<bool> contains_url;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<event_filter_3_t>) { return knot::schema<event_filter_3_t>().member<"rest">(knot::rest); }
       };
       struct event_filter_4_t {
@@ -100,7 +100,7 @@ struct define_filter {
         std::optional<std::vector<std::string>> not_rooms;
         std::optional<std::vector<std::string>> rooms;
         std::optional<bool> contains_url;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<event_filter_4_t>) { return knot::schema<event_filter_4_t>().member<"rest">(knot::rest); }
       };
       std::optional<std::vector<std::string>> not_rooms;
@@ -110,7 +110,7 @@ struct define_filter {
       std::optional<event_filter_2_t> state;
       std::optional<event_filter_3_t> timeline;
       std::optional<event_filter_4_t> account_data;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<room_filter_t>) { return knot::schema<room_filter_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::vector<std::string>> event_fields;
@@ -118,12 +118,12 @@ struct define_filter {
     std::optional<event_filter_t> presence;
     std::optional<event_filter_2_t> account_data;
     std::optional<room_filter_t> room;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<filter_t>) { return knot::schema<filter_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string filter_id;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;

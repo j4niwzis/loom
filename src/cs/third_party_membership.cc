@@ -14,7 +14,7 @@ export namespace loom::cs {
 struct invite_by3_pid {
   std::string room_id;
   def::invite3pid_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/invite";
     return {method::post{}, std::move(target), detail::json(body), true};

@@ -29,11 +29,11 @@ struct get_account3_pi_ds {
       std::string address;
       std::int64_t validated_at;
       std::int64_t added_at;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<third_party_identifier_t>) { return knot::schema<third_party_identifier_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::vector<third_party_identifier_t>> threepids;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
@@ -51,16 +51,16 @@ struct post3_pi_ds {
       std::string id_server;
       std::string id_access_token;
       std::string sid;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<three_pid_credentials_t>) { return knot::schema<three_pid_credentials_t>().member<"rest">(knot::rest); }
     };
     three_pid_credentials_t three_pid_creds;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::optional<std::string> submit_url;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
@@ -77,17 +77,17 @@ struct add3_pid {
     struct authentication_data_t {
       std::optional<std::string> type;
       std::optional<std::string> session;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>().member<"rest">(knot::rest); }
     };
     std::optional<authentication_data_t> auth;
     std::string client_secret;
     std::string sid;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid/add";
     return {method::post{}, std::move(target), detail::json(body), true};
@@ -101,11 +101,11 @@ struct bind3_pid {
     std::string id_server;
     std::string id_access_token;
     std::string sid;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid/bind";
     return {method::post{}, std::move(target), detail::json(body), true};
@@ -129,7 +129,7 @@ struct delete3pid_from_account {
     std::optional<std::string> id_server;
     medium_t medium;
     std::string address;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
@@ -145,7 +145,7 @@ struct delete3pid_from_account {
     };
     using id_server_unbind_result_t = std::variant<id_server_unbind_result_values::no_support, id_server_unbind_result_values::success, std::string>;
     id_server_unbind_result_t id_server_unbind_result;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;
@@ -173,7 +173,7 @@ struct unbind3pid_from_account {
     std::optional<std::string> id_server;
     medium_t medium;
     std::string address;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
@@ -189,7 +189,7 @@ struct unbind3pid_from_account {
     };
     using id_server_unbind_result_t = std::variant<id_server_unbind_result_values::no_support, id_server_unbind_result_values::success, std::string>;
     id_server_unbind_result_t id_server_unbind_result;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;

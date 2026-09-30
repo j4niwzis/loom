@@ -14,12 +14,12 @@ export namespace loom::cs {
 struct ping_appservice {
   struct body_t {
     std::optional<std::string> transaction_id;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::int64_t duration_ms;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string appservice_id;

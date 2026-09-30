@@ -14,7 +14,7 @@ export namespace loom::cs {
 struct get_devices {
   struct response_t {
     std::optional<std::vector<def::device_t>> devices;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
@@ -38,12 +38,12 @@ struct get_device {
 struct update_device {
   struct body_t {
     std::optional<std::string> display_name;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string device_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/devices/" + percent_encoded(detail::text(device_id));
     return {method::put{}, std::move(target), detail::json(body), true};
@@ -56,16 +56,16 @@ struct delete_device {
     struct authentication_data_t {
       std::optional<std::string> type;
       std::optional<std::string> session;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>().member<"rest">(knot::rest); }
     };
     std::optional<authentication_data_t> auth;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string device_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/devices/" + percent_encoded(detail::text(device_id));
     return {method::delete_{}, std::move(target), detail::json(body), true};
@@ -78,16 +78,16 @@ struct delete_devices {
     struct authentication_data_t {
       std::optional<std::string> type;
       std::optional<std::string> session;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>().member<"rest">(knot::rest); }
     };
     std::vector<std::string> devices;
     std::optional<authentication_data_t> auth;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/delete_devices";
     return {method::post{}, std::move(target), detail::json(body), true};

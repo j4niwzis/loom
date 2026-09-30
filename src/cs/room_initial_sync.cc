@@ -36,7 +36,7 @@ struct room_initial_sync {
       std::optional<std::string> start;
       std::string end;
       std::vector<loom::ev::timeline_event> chunk;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<pagination_chunk_t>) { return knot::schema<pagination_chunk_t>().member<"rest">(knot::rest); }
     };
     struct visibility_values {
@@ -51,9 +51,9 @@ struct room_initial_sync {
     };
     using visibility_t = std::variant<visibility_values::private_, visibility_values::public_, std::string>;
     struct event_t {
-      knot::value content;
+      knot::raw content;
       std::string type;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"rest">(knot::rest); }
     };
     std::string room_id;
@@ -62,7 +62,7 @@ struct room_initial_sync {
     std::optional<std::vector<loom::ev::timeline_event>> state;
     std::optional<visibility_t> visibility;
     std::optional<std::vector<event_t>> account_data;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<room_info_t>) { return knot::schema<room_info_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;

@@ -31,6 +31,16 @@ constexpr std::string_view choice_text(const std::variant<Alternatives...>& one)
 // What a redaction leaves of an event's content, by room version (the
 // specification's room versions, "Redactions"): the keys kept for each type.
 // A version not written as a number is taken to follow the latest rules.
+// An object as its keys, each value kept as its JSON text: for cutting an
+// object by key without reading what is under the keys.
+using members = std::map<std::string, knot::raw, std::less<>>;
+
+// The to-device events of a sync, each kept as it came.
+struct to_device_events {
+  std::vector<knot::raw> events;
+};
+consteval auto json_schema(knot::type<to_device_events>) { return knot::schema<to_device_events>(); }
+
 struct redaction_rules {
   int version = 11;
 
@@ -81,28 +91,24 @@ struct redaction_rules {
   }
 
   // The content a redaction leaves: the kept keys, and from version 11 on,
-  // of a member event's third_party_invite, only its signed.
-  constexpr knot::value redact(std::string_view type, const knot::value& content) const {
+  // of a member event's third_party_invite, only its signed. The content is
+  // read once as its keys, each value kept as its text: no tree.
+  constexpr knot::raw redact(std::string_view type, const knot::raw& content) const {
     if (keeps_all(type))
       return content;
-    knot::value::object left;
-    if (!content.is<knot::value::object>())
-      return knot::value(std::move(left));
-    const auto& all = content.as<knot::value::object>();
+    members left;
+    const auto all = knot::try_read<members>(content.text);
+    if (!all)
+      return knot::raw{"{}"};
     for (std::string_view key : kept(type))
-      if (const auto found = all.find(std::string(key)); found != all.end())
+      if (const auto found = all->find(key); found != all->end())
         left.emplace(found->first, found->second);
     if (version >= 11 && type == "m.room.member")
-      if (const auto invite = all.find("third_party_invite");
-          invite != all.end() && invite->second.is<knot::value::object>()) {
-        const auto& inner = invite->second.as<knot::value::object>();
-        if (const auto signed_ = inner.find("signed"); signed_ != inner.end()) {
-          knot::value::object only;
-          only.emplace(signed_->first, signed_->second);
-          left.emplace("third_party_invite", knot::value(std::move(only)));
-        }
-      }
-    return knot::value(std::move(left));
+      if (const auto invite = all->find("third_party_invite"); invite != all->end())
+        if (const auto inner = knot::try_read<members>(invite->second.text))
+          if (const auto signed_ = inner->find("signed"); signed_ != inner->end())
+            left.emplace("third_party_invite", knot::raw{knot::to_json_string(members{{signed_->first, signed_->second}})});
+    return knot::raw{knot::to_json_string(left)};
   }
 };
 
@@ -221,8 +227,8 @@ struct state {
   std::map<std::string, left_room, std::less<>> left;
   std::map<std::string, other_event, std::less<>> account_data;  // by type
   std::map<std::string, other_event, std::less<>> presence;      // by user
-  std::vector<knot::value> to_device;                             // the last sync's
-  std::optional<knot::value> device_lists;
+  std::vector<knot::raw> to_device;                               // the last sync's
+  std::optional<knot::raw> device_lists;
   std::map<std::string, std::int64_t> one_time_keys_count;
 
   // An answer applied. use_state_after says whether the request asked for
@@ -239,11 +245,8 @@ struct state {
           presence.insert_or_assign(*one.sender, one);
     to_device.clear();
     if (sync.to_device)
-      if (sync.to_device->is<knot::value::object>())
-        if (const auto events = sync.to_device->as<knot::value::object>().find("events");
-            events != sync.to_device->as<knot::value::object>().end() && events->second.is<knot::value::array>())
-          for (const auto& one : events->second.as<knot::value::array>())
-            to_device.push_back(one);
+      if (auto got = knot::try_read<to_device_events>(sync.to_device->text))
+        to_device = std::move(got->events);
     if (sync.device_lists)
       device_lists = sync.device_lists;
     if (sync.device_one_time_keys_count)
@@ -375,19 +378,19 @@ struct state {
         target = *redacts;
     if (!target)
       return;
+    // The event cut by its keys: its content to what the rules keep, and
+    // the redaction put in its unsigned; then read back into its type.
     const auto cut = [&](ev::timeline_event& one) {
-      knot::value tree = knot::to_value(one);
-      if (!tree.is<knot::value::object>())
+      auto all = knot::try_read<members>(knot::to_json_string(one));
+      if (!all)
         return;
-      auto& all = std::get<knot::value::object>(tree.data());
-      knot::value content = rules.redact(one.type, all.contains("content") ? all.at("content") : knot::value());
-      all.erase("content");
-      all.emplace("content", std::move(content));
-      knot::value::object unsigned_data;
-      unsigned_data.emplace("redacted_because", knot::to_value(redaction));
-      all.erase("unsigned");
-      all.emplace("unsigned", knot::value(std::move(unsigned_data)));
-      if (auto made = knot::from_value<ev::timeline_event>(tree))
+      const auto content = all->find("content");
+      knot::raw left = rules.redact(one.type, content != all->end() ? content->second : knot::raw{});
+      all->insert_or_assign("content", std::move(left));
+      all->insert_or_assign("unsigned",
+                            knot::raw{knot::to_json_string(members{{"redacted_because",
+                                                                    knot::raw{knot::to_json_string(redaction)}}})});
+      if (auto made = knot::try_read<ev::timeline_event>(knot::to_json_string(*all)))
         one = std::move(*made);
     };
     for (auto& one : timeline)

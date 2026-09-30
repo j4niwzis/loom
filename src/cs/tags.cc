@@ -14,7 +14,7 @@ export namespace loom::cs {
 struct get_room_tags {
   struct response_t {
     std::optional<std::map<std::string, def::tag_t>> tags;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
@@ -32,7 +32,7 @@ struct set_room_tag {
   std::string room_id;
   std::string tag;
   def::tag_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/rooms/" + percent_encoded(detail::text(room_id)) + "/tags/" + percent_encoded(detail::text(tag));
     return {method::put{}, std::move(target), detail::json(body), true};
@@ -44,7 +44,7 @@ struct delete_room_tag {
   std::string user_id;
   std::string room_id;
   std::string tag;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/rooms/" + percent_encoded(detail::text(room_id)) + "/tags/" + percent_encoded(detail::text(tag));
     return {method::delete_{}, std::move(target), "", true};

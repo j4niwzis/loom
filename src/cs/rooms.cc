@@ -38,7 +38,7 @@ struct get_room_state_with_key {
   std::string event_type;
   std::string state_key;
   std::optional<format_t> format;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/state/" + percent_encoded(detail::text(event_type)) + "/" + percent_encoded(detail::text(state_key));
     if (format)
@@ -107,7 +107,7 @@ struct get_members_by_room {
   using not_membership_t = std::variant<not_membership_values::join, not_membership_values::invite, not_membership_values::knock, not_membership_values::leave, not_membership_values::ban, std::string>;
   struct response_t {
     std::optional<std::vector<loom::ev::timeline_event>> chunk;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
@@ -133,11 +133,11 @@ struct get_joined_members_by_room {
     struct room_member_t {
       std::optional<std::string> display_name;
       std::optional<std::string> avatar_url;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<room_member_t>) { return knot::schema<room_member_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::map<std::string, room_member_t>> joined;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;

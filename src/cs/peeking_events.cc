@@ -16,13 +16,13 @@ struct peek_events {
     struct event_t {
       struct unsigned_data_t {
         std::optional<std::int64_t> age;
-        std::optional<knot::value> redacted_because;
+        std::optional<knot::raw> redacted_because;
         std::optional<std::string> transaction_id;
-        std::optional<knot::value> prev_content;
+        std::optional<knot::raw> prev_content;
         std::optional<std::string> prev_sender;
         std::optional<std::string> replaces_state;
         std::optional<std::string> membership;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>().member<"rest">(knot::rest); }
       };
       std::string event_id;
@@ -30,16 +30,16 @@ struct peek_events {
       std::optional<std::string> state_key;
       std::string sender;
       std::int64_t origin_server_ts;
-      knot::value content;
+      knot::raw content;
       std::optional<unsigned_data_t> unsigned_;
       std::string room_id;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<event_t>) { return knot::schema<event_t>().member<"unsigned_">(knot::key("unsigned")).member<"rest">(knot::rest); }
     };
     std::optional<std::string> start;
     std::optional<std::string> end;
     std::optional<std::vector<event_t>> chunk;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::string> from;

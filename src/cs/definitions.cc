@@ -16,13 +16,13 @@ struct request_email_validation_t {
   std::optional<std::string> next_link;
   std::optional<std::string> id_server;
   std::optional<std::string> id_access_token;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<request_email_validation_t>) { return knot::schema<request_email_validation_t>().member<"rest">(knot::rest); }
 };
 struct request_token_response_t {
   std::string sid;
   std::optional<std::string> submit_url;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<request_token_response_t>) { return knot::schema<request_token_response_t>().member<"rest">(knot::rest); }
 };
 struct request_msisdn_validation_t {
@@ -33,12 +33,12 @@ struct request_msisdn_validation_t {
   std::optional<std::string> next_link;
   std::optional<std::string> id_server;
   std::optional<std::string> id_access_token;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<request_msisdn_validation_t>) { return knot::schema<request_msisdn_validation_t>().member<"rest">(knot::rest); }
 };
 struct boolean_capability_t {
   bool enabled;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<boolean_capability_t>) { return knot::schema<boolean_capability_t>().member<"rest">(knot::rest); }
 };
 struct invite3pid_t {
@@ -46,7 +46,7 @@ struct invite3pid_t {
   std::string id_access_token;
   std::string medium;
   std::string address;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<invite3pid_t>) { return knot::schema<invite3pid_t>().member<"rest">(knot::rest); }
 };
 struct device_t {
@@ -54,7 +54,7 @@ struct device_t {
   std::optional<std::string> display_name;
   std::optional<std::string> last_seen_ip;
   std::optional<std::int64_t> last_seen_ts;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<device_t>) { return knot::schema<device_t>().member<"rest">(knot::rest); }
 };
 struct filter_t {
@@ -75,7 +75,7 @@ struct filter_t {
     std::optional<std::vector<std::string>> not_types;
     std::optional<std::vector<std::string>> senders;
     std::optional<std::vector<std::string>> types;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<event_filter_t>) { return knot::schema<event_filter_t>().member<"rest">(knot::rest); }
   };
   struct event_filter_2_t {
@@ -84,7 +84,7 @@ struct filter_t {
     std::optional<std::vector<std::string>> not_types;
     std::optional<std::vector<std::string>> senders;
     std::optional<std::vector<std::string>> types;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<event_filter_2_t>) { return knot::schema<event_filter_2_t>().member<"rest">(knot::rest); }
   };
   struct room_filter_t {
@@ -100,7 +100,7 @@ struct filter_t {
       std::optional<std::vector<std::string>> not_rooms;
       std::optional<std::vector<std::string>> rooms;
       std::optional<bool> contains_url;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<event_filter_t>) { return knot::schema<event_filter_t>().member<"rest">(knot::rest); }
     };
     struct event_filter_2_t {
@@ -115,7 +115,7 @@ struct filter_t {
       std::optional<std::vector<std::string>> not_rooms;
       std::optional<std::vector<std::string>> rooms;
       std::optional<bool> contains_url;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<event_filter_2_t>) { return knot::schema<event_filter_2_t>().member<"rest">(knot::rest); }
     };
     struct event_filter_3_t {
@@ -130,7 +130,7 @@ struct filter_t {
       std::optional<std::vector<std::string>> not_rooms;
       std::optional<std::vector<std::string>> rooms;
       std::optional<bool> contains_url;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<event_filter_3_t>) { return knot::schema<event_filter_3_t>().member<"rest">(knot::rest); }
     };
     struct event_filter_4_t {
@@ -145,7 +145,7 @@ struct filter_t {
       std::optional<std::vector<std::string>> not_rooms;
       std::optional<std::vector<std::string>> rooms;
       std::optional<bool> contains_url;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<event_filter_4_t>) { return knot::schema<event_filter_4_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::vector<std::string>> not_rooms;
@@ -155,7 +155,7 @@ struct filter_t {
     std::optional<event_filter_2_t> state;
     std::optional<event_filter_3_t> timeline;
     std::optional<event_filter_4_t> account_data;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<room_filter_t>) { return knot::schema<room_filter_t>().member<"rest">(knot::rest); }
   };
   std::optional<std::vector<std::string>> event_fields;
@@ -163,29 +163,29 @@ struct filter_t {
   std::optional<event_filter_t> presence;
   std::optional<event_filter_2_t> account_data;
   std::optional<room_filter_t> room;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<filter_t>) { return knot::schema<filter_t>().member<"rest">(knot::rest); }
 };
 struct key_backup_data_t {
   std::int64_t first_message_index;
   std::int64_t forwarded_count;
   bool is_verified;
-  knot::value session_data;
-  knot::value rest;
+  knot::raw session_data;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<key_backup_data_t>) { return knot::schema<key_backup_data_t>().member<"rest">(knot::rest); }
 };
 struct room_keys_update_response_t {
   std::string etag;
   std::int64_t count;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<room_keys_update_response_t>) { return knot::schema<room_keys_update_response_t>().member<"rest">(knot::rest); }
 };
 struct room_key_backup_t {
   std::map<std::string, key_backup_data_t> sessions;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<room_key_backup_t>) { return knot::schema<room_key_backup_t>().member<"rest">(knot::rest); }
 };
-using one_time_keys_t = std::map<std::string, knot::value>;
+using one_time_keys_t = std::map<std::string, knot::raw>;
 struct published_rooms_chunk_t {
   std::optional<std::string> canonical_alias;
   std::optional<std::string> name;
@@ -197,7 +197,7 @@ struct published_rooms_chunk_t {
   std::optional<std::string> avatar_url;
   std::optional<std::string> join_rule;
   std::optional<std::string> room_type;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<published_rooms_chunk_t>) { return knot::schema<published_rooms_chunk_t>().member<"rest">(knot::rest); }
 };
 struct public_rooms_response_t {
@@ -205,22 +205,22 @@ struct public_rooms_response_t {
   std::optional<std::string> next_batch;
   std::optional<std::string> prev_batch;
   std::optional<std::int64_t> total_room_count_estimate;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<public_rooms_response_t>) { return knot::schema<public_rooms_response_t>().member<"rest">(knot::rest); }
 };
 struct user_identifier_t {
   std::string type;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<user_identifier_t>) { return knot::schema<user_identifier_t>().member<"rest">(knot::rest); }
 };
 struct homeserver_information_t {
   std::string base_url;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<homeserver_information_t>) { return knot::schema<homeserver_information_t>().member<"rest">(knot::rest); }
 };
 struct identity_server_information_t {
   std::string base_url;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<identity_server_information_t>) { return knot::schema<identity_server_information_t>().member<"rest">(knot::rest); }
 };
 struct open_id_credentials_t {
@@ -228,7 +228,7 @@ struct open_id_credentials_t {
   std::string token_type;
   std::string matrix_server_name;
   std::int64_t expires_in;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<open_id_credentials_t>) { return knot::schema<open_id_credentials_t>().member<"rest">(knot::rest); }
 };
 struct push_condition_t {
@@ -236,18 +236,18 @@ struct push_condition_t {
   std::optional<std::string> key;
   std::optional<std::string> pattern;
   std::optional<std::string> is;
-  std::optional<knot::value> value;
-  knot::value rest;
+  std::optional<knot::raw> value;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<push_condition_t>) { return knot::schema<push_condition_t>().member<"rest">(knot::rest); }
 };
 struct push_rule_t {
-  std::vector<knot::value> actions;
+  std::vector<knot::raw> actions;
   bool default_;
   bool enabled;
   std::string rule_id;
   std::optional<std::vector<push_condition_t>> conditions;
   std::optional<std::string> pattern;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<push_rule_t>) { return knot::schema<push_rule_t>().member<"default_">(knot::key("default")).member<"rest">(knot::rest); }
 };
 struct push_ruleset_t {
@@ -256,28 +256,28 @@ struct push_ruleset_t {
   std::optional<std::vector<push_rule_t>> room;
   std::optional<std::vector<push_rule_t>> sender;
   std::optional<std::vector<push_rule_t>> underride;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<push_ruleset_t>) { return knot::schema<push_ruleset_t>().member<"override_">(knot::key("override")).member<"rest">(knot::rest); }
 };
 struct tag_t {
   std::optional<double> order;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<tag_t>) { return knot::schema<tag_t>().member<"rest">(knot::rest); }
 };
 struct protocol_t {
   struct field_type_t {
     std::string regexp;
     std::string placeholder;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<field_type_t>) { return knot::schema<field_type_t>().member<"rest">(knot::rest); }
   };
   struct protocol_instance_t {
     std::string desc;
     std::optional<std::string> icon;
-    knot::value fields;
+    knot::raw fields;
     std::string network_id;
     std::optional<std::string> instance_id;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<protocol_instance_t>) { return knot::schema<protocol_instance_t>().member<"rest">(knot::rest); }
   };
   std::vector<std::string> user_fields;
@@ -285,27 +285,27 @@ struct protocol_t {
   std::string icon;
   std::map<std::string, field_type_t> field_types;
   std::vector<protocol_instance_t> instances;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<protocol_t>) { return knot::schema<protocol_t>().member<"rest">(knot::rest); }
 };
 struct location_t {
   std::string alias;
   std::string protocol;
-  knot::value fields;
-  knot::value rest;
+  knot::raw fields;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<location_t>) { return knot::schema<location_t>().member<"rest">(knot::rest); }
 };
 struct user_t {
   std::string userid;
   std::string protocol;
-  knot::value fields;
-  knot::value rest;
+  knot::raw fields;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<user_t>) { return knot::schema<user_t>().member<"rest">(knot::rest); }
 };
 struct discovery_information_t {
   homeserver_information_t m_homeserver;
   std::optional<identity_server_information_t> m_identity_server;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<discovery_information_t>) { return knot::schema<discovery_information_t>().member<"m_homeserver">(knot::key("m.homeserver")).member<"m_identity_server">(knot::key("m.identity_server")).member<"rest">(knot::rest); }
 };
 

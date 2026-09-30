@@ -32,8 +32,8 @@ struct upload_cross_signing_keys {
       std::string user_id;
       std::vector<usage_item_t> usage;
       std::map<std::string, std::string> keys;
-      std::optional<knot::value> signatures;
-      knot::value rest;
+      std::optional<knot::raw> signatures;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<cross_signing_key_t>) { return knot::schema<cross_signing_key_t>().member<"rest">(knot::rest); }
     };
     struct cross_signing_key_2_t {
@@ -55,8 +55,8 @@ struct upload_cross_signing_keys {
       std::string user_id;
       std::vector<usage_item_t> usage;
       std::map<std::string, std::string> keys;
-      std::optional<knot::value> signatures;
-      knot::value rest;
+      std::optional<knot::raw> signatures;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<cross_signing_key_2_t>) { return knot::schema<cross_signing_key_2_t>().member<"rest">(knot::rest); }
     };
     struct cross_signing_key_3_t {
@@ -78,25 +78,25 @@ struct upload_cross_signing_keys {
       std::string user_id;
       std::vector<usage_item_t> usage;
       std::map<std::string, std::string> keys;
-      std::optional<knot::value> signatures;
-      knot::value rest;
+      std::optional<knot::raw> signatures;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<cross_signing_key_3_t>) { return knot::schema<cross_signing_key_3_t>().member<"rest">(knot::rest); }
     };
     struct authentication_data_t {
       std::optional<std::string> type;
       std::optional<std::string> session;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<authentication_data_t>) { return knot::schema<authentication_data_t>().member<"rest">(knot::rest); }
     };
     std::optional<cross_signing_key_t> master_key;
     std::optional<cross_signing_key_2_t> self_signing_key;
     std::optional<cross_signing_key_3_t> user_signing_key;
     std::optional<authentication_data_t> auth;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/keys/device_signing/upload";
     return {method::post{}, std::move(target), detail::json(body), true};
@@ -106,11 +106,11 @@ struct upload_cross_signing_keys {
 // POST /_matrix/client/v3/keys/signatures/upload: Upload cross-signing signatures.
 struct upload_cross_signing_signatures {
   struct response_t {
-    std::optional<std::map<std::string, std::map<std::string, knot::value>>> failures;
-    knot::value rest;
+    std::optional<std::map<std::string, std::map<std::string, knot::raw>>> failures;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
-  std::map<std::string, std::map<std::string, knot::value>> body;
+  std::map<std::string, std::map<std::string, knot::raw>> body;
   using response = response_t;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/keys/signatures/upload";

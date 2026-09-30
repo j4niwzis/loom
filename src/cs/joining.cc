@@ -18,17 +18,17 @@ struct join_room_by_id {
       std::string mxid;
       std::string token;
       std::map<std::string, std::map<std::string, std::string>> signatures;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<third_party_signed_t>) { return knot::schema<third_party_signed_t>().member<"rest">(knot::rest); }
     };
     std::optional<third_party_signed_t> third_party_signed;
     std::optional<std::string> reason;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string room_id;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
@@ -48,17 +48,17 @@ struct join_room {
       std::string mxid;
       std::string token;
       std::map<std::string, std::map<std::string, std::string>> signatures;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<third_party_signed_t>) { return knot::schema<third_party_signed_t>().member<"rest">(knot::rest); }
     };
     std::optional<third_party_signed_t> third_party_signed;
     std::optional<std::string> reason;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     std::string room_id;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id_or_alias;

@@ -76,7 +76,7 @@ constexpr std::string text(double one) {
   char* end = std::to_chars(digits, digits + 32, one).ptr;
   return std::string(digits, end);
 }
-constexpr std::string text(const knot::value& one) { return knot::to_json_string(one); }
+constexpr std::string text(const knot::raw& one) { return one.text; }
 // A choice: the string its alternative names, or the one it keeps.
 template <class... Alternatives>
 constexpr std::string text(const std::variant<Alternatives...>& one) {

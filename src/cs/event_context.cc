@@ -16,13 +16,13 @@ struct get_event_context {
     struct client_event_t {
       struct unsigned_data_t {
         std::optional<std::int64_t> age;
-        std::optional<knot::value> redacted_because;
+        std::optional<knot::raw> redacted_because;
         std::optional<std::string> transaction_id;
-        std::optional<knot::value> prev_content;
+        std::optional<knot::raw> prev_content;
         std::optional<std::string> prev_sender;
         std::optional<std::string> replaces_state;
         std::optional<std::string> membership;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>().member<"rest">(knot::rest); }
       };
       std::string event_id;
@@ -30,10 +30,10 @@ struct get_event_context {
       std::optional<std::string> state_key;
       std::string sender;
       std::int64_t origin_server_ts;
-      knot::value content;
+      knot::raw content;
       std::optional<unsigned_data_t> unsigned_;
       std::string room_id;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<client_event_t>) { return knot::schema<client_event_t>().member<"unsigned_">(knot::key("unsigned")).member<"rest">(knot::rest); }
     };
     std::optional<std::string> start;
@@ -42,7 +42,7 @@ struct get_event_context {
     std::optional<client_event_t> event;
     std::optional<std::vector<loom::ev::timeline_event>> events_after;
     std::optional<std::vector<loom::ev::timeline_event>> state;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;

@@ -25,13 +25,13 @@ struct update_appservice_room_directory_visibility {
     };
     using visibility_t = std::variant<visibility_values::public_, visibility_values::private_, std::string>;
     visibility_t visibility;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string network_id;
   std::string room_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/directory/list/appservice/" + percent_encoded(detail::text(network_id)) + "/" + percent_encoded(detail::text(room_id));
     return {method::put{}, std::move(target), detail::json(body), false};

@@ -14,12 +14,12 @@ export namespace loom::cs {
 struct leave_room {
   struct body_t {
     std::optional<std::string> reason;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/leave";
     return {method::post{}, std::move(target), detail::json(body), true};
@@ -29,7 +29,7 @@ struct leave_room {
 // POST /_matrix/client/v3/rooms/{roomId}/forget: Stop the requesting user remembering about a particular room.
 struct forget_room {
   std::string room_id;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/forget";
     return {method::post{}, std::move(target), "{}", true};

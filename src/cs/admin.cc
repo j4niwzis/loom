@@ -19,20 +19,20 @@ struct get_who_is {
           std::optional<std::string> ip;
           std::optional<std::int64_t> last_seen;
           std::optional<std::string> user_agent;
-          knot::value rest;
+          knot::raw rest;
           friend consteval auto json_schema(knot::type<connection_info_t>) { return knot::schema<connection_info_t>().member<"rest">(knot::rest); }
         };
         std::optional<std::vector<connection_info_t>> connections;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<session_info_t>) { return knot::schema<session_info_t>().member<"rest">(knot::rest); }
       };
       std::optional<std::vector<session_info_t>> sessions;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<device_info_t>) { return knot::schema<device_info_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::string> user_id;
     std::optional<std::map<std::string, device_info_t>> devices;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
@@ -47,7 +47,7 @@ struct get_who_is {
 struct get_admin_suspend_user {
   struct response_t {
     bool suspended;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
@@ -62,12 +62,12 @@ struct get_admin_suspend_user {
 struct set_admin_suspend_user {
   struct body_t {
     bool suspended;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     bool suspended;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
@@ -83,7 +83,7 @@ struct set_admin_suspend_user {
 struct get_admin_lock_user {
   struct response_t {
     bool locked;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;
@@ -98,12 +98,12 @@ struct get_admin_lock_user {
 struct set_admin_lock_user {
   struct body_t {
     bool locked;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     bool locked;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string user_id;

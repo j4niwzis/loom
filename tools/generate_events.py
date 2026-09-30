@@ -79,10 +79,10 @@ def main_events():
         else:
             name = hint + '_t'
             t = emitter.type_of(content_schema, content_base, hint, scope, 0)
-            if t.startswith('std::') or t == 'knot::value' or t.startswith('def::'):
+            if t.startswith('std::') or t == 'knot::raw' or t.startswith('def::'):
                 # Content that is not an object of known keys: kept whole, in a
                 # struct of its own so that the union can tell it by its tag.
-                scope['lines'].append(f'struct {name} {{\n  knot::value rest;\n'
+                scope['lines'].append(f'struct {name} {{\n  knot::raw rest;\n'
                                       f'  friend consteval auto json_schema(knot::type<{name}>) '
                                       f'{{ return knot::schema<{name}>().member<"rest">(knot::rest); }}\n}};')
             scope['names'].add(name)
@@ -108,19 +108,19 @@ def main_events():
     lines = list(scope['lines'])
     lines.append('')
     for name, what, members in unions:
-        lines.append(f'// {what} Any other type is kept as knot::value.')
+        lines.append(f'// {what} Any other type is kept as knot::raw, its JSON text.')
         alternatives = ', '.join(m[3] for m in members)
-        lines.append(f'using {name} = knot::tagged<"type", {alternatives}, knot::value>;')
+        lines.append(f'using {name} = knot::tagged<"type", {alternatives}, knot::raw>;')
     lines.append('')
     lines.append('''// What the server adds to an event, not signed (the spec's UnsignedData):
 // prev_content and redacted_because as they came, and anything newer kept.
 struct unsigned_data {
   std::optional<std::int64_t> age;
   std::optional<std::string> membership;
-  std::optional<knot::value> prev_content;
-  std::optional<knot::value> redacted_because;
+  std::optional<knot::raw> prev_content;
+  std::optional<knot::raw> redacted_because;
   std::optional<std::string> transaction_id;
-  knot::value rest;
+  knot::raw rest;
   friend consteval auto json_schema(knot::type<unsigned_data>) {
     return knot::schema<unsigned_data>().member<"rest">(knot::rest);
   }

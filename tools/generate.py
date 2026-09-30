@@ -130,34 +130,34 @@ class Emitter:
 
     def type_of(self, schema, base, hint, scope, depth=0):
         if depth > 40:
-            return 'knot::value'
+            return 'knot::raw'
         raw = schema
         if isinstance(schema, dict) and '$ref_base' in schema:
             base, schema = schema['$ref_base'], schema['schema']
         if isinstance(schema, dict) and '$ref' in schema:
             target, target_base, key = resolve(schema, base)
             if key and key[0].startswith(API + '/definitions/errors'):
-                return 'knot::value'
+                return 'knot::raw'
             if key and isinstance(target, dict) and (target.get('type') == 'object' or 'allOf' in target
                                                    or 'properties' in target):
                 return self.g.definition(key, target, target_base)
             return self.type_of(target, target_base, hint, scope, depth + 1)
         schema, base = merged(schema, base)
         if not isinstance(schema, dict):
-            return 'knot::value'
+            return 'knot::raw'
         if 'oneOf' in schema or 'anyOf' in schema:
             options = schema.get('oneOf') or schema.get('anyOf')
             kinds = {resolve(o, base)[0].get('type') if isinstance(resolve(o, base)[0], dict) else None
                      for o in options}
             if kinds == {'string'}:
                 return 'std::string'
-            return 'knot::value'
+            return 'knot::raw'
         kind = schema.get('type')
         if isinstance(kind, list):
             kinds = [k for k in kind if k != 'null']
             kind = kinds[0] if len(kinds) == 1 else None
             if kind is None:
-                return 'knot::value'
+                return 'knot::raw'
         values = schema.get('enum')
         if isinstance(values, list) and values and all(isinstance(v, str) for v in values) \
                 and kind in ('string', None):
@@ -173,7 +173,7 @@ class Emitter:
         if kind == 'array':
             items = schema.get('items')
             if items is None:
-                return 'std::vector<knot::value>'
+                return 'std::vector<knot::raw>'
             items_base = schema.get('$bases', {}).get('items', base)
             return f'std::vector<{self.type_of(items, items_base, hint + "_item", scope, depth + 1)}>'
         properties = schema.get('properties')
@@ -190,7 +190,7 @@ class Emitter:
             return f'std::map<std::string, {self.type_of(value, pattern_base, hint + "_value", scope, depth + 1)}>'
         if kind == 'object' and extra is False:
             return self.structure({'properties': {}}, base, hint, scope, depth)
-        return 'knot::value'
+        return 'knot::raw'
 
     def choice(self, values, hint, scope):
         """A string enum: a knot choice, an empty type a value and a std::string
@@ -259,7 +259,7 @@ class Emitter:
             rest = 'rest'
             while rest in used or rest == name:
                 rest += '_'
-            members.append(f'  knot::value {rest};')
+            members.append(f'  knot::raw {rest};')
         lines = [f'struct {name} {{']
         for l in inner['lines']:
             lines.append('  ' + l)
@@ -295,7 +295,7 @@ class Generator:
         if key in self.definitions:
             return 'def::' + self.definitions[key]
         if key in self.in_progress:
-            return 'knot::value'  # a type that holds itself: kept as a value
+            return 'knot::raw'  # a type that holds itself: kept as its text
         self.in_progress.add(key)
         path, fragment = key
         stem = os.path.splitext(os.path.relpath(path, SPEC))[0]

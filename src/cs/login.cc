@@ -16,11 +16,11 @@ struct get_login_flows {
     struct login_flow_t {
       std::string type;
       std::optional<bool> get_login_token;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<login_flow_t>) { return knot::schema<login_flow_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::vector<login_flow_t>> flows;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
@@ -43,14 +43,14 @@ struct login {
     std::optional<std::string> device_id;
     std::optional<std::string> initial_device_display_name;
     std::optional<bool> refresh_token;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   struct response_t {
     struct discovery_information_t {
       def::homeserver_information_t m_homeserver;
       std::optional<def::identity_server_information_t> m_identity_server;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<discovery_information_t>) { return knot::schema<discovery_information_t>().member<"m_homeserver">(knot::key("m.homeserver")).member<"m_identity_server">(knot::key("m.identity_server")).member<"rest">(knot::rest); }
     };
     std::string user_id;
@@ -60,7 +60,7 @@ struct login {
     std::optional<std::string> home_server;
     std::string device_id;
     std::optional<discovery_information_t> well_known;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   body_t body;

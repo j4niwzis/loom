@@ -17,7 +17,7 @@ struct get_pushers {
       struct pusher_data_t {
         std::optional<std::string> url;
         std::optional<std::string> format;
-        knot::value rest;
+        knot::raw rest;
         friend consteval auto json_schema(knot::type<pusher_data_t>) { return knot::schema<pusher_data_t>().member<"rest">(knot::rest); }
       };
       std::string pushkey;
@@ -28,11 +28,11 @@ struct get_pushers {
       std::optional<std::string> profile_tag;
       std::string lang;
       pusher_data_t data;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<pusher_t>) { return knot::schema<pusher_t>().member<"rest">(knot::rest); }
     };
     std::optional<std::vector<pusher_t>> pushers;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
@@ -55,7 +55,7 @@ struct post_pusher {
       using format_t = std::variant<format_values::event_id_only, std::string>;
       std::optional<std::string> url;
       std::optional<format_t> format;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<pusher_data_t>) { return knot::schema<pusher_data_t>().member<"rest">(knot::rest); }
     };
     std::string pushkey;
@@ -67,11 +67,11 @@ struct post_pusher {
     std::optional<std::string> lang;
     std::optional<pusher_data_t> data;
     std::optional<bool> append;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushers/set";
     return {method::post{}, std::move(target), detail::json(body), true};

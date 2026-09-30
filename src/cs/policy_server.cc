@@ -15,11 +15,11 @@ struct get_wellknown_policy {
   struct response_t {
     struct public_keys_t {
       std::string ed25519;
-      knot::value rest;
+      knot::raw rest;
       friend consteval auto json_schema(knot::type<public_keys_t>) { return knot::schema<public_keys_t>().member<"rest">(knot::rest); }
     };
     public_keys_t public_keys;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;

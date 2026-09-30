@@ -57,7 +57,7 @@ struct get_room_summary {
     std::optional<encryption_t> encryption;
     std::optional<std::string> room_version;
     std::optional<membership_t> membership;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<room_summary_t>) { return knot::schema<room_summary_t>().member<"rest">(knot::rest); }
   };
   std::string room_id_or_alias;

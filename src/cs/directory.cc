@@ -14,12 +14,12 @@ export namespace loom::cs {
 struct set_room_alias {
   struct body_t {
     std::string room_id;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_alias;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/directory/room/" + percent_encoded(detail::text(room_alias));
     return {method::put{}, std::move(target), detail::json(body), true};
@@ -31,7 +31,7 @@ struct get_room_id_by_alias {
   struct response_t {
     std::optional<std::string> room_id;
     std::optional<std::vector<std::string>> servers;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_alias;
@@ -45,7 +45,7 @@ struct get_room_id_by_alias {
 // DELETE /_matrix/client/v3/directory/room/{roomAlias}: Remove a mapping of room alias to room ID.
 struct delete_room_alias {
   std::string room_alias;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/directory/room/" + percent_encoded(detail::text(room_alias));
     return {method::delete_{}, std::move(target), "", true};
@@ -56,7 +56,7 @@ struct delete_room_alias {
 struct get_local_aliases {
   struct response_t {
     std::vector<std::string> aliases;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;

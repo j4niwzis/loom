@@ -29,14 +29,14 @@ struct post_receipt {
   using receipt_type_t = std::variant<receipt_type_values::m_read, receipt_type_values::m_read_private, receipt_type_values::m_fully_read, std::string>;
   struct body_t {
     std::optional<std::string> thread_id;
-    knot::value rest;
+    knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
   std::string room_id;
   receipt_type_t receipt_type;
   std::string event_id;
   body_t body;
-  using response = knot::value;
+  using response = knot::raw;
   constexpr request to_send() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/receipt/" + percent_encoded(detail::text(receipt_type)) + "/" + percent_encoded(detail::text(event_id));
     return {method::post{}, std::move(target), detail::json(body), true};
