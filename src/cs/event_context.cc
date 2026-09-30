@@ -14,33 +14,10 @@ export namespace loom::cs {
 // GET /_matrix/client/v3/rooms/{roomId}/context/{eventId}: Get events and state around the specified event.
 struct get_event_context {
   struct response_t {
-    struct client_event_t {
-      struct unsigned_data_t {
-        std::optional<std::int64_t> age;
-        std::optional<knot::raw> redacted_because;
-        std::optional<std::string> transaction_id;
-        std::optional<knot::raw> prev_content;
-        std::optional<std::string> prev_sender;
-        std::optional<std::string> replaces_state;
-        std::optional<std::string> membership;
-        knot::raw rest;
-        friend consteval auto json_schema(knot::type<unsigned_data_t>) { return knot::schema<unsigned_data_t>().member<"rest">(knot::rest); }
-      };
-      std::string event_id;
-      std::string type;
-      std::optional<std::string> state_key;
-      std::string sender;
-      std::int64_t origin_server_ts;
-      knot::raw content;
-      std::optional<unsigned_data_t> unsigned_;
-      std::string room_id;
-      knot::raw rest;
-      friend consteval auto json_schema(knot::type<client_event_t>) { return knot::schema<client_event_t>().member<"unsigned_">(knot::key("unsigned")).member<"rest">(knot::rest); }
-    };
     std::optional<std::string> start;
     std::optional<std::string> end;
     std::optional<std::vector<loom::ev::timeline_event>> events_before;
-    std::optional<client_event_t> event;
+    std::optional<loom::ev::timeline_event> event;
     std::optional<std::vector<loom::ev::timeline_event>> events_after;
     std::optional<std::vector<loom::ev::timeline_event>> state;
     knot::raw rest;

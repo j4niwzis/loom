@@ -145,6 +145,13 @@ class Emitter:
         schema, base = merged(schema, base)
         if not isinstance(schema, dict):
             return 'knot::raw'
+        # An event written inline, named by its title -- a response's
+        # "event": allOf ClientEvent -- is the event loom.ev makes, as a
+        # reference to it would be: not a struct of its own with its content
+        # as text, which a program then had to read again through JSON.
+        titled = snake(schema.get('title') or '')
+        if titled in EVENT_TYPES and titled != 'event':
+            return EVENT_TYPES[titled]
         if 'oneOf' in schema or 'anyOf' in schema:
             options = schema.get('oneOf') or schema.get('anyOf')
             kinds = {resolve(o, base)[0].get('type') if isinstance(resolve(o, base)[0], dict) else None

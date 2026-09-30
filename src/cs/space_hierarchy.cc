@@ -22,15 +22,6 @@ struct get_space_hierarchy {
         };
       };
       using encryption_t = splice::variant<encryption_values::m_megolm_v1_aes_sha2, std::string>;
-      struct stripped_state_event_t {
-        knot::raw content;
-        std::string state_key;
-        std::string type;
-        std::string sender;
-        std::int64_t origin_server_ts;
-        knot::raw rest;
-        friend consteval auto json_schema(knot::type<stripped_state_event_t>) { return knot::schema<stripped_state_event_t>().member<"rest">(knot::rest); }
-      };
       std::optional<std::string> canonical_alias;
       std::optional<std::string> name;
       std::int64_t num_joined_members;
@@ -44,7 +35,7 @@ struct get_space_hierarchy {
       std::optional<std::vector<std::string>> allowed_room_ids;
       std::optional<encryption_t> encryption;
       std::optional<std::string> room_version;
-      std::vector<stripped_state_event_t> children_state;
+      std::vector<loom::ev::stripped_event<loom::ev::state_content>> children_state;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<room_summary_t>) { return knot::schema<room_summary_t>().member<"rest">(knot::rest); }
     };

@@ -59,7 +59,7 @@ struct initial_sync {
       struct invite_event_t {
         struct unsigned_data_t {
           std::optional<std::int64_t> age;
-          std::optional<knot::raw> redacted_because;
+          std::optional<loom::ev::timeline_event> redacted_because;
           std::optional<std::string> transaction_id;
           std::optional<knot::raw> prev_content;
           std::optional<std::string> prev_sender;
