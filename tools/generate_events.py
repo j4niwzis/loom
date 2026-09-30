@@ -131,7 +131,40 @@ def with_message_extras(event_type, schema):
     return schema
 
 
+# Image packs (MSC2545) as clients have long sent them, before the spec named
+# them: the same contents under their im.ponies types -- a room's pack, the
+# user's own, and the rooms whose packs the user took everywhere.
+PACK_ALIASES = [
+    ('im.ponies.room_emotes', 'm.room.image_pack', 'state'),
+    ('im.ponies.user_emotes', 'm.room.image_pack', 'other'),
+    ('im.ponies.emote_rooms', 'm.image_pack.rooms', 'other'),
+]
+
+
+def with_pack_extras():
+    """An image's own usage, as MSC2545 has it beside the pack's: the same
+    list, for that image alone."""
+    doc = load(os.path.join(SCHEMA, 'm.room.image_pack.yaml'))
+    content = doc['properties']['content']['properties']
+    image = content['images']['additionalProperties']
+    usage = content['pack']['properties']['usage']
+    image.setdefault('properties', {}).setdefault('usage', usage)
+
+
+def alias_struct(lines, name, alias_name, tag, alias_tag):
+    """A content struct again, under another name and tag."""
+    text = '\n'.join(lines)
+    start = text.index(f'struct {name} {{')
+    end = text.index('\n};', start) + len('\n};')
+    block = text[start:end]
+    block = block.replace(f'struct {name} {{', f'struct {alias_name} {{', 1)
+    block = block.replace(f'knot::type<{name}>', f'knot::type<{alias_name}>').replace(f'knot::schema<{name}>', f'knot::schema<{alias_name}>')
+    block = block.replace(f'.tag({json.dumps(tag)})', f'.tag({json.dumps(alias_tag)})')
+    return block
+
+
 def main_events():
+    with_pack_extras()
     g = Generator()
     scope = {'names': set(), 'lines': []}
     emitter = Emitter(g, 'def::')
@@ -174,6 +207,13 @@ def main_events():
         if not variant:
             tag_struct(scope['lines'], name, event_type)
         contents.append((event_type, variant or None, kind_of(doc, path), name, stem))
+
+    for alias, source, kind in PACK_ALIASES:
+        found = next(c for c in contents if c[0] == source and not c[1])
+        alias_name = snake(alias) + '_content_t'
+        scope['lines'].append(alias_struct(scope['lines'], found[3], alias_name, source, alias))
+        scope['names'].add(alias_name)
+        contents.append((alias, None, kind, alias_name, alias))
 
     by_kind = {k: [c for c in contents if c[2] == k and not c[1]] for k in ('state', 'room', 'other')}
     # An m.room.* event built on the bare core event rather than on the room

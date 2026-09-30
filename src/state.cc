@@ -403,4 +403,235 @@ struct state {
   }
 };
 
+// ---- What a client reads of the state and says in a room, typed here once ----
+
+// Who has read up to where, as m.receipt says it: its content is event, then
+// kind, then user, to when -- read here into that; the private kind reads up
+// to the same place, only for the user.
+struct read_receipt {
+  std::string event_id;
+  std::string user;
+  std::optional<std::int64_t> ts;
+};
+namespace receipt_kind {
+struct read {};
+struct other {};
+}  // namespace receipt_kind
+using receipt_kind_t = splice::variant<receipt_kind::read, receipt_kind::other>;
+inline receipt_kind_t receipt_kind_of(std::string_view key) {
+  static constexpr std::array<std::string_view, 2> reads{"m.read", "m.read.private"};
+  return std::ranges::contains(reads, key) ? receipt_kind_t{receipt_kind::read{}} : receipt_kind_t{receipt_kind::other{}};
+}
+struct receipt_at {
+  std::optional<std::int64_t> ts;
+  friend consteval auto json_schema(knot::type<receipt_at>) { return knot::schema<receipt_at>(); }
+};
+using receipts_by_event = std::map<std::string, std::map<std::string, std::map<std::string, receipt_at>>>;
+
+// The read receipts an ephemeral event carries: none where it is not m.receipt.
+inline std::vector<read_receipt> receipts_of(const other_event& one) {
+  std::vector<read_receipt> out;
+  splice::visit(splice::overloaded{[&](const ev::m_receipt_content_t& content) {
+                                     const auto all = knot::try_read<receipts_by_event>(content.rest.text);
+                                     if (!all)
+                                       return;
+                                     for (const auto& [event_id, kinds] : *all)
+                                       for (const auto& [kind, users] : kinds)
+                                         splice::visit(splice::overloaded{[&](receipt_kind::read) {
+                                                                            for (const auto& [user, at] : users)
+                                                                              out.push_back({event_id, user, at.ts});
+                                                                          },
+                                                                          [](receipt_kind::other) {}},
+                                                       receipt_kind_of(kind));
+                                   },
+                                   [](const auto&) {}},
+                one.content.data());
+  return out;
+}
+
+// m.direct: each person's direct rooms, as the user's account data says.
+using direct_rooms_t = std::map<std::string, std::vector<std::string>>;
+inline direct_rooms_t direct_rooms(const state& all) {
+  direct_rooms_t out;
+  if (const auto found = all.account_data.find("m.direct"); found != all.account_data.end())
+    splice::visit(splice::overloaded{[&](const ev::m_direct_content_t& content) {
+                                       if (auto got = knot::try_read<direct_rooms_t>(content.rest.text))
+                                         out = std::move(*got);
+                                     },
+                                     [](const auto&) {}},
+                  found->second.content.data());
+  return out;
+}
+inline bool is_direct(const state& all, std::string_view room) {
+  return std::ranges::any_of(direct_rooms(all), [&](const auto& one) { return std::ranges::contains(one.second, room); });
+}
+
+// The images of the packs (MSC2545) a room offers: the user's own, the room's,
+// and those of other rooms the user took everywhere -- each shortcode once,
+// the first found, and only those the use asked for allows.
+namespace image_use {
+struct emoticon {};
+struct sticker {};
+struct other {};
+}  // namespace image_use
+using image_use_t = splice::variant<image_use::emoticon, image_use::sticker, image_use::other>;
+inline image_use_t image_use_of(std::string_view word) {
+  if (word == "emoticon")
+    return image_use::emoticon{};
+  if (word == "sticker")
+    return image_use::sticker{};
+  return image_use::other{};
+}
+struct pack_image {
+  std::string shortcode;
+  std::string url;
+};
+namespace detail {
+// Whether a usage list lets an image be used so: missing or empty, as any.
+inline bool allows(const auto& usage, const image_use_t& wanted) {
+  if (!usage || usage->empty())
+    return true;
+  return std::ranges::any_of(*usage, [&](const auto& one) {
+    return image_use_of(choice_text(one)).index() == wanted.index();
+  });
+}
+inline void add_pack(const auto& content, const image_use_t& wanted, std::vector<pack_image>& out) {
+  for (const auto& [shortcode, image] : content.images) {
+    const bool allowed = image.usage ? allows(image.usage, wanted)
+                                     : !content.pack || allows(content.pack->usage, wanted);
+    if (allowed && image.url.starts_with("mxc://") && !std::ranges::contains(out, shortcode, &pack_image::shortcode))
+      out.push_back({shortcode, image.url});
+  }
+}
+// A state or account-data event's pack, whichever of its names it came under.
+inline void add_packs_of(const auto& content, const image_use_t& wanted, std::vector<pack_image>& out) {
+  splice::visit(splice::overloaded{[&](const ev::m_room_image_pack_content_t& one) { add_pack(one, wanted, out); },
+                                   [&](const ev::im_ponies_room_emotes_content_t& one) { add_pack(one, wanted, out); },
+                                   [&](const ev::im_ponies_user_emotes_content_t& one) { add_pack(one, wanted, out); },
+                                   [](const auto&) {}},
+                content);
+}
+}  // namespace detail
+inline std::vector<pack_image> images(const state& all, const joined_room& room, const image_use_t& wanted) {
+  std::vector<pack_image> out;
+  if (const auto own = all.account_data.find("im.ponies.user_emotes"); own != all.account_data.end())
+    detail::add_packs_of(own->second.content.data(), wanted, out);
+  for (const auto& [key, one] : room.state.events)
+    detail::add_packs_of(one.content.data(), wanted, out);
+  // The packs of other rooms taken everywhere: room, then the state keys.
+  const auto everywhere = [&](const auto& rooms) {
+    for (const auto& [room_id, keys] : rooms)
+      if (const auto joined = all.joined.find(room_id); joined != all.joined.end())
+        for (const auto& [key, one] : joined->second.state.events)
+          if (keys.contains(key.second))
+            detail::add_packs_of(one.content.data(), wanted, out);
+  };
+  for (const std::string_view type : {"im.ponies.emote_rooms", "m.image_pack.rooms"})
+    if (const auto chosen = all.account_data.find(type); chosen != all.account_data.end())
+      splice::visit(splice::overloaded{[&](const ev::im_ponies_emote_rooms_content_t& one) { everywhere(one.rooms); },
+                                       [&](const ev::m_image_pack_rooms_content_t& one) { everywhere(one.rooms); },
+                                       [](const auto&) {}},
+                    chosen->second.content.data());
+  return out;
+}
+
+// Whether a message mentions a user: as its m.mentions says, and before
+// those, by the user's ID in its text.
+inline bool mentions(const ev::m_room_message_content_t& content, std::string_view user) {
+  if (const auto& said = content.m_mentions)
+    return (said->user_ids && std::ranges::contains(*said->user_ids, user)) || said->room.value_or(false);
+  return content.body.find(user) != std::string::npos;
+}
+
+// ---- What is said: the contents a client sends, made ----
+
+inline constexpr std::string_view kHtml = "org.matrix.custom.html";
+
+// Text, rich where HTML is given, an answer to a message where one is, and
+// who it mentions (Matrix 1.7).
+struct text_said {
+  std::string body;
+  std::optional<std::string> html;
+  std::optional<std::string> reply_to;
+  std::vector<std::string> mentions;
+};
+inline ev::m_room_message_m_text_content_t text_message(const text_said& said) {
+  ev::m_room_message_m_text_content_t content;
+  content.body = said.body;
+  if (said.html) {
+    content.format = std::string(kHtml);
+    content.formatted_body = *said.html;
+  }
+  if (said.reply_to)
+    content.m_relates_to.emplace().m_in_reply_to.emplace().event_id = *said.reply_to;
+  if (!said.mentions.empty())
+    content.m_mentions.emplace().user_ids = said.mentions;
+  return content;
+}
+// An edit of a message: the new text in m.new_content, "* " before it for
+// clients that do not know edits.
+inline ev::m_room_message_m_text_content_t edit_message(std::string_view event, const std::string& text,
+                                                         const std::optional<std::string>& html) {
+  ev::m_room_message_m_text_content_t content;
+  content.body = "* " + text;
+  if (html) {
+    content.format = std::string(kHtml);
+    content.formatted_body = "* " + *html;
+  }
+  auto& now = content.m_new_content.emplace();
+  now.msgtype = "m.text";
+  now.body = text;
+  if (html) {
+    now.format = std::string(kHtml);
+    now.formatted_body = *html;
+  }
+  auto& relates = content.m_relates_to.emplace();
+  relates.rel_type = ev::m_room_message_m_text_content_t::m_relates_to_t::rel_type_values::m_replace{};
+  relates.event_id = std::string(event);
+  return content;
+}
+// A reaction: a key, an emoji or an image's mxc URI, on a message.
+inline ev::m_reaction_content_t reaction(std::string_view target, std::string_view key) {
+  ev::m_reaction_content_t content;
+  auto& relates = content.m_relates_to.emplace();
+  relates.rel_type = ev::m_reaction_content_t::reaction_relates_to_t::rel_type_values::m_annotation{};
+  relates.event_id = std::string(target);
+  relates.key = std::string(key);
+  return content;
+}
+// A picture or a file sent: where it is kept, its name, its caption as its
+// body (its name where it has none), what it is -- an answer where one is.
+struct media_said {
+  std::string uri;
+  std::string name;
+  std::string caption;
+  std::string mimetype;
+  std::int64_t size = 0;
+  std::optional<std::string> reply_to;
+};
+namespace detail {
+inline void fill_media(auto& content, const media_said& said) {
+  content.body = said.caption.empty() ? said.name : said.caption;
+  content.filename = said.name;
+  content.url = said.uri;
+  auto& info = content.info.emplace();
+  info.mimetype = said.mimetype;
+  info.size = said.size;
+  if (said.reply_to)
+    content.m_relates_to.emplace().m_in_reply_to.emplace().event_id = *said.reply_to;
+}
+}  // namespace detail
+inline ev::m_room_message_m_image_content_t picture_message(const media_said& said, std::int64_t width, std::int64_t height) {
+  ev::m_room_message_m_image_content_t content;
+  detail::fill_media(content, said);
+  content.info->w = width;
+  content.info->h = height;
+  return content;
+}
+inline ev::m_room_message_m_file_content_t file_message(const media_said& said) {
+  ev::m_room_message_m_file_content_t content;
+  detail::fill_media(content, said);
+  return content;
+}
+
 }  // namespace loom::client
