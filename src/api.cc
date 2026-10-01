@@ -41,6 +41,9 @@ struct error {
   std::string errcode;
   std::string message;
   std::optional<std::int64_t> retry_after_ms;
+  // Asked for interactive authentication (a 401 with flows): its session,
+  // to be answered in.
+  std::optional<std::string> session;
 };
 
 namespace detail {
@@ -48,6 +51,7 @@ struct error_body {
   std::optional<std::string> errcode;
   std::optional<std::string> error;
   std::optional<std::int64_t> retry_after_ms;
+  std::optional<std::string> session;
 };
 consteval auto json_schema(knot::type<error_body>) { return knot::schema<error_body>(); }
 
@@ -123,6 +127,7 @@ constexpr std::expected<typename Endpoint::response, error> read(int status, std
     out.errcode = said->errcode.value_or("");
     out.message = said->error.value_or("");
     out.retry_after_ms = said->retry_after_ms;
+    out.session = said->session;
   }
   return std::unexpected(std::move(out));
 }
