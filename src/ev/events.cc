@@ -2632,5 +2632,8 @@ struct basic_event {
 using timeline_event = room_event<timeline_content>;
 using state_event = room_event<state_content>;
 using account_data_event = basic_event<other_content>;
+// A to-device event: for this device alone -- an Olm message, a room key --
+// with its sender.
+using to_device_event = basic_event<other_content>;
 
 }  // namespace loom::ev
