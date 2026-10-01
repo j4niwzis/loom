@@ -25,9 +25,8 @@ set(SPLICE_CONSTEXPR_STEPS ${LOOM_CONSTEXPR_STEPS} CACHE STRING
   "clang's -fconstexpr-steps for splice, as loom sets it")
 cme_declare_port(NAME splice PROVIDES splice
   GITHUB_REPOSITORY j4niwzis/splice
-  GIT_TAG 39bc67a00185f488c989d3c18b98e5995e4dc8dd
+  GIT_TAG f2c25443061ba5353720eccd0a9438793c2ea053
   LICENSE GPL-3.0-only
-  SYSTEM NEVER
   TARGETS splice)
 cme_options(splice "SPLICE_TESTS OFF")
 cme_find_package(splice REQUIRED)
@@ -37,9 +36,8 @@ cme_find_package(splice REQUIRED)
 # instead with -DCPM_knot_SOURCE=<path>.
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
-  GIT_TAG 4b6f3e206e08f3cb7b20117e0f1dc841b98413b9
+  GIT_TAG 035e53fdee8875614e350331a914256495b9bb22
   LICENSE AGPL-3.0-only
-  SYSTEM NEVER
   TARGETS knot)
 cme_options(knot "KNOT_TESTS OFF")
 cme_find_package(knot REQUIRED)
@@ -155,4 +153,40 @@ endforeach()
 if(LOOM_TESTS)
   enable_testing()
   add_subdirectory(test)
+endif()
+
+# ---- What this library is, said by the library; and installing it ----
+#
+# A consumer writes find_package(loom) and this says the rest: where it
+# comes from, what it needs, and what it produces -- installed beside the
+# library by cmake-everywhere, under share/cmake-everywhere/ports, so that a
+# prefix that has loom describes it too.
+if(COMMAND cme_declare_port)
+  cme_declare_port(
+    NAME loom
+    PROVIDES loom
+    VERSION ${PROJECT_VERSION}
+    GITHUB_REPOSITORY j4niwzis/loom
+    GIT_TAG main
+    LICENSE AGPL-3.0-only
+    DEPENDS knot splice
+    TARGETS loom::loom)
+endif()
+# The library, its module interface units -- a consumer compiles its own
+# binary interfaces from them -- and a package: find_package(loom) on a
+# machine that has it installed finds it there, by the names it has here
+# too, and what it needs again from the ports it came from.
+option(LOOM_INSTALL "Install loom and its CMake package" ${PROJECT_IS_TOP_LEVEL})
+if(LOOM_INSTALL)
+  set(loom_aliases "")
+  foreach(name IN ITEMS ids events sync api ev state)
+    list(APPEND loom_aliases loom::${name} loom_${name})
+  endforeach()
+  list(APPEND loom_aliases loom_cs_definitions)
+  foreach(component IN LISTS loom_built)
+    if(component MATCHES "^cs-(.+)$")
+      list(APPEND loom_aliases loom_cs_${CMAKE_MATCH_1})
+    endif()
+  endforeach()
+  cme_install_package(loom ALIASES ${loom_aliases})
 endif()
