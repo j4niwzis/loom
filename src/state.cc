@@ -637,6 +637,10 @@ struct media_said {
   std::string mimetype;
   std::int64_t size = 0;
   std::optional<std::string> reply_to;
+  // In a thread, as a text is: its root, and its latest event for clients
+  // that do not know threads.
+  std::optional<std::string> thread;
+  std::optional<std::string> thread_latest;
 };
 namespace detail {
 inline void fill_media(auto& content, const media_said& said) {
@@ -646,8 +650,16 @@ inline void fill_media(auto& content, const media_said& said) {
   auto& info = content.info.emplace();
   info.mimetype = said.mimetype;
   info.size = said.size;
-  if (said.reply_to)
+  if (said.thread) {
+    // A thread's (m.thread), as text_message relates one.
+    auto& relates = content.m_relates_to.emplace();
+    relates.rel_type = typename std::remove_cvref_t<decltype(relates)>::rel_type_values::m_thread{};
+    relates.event_id = *said.thread;
+    relates.is_falling_back = !said.reply_to;
+    relates.m_in_reply_to.emplace().event_id = said.reply_to ? *said.reply_to : said.thread_latest.value_or(*said.thread);
+  } else if (said.reply_to) {
     content.m_relates_to.emplace().m_in_reply_to.emplace().event_id = *said.reply_to;
+  }
 }
 }  // namespace detail
 inline ev::m_room_message_m_image_content_t picture_message(const media_said& said, std::int64_t width, std::int64_t height) {
