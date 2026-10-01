@@ -485,6 +485,14 @@ inline image_use_t image_use_of(std::string_view word) {
 struct pack_image {
   std::string shortcode;
   std::string url;
+  // What it says of itself -- its words, its size and type -- for what is
+  // sent with it (a sticker's body and info).
+  std::string body;
+  std::optional<std::int64_t> w, h, size;
+  std::optional<std::string> mimetype;
+  // The pack it is of: its name and its picture, for a picker's sections.
+  std::string pack;
+  std::optional<std::string> pack_avatar;
 };
 namespace detail {
 // Whether a usage list lets an image be used so: missing or empty, as any.
@@ -500,7 +508,15 @@ inline void add_pack(const auto& content, const image_use_t& wanted, std::vector
     const bool allowed = image.usage ? allows(image.usage, wanted)
                                      : !content.pack || allows(content.pack->usage, wanted);
     if (allowed && image.url.starts_with("mxc://") && !std::ranges::contains(out, shortcode, &pack_image::shortcode))
-      out.push_back({shortcode, image.url});
+      out.push_back({.shortcode = shortcode,
+                     .url = image.url,
+                     .body = image.body.value_or(""),
+                     .w = image.info ? image.info->w : std::nullopt,
+                     .h = image.info ? image.info->h : std::nullopt,
+                     .size = image.info ? image.info->size : std::nullopt,
+                     .mimetype = image.info ? image.info->mimetype : std::nullopt,
+                     .pack = content.pack && content.pack->display_name ? *content.pack->display_name : std::string(),
+                     .pack_avatar = content.pack ? content.pack->avatar_url : std::nullopt});
   }
 }
 // A state or account-data event's pack, whichever of its names it came under.
