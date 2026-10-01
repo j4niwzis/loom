@@ -63,6 +63,9 @@ cme_find_package(knot REQUIRED)
 # The components are cme features, so a consumer's COMPONENTS reach this file
 # as CME_FEATURES_loom; LOOM_COMPONENTS says the same by hand.
 include(cmake/generated.cmake)
+# Written by hand, not generated: what the specification does not have yet
+# -- Simplified Sliding Sync (MSC4186).
+list(APPEND LOOM_CS_PARTS sliding_sync)
 
 set(loom_components events state)
 foreach(part IN LISTS LOOM_CS_PARTS)
