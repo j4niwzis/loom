@@ -25,7 +25,7 @@ set(SPLICE_CONSTEXPR_STEPS ${LOOM_CONSTEXPR_STEPS} CACHE STRING
   "clang's -fconstexpr-steps for splice, as loom sets it")
 cme_declare_port(NAME splice PROVIDES splice
   GITHUB_REPOSITORY j4niwzis/splice
-  GIT_TAG f2c25443061ba5353720eccd0a9438793c2ea053
+  GIT_TAG 4bc078254fb74570559fe7039ac92c6a2c1a0434
   LICENSE GPL-3.0-only
   TARGETS splice)
 cme_options(splice "SPLICE_TESTS OFF")
@@ -65,13 +65,14 @@ include(cmake/generated.cmake)
 # -- Simplified Sliding Sync (MSC4186).
 list(APPEND LOOM_CS_PARTS sliding_sync)
 
-set(loom_components events state)
+set(loom_components events state crypto)
 foreach(part IN LISTS LOOM_CS_PARTS)
   list(APPEND loom_components cs-${part})
 endforeach()
 if(COMMAND cme_port_feature)
   cme_port_feature(loom events SUMMARY "every event the specification defines, typed by its type")
   cme_port_feature(loom state SUMMARY "what a client keeps between syncs")
+  cme_port_feature(loom crypto SUMMARY "end-to-end encryption: Olm and Megolm (vodozemac), key backup, cross-signing, verification")
   foreach(part IN LISTS LOOM_CS_PARTS)
     cme_port_feature(loom cs-${part} SUMMARY "the client-server API's ${part}")
   endforeach()
@@ -100,9 +101,11 @@ endif()
 set(loom_needs_events "")
 set(loom_needs_definitions events)
 set(loom_needs_state events cs-sync)
+set(loom_needs_crypto events cs-keys)
 set(loom_file_events src/ev/events.cc)
 set(loom_file_definitions src/cs/definitions.cc)
 set(loom_file_state src/state.cc)
+set(loom_file_crypto src/crypto/wire.cc src/crypto/keys.cc src/crypto/sas.cc src/crypto/crypto.cc)
 foreach(part IN LISTS LOOM_CS_PARTS)
   set(loom_needs_cs-${part} definitions)
   set(loom_file_cs-${part} src/cs/${part}.cc)
@@ -133,6 +136,15 @@ message(STATUS "loom: ${loom_part_count} parts of the API; ${loom_built}")
 add_library(loom)
 target_sources(loom PUBLIC FILE_SET CXX_MODULES BASE_DIRS src FILES ${loom_files})
 target_compile_features(loom PUBLIC cxx_std_26)
+# End-to-end encryption, where asked: OpenSSL for the ciphers and hashes,
+# vodozemac for Olm and Megolm.
+if("crypto" IN_LIST loom_built)
+  find_package(OpenSSL REQUIRED)
+  if(NOT TARGET vodozemac::vodozemac)
+    cme_find_package(vodozemac REQUIRED)
+  endif()
+  target_link_libraries(loom PUBLIC OpenSSL::Crypto vodozemac::vodozemac)
+endif()
 target_link_libraries(loom PUBLIC knot splice)
 target_compile_options(loom PUBLIC
   $<$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>:-fconstexpr-steps=${LOOM_CONSTEXPR_STEPS}>)
