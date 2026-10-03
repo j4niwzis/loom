@@ -10,6 +10,7 @@ export module loom.state;
 import std;
 import splice;
 export import knot;
+export import loom.names;
 export import loom.ev;
 export import loom.cs.sync;
 
@@ -174,6 +175,23 @@ struct room_state {
       return got->displayname;
     return std::nullopt;
   }
+  // Whether the room is a space: its creation says so, by its type.
+  bool is_space() const {
+    const auto* created = content<ev::m_room_create_content_t>("m.room.create");
+    return created && splice::visit([](auto of) { return of.is_space; }, names::room_type_of(created->type));
+  }
+  // The rooms a space holds: an m.space.child for each whose content is
+  // still a child's -- an emptied one is a child taken out.
+  std::vector<std::string> space_children() const {
+    return events |
+           std::views::filter([](const auto& one) { return one.second.content.template is<ev::m_space_child_content_t>(); }) |
+           std::views::transform([](const auto& one) { return one.first.second; }) | std::ranges::to<std::vector>();
+  }
+  // The messages pinned in the room, as its state says.
+  std::vector<std::string> pinned() const {
+    const auto* said = content<ev::m_room_pinned_events_content_t>("m.room.pinned_events");
+    return said ? said->pinned : std::vector<std::string>{};
+  }
   // The users whose membership is the one asked.
   constexpr std::vector<std::string> members(std::string_view membership = "join") const {
     std::vector<std::string> out;
@@ -212,6 +230,72 @@ struct joined_room {
   std::vector<std::string> typing;
   std::vector<other_event> ephemeral;  // the last sync's, receipts among them
 };
+
+// What a message relates to, as its m.relates_to says: whether it replaces
+// what it relates to (an edit, m.replace); the thread it is in (m.thread),
+// by its root.
+inline bool replaces(const ev::m_room_message_content_t::m_relates_to_t& relates) {
+  using values = ev::m_room_message_content_t::m_relates_to_t::rel_type_values;
+  return relates.rel_type &&
+         splice::visit(splice::overloaded{[](values::m_replace) { return true; }, [](const auto&) { return false; }}, *relates.rel_type);
+}
+inline std::optional<std::string> thread_of(const ev::m_room_message_content_t::m_relates_to_t& relates) {
+  using values = ev::m_room_message_content_t::m_relates_to_t::rel_type_values;
+  if (!relates.rel_type || !relates.event_id)
+    return std::nullopt;
+  return splice::visit(splice::overloaded{[&](values::m_thread) { return relates.event_id; },
+                                          [](const auto&) { return std::optional<std::string>(); }},
+                       *relates.rel_type);
+}
+// A thread's root's summary, as the server counts it (unsigned's
+// m.relations' m.thread): how many answers, whether the user took part, and
+// the latest -- its id, sender, body and time -- where the server says.
+struct thread_summary {
+  std::int64_t count = 0;
+  bool participated = false;
+  std::optional<std::string> latest_id;
+  std::optional<std::string> latest_sender;
+  std::optional<std::string> latest_body;
+  std::optional<std::int64_t> latest_ts;
+};
+inline std::optional<thread_summary> thread_summary_of(const ev::timeline_event& one) {
+  if (!one.unsigned_ || !one.unsigned_->m_relations || !one.unsigned_->m_relations->m_thread)
+    return std::nullopt;
+  const auto& thread = *one.unsigned_->m_relations->m_thread;
+  thread_summary out{.count = thread.count, .participated = thread.current_user_participated};
+  if (thread.latest_event) {
+    out.latest_id = thread.latest_event->event_id;
+    out.latest_sender = thread.latest_event->sender;
+    out.latest_body = thread.latest_event->content.body;
+    out.latest_ts = thread.latest_event->origin_server_ts;
+  }
+  return out;
+}
+// A membership as the event says it, as loom.names' variant.
+inline names::membership_t membership_of(const ev::m_room_member_content_t::membership_t& said) {
+  using values = ev::m_room_member_content_t::membership_values;
+  return splice::visit(splice::overloaded{[](values::join) -> names::membership_t { return names::membership::join{}; },
+                                          [](values::leave) -> names::membership_t { return names::membership::leave{}; },
+                                          [](values::invite) -> names::membership_t { return names::membership::invite{}; },
+                                          [](values::ban) -> names::membership_t { return names::membership::ban{}; },
+                                          [](values::knock) -> names::membership_t { return names::membership::knock{}; },
+                                          [](const std::string&) -> names::membership_t { return names::membership::other{}; }},
+                       said);
+}
+
+// A room's name as the specification says a client works it out
+// (Calculating the display name for a room): m.room.name, else the
+// canonical alias, else its heroes by their display names, else its id.
+inline std::string room_name(std::string_view room, const joined_room& kept) {
+  if (auto name = kept.state.name(); name && !name->empty())
+    return *name;
+  if (auto alias = kept.state.canonical_alias(); alias && !alias->empty())
+    return *alias;
+  std::string heroes = kept.summary.heroes |
+                       std::views::transform([&](const std::string& hero) { return kept.state.display_name(hero).value_or(hero); }) |
+                       std::views::join_with(std::string_view(", ")) | std::ranges::to<std::string>();
+  return heroes.empty() ? std::string(room) : heroes;
+}
 
 struct left_room {
   room_state state;

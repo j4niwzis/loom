@@ -120,7 +120,7 @@ while(loom_pending)
   list(APPEND loom_pending ${loom_needs_${component}})
 endwhile()
 
-set(loom_files src/ids.cc src/events.cc src/sync.cc src/api.cc src/loom.cc)
+set(loom_files src/ids.cc src/names.cc src/events.cc src/sync.cc src/api.cc src/loom.cc)
 set(loom_part_count 0)
 foreach(component IN LISTS loom_built)
   list(APPEND loom_files ${loom_file_${component}})
