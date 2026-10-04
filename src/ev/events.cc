@@ -2538,6 +2538,48 @@ using timeline_content = knot::tagged<"type", m_call_answer_content_t, m_call_ca
 // The content of an event outside a room's timeline: account data, ephemeral, to-device. Any other type is kept as knot::raw, its JSON text.
 using other_content = knot::tagged<"type", m_accepted_terms_content_t, m_direct_content_t, m_dummy_content_t, m_forwarded_room_key_content_t, m_fully_read_content_t, m_identity_server_content_t, m_ignored_user_list_content_t, m_image_pack_rooms_content_t, m_invite_permission_config_content_t, m_key_verification_accept_content_t, m_key_verification_cancel_content_t, m_key_verification_done_content_t, m_key_verification_key_content_t, m_key_verification_mac_content_t, m_key_verification_ready_content_t, m_key_verification_request_content_t, m_key_verification_start_content_t, m_key_backup_content_t, m_marked_unread_content_t, m_presence_content_t, m_push_rules_content_t, m_receipt_content_t, m_recent_emoji_content_t, m_room_encrypted_content_t, m_room_key_withheld_content_t, m_room_key_content_t, m_room_key_bundle_content_t, m_room_key_request_content_t, m_secret_request_content_t, m_secret_send_content_t, m_tag_content_t, m_typing_content_t, im_ponies_user_emotes_content_t, im_ponies_emote_rooms_content_t, knot::raw>;
 
+// Complete these aggregates before std::optional inspects their constructors.
+// Clang with libstdc++ can cache a false is_constructible result for a nested
+// class with default member initializers while its enclosing class is open.
+namespace unsigned_detail {
+struct thread_content {
+  std::optional<std::string> body;
+  knot::raw rest;
+  friend consteval auto json_schema(knot::type<thread_content>) {
+    return knot::schema<thread_content>().member<"rest">(knot::rest);
+  }
+};
+struct thread_latest {
+  using content_t = thread_content;
+  content_t content;
+  std::string event_id;
+  std::int64_t origin_server_ts = 0;
+  std::string sender;
+  knot::raw rest;
+  friend consteval auto json_schema(knot::type<thread_latest>) {
+    return knot::schema<thread_latest>().member<"rest">(knot::rest);
+  }
+};
+struct thread_summary {
+  using latest_t = thread_latest;
+  std::optional<latest_t> latest_event;
+  std::int64_t count = 0;
+  bool current_user_participated = false;
+  knot::raw rest;
+  friend consteval auto json_schema(knot::type<thread_summary>) {
+    return knot::schema<thread_summary>().member<"rest">(knot::rest);
+  }
+};
+struct relations {
+  using thread_t = thread_summary;
+  std::optional<thread_t> m_thread;
+  knot::raw rest;
+  friend consteval auto json_schema(knot::type<relations>) {
+    return knot::schema<relations>().member<"m_thread">(knot::key("m.thread")).member<"rest">(knot::rest);
+  }
+};
+}  // namespace unsigned_detail
+
 // What the server adds to an event, not signed (the spec's UnsignedData):
 // prev_content and redacted_because as they came, and anything newer kept.
 struct unsigned_data {
@@ -2546,42 +2588,9 @@ struct unsigned_data {
   std::optional<knot::raw> prev_content;
   std::optional<knot::raw> redacted_because;
   std::optional<std::string> transaction_id;
-  // What the server aggregates of the event's relations (m.relations): its
-  // thread, where it is a thread's root -- how many replies, the latest of
-  // them, whether the user took part.
-  struct relations_t {
-    struct thread_t {
-      struct latest_t {
-        struct content_t {
-          std::optional<std::string> body;
-          knot::raw rest;
-          friend consteval auto json_schema(knot::type<content_t>) {
-            return knot::schema<content_t>().member<"rest">(knot::rest);
-          }
-        };
-        content_t content;
-        std::string event_id;
-        std::int64_t origin_server_ts = 0;
-        std::string sender;
-        knot::raw rest;
-        friend consteval auto json_schema(knot::type<latest_t>) {
-          return knot::schema<latest_t>().member<"rest">(knot::rest);
-        }
-      };
-      std::optional<latest_t> latest_event;
-      std::int64_t count = 0;
-      bool current_user_participated = false;
-      knot::raw rest;
-      friend consteval auto json_schema(knot::type<thread_t>) {
-        return knot::schema<thread_t>().member<"rest">(knot::rest);
-      }
-    };
-    std::optional<thread_t> m_thread;
-    knot::raw rest;
-    friend consteval auto json_schema(knot::type<relations_t>) {
-      return knot::schema<relations_t>().member<"m_thread">(knot::key("m.thread")).member<"rest">(knot::rest);
-    }
-  };
+  // Keep the public nested spellings without instantiating optional before
+  // the value types and their default member initializers are complete.
+  using relations_t = unsigned_detail::relations;
   std::optional<relations_t> m_relations;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<unsigned_data>) {

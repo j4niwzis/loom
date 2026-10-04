@@ -7,7 +7,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/import-std.cmake)
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-project(loom VERSION 0.1 LANGUAGES CXX)
+project(loom VERSION 0.1.1 LANGUAGES CXX)
 
 option(LOOM_TESTS "Build the tests" ${PROJECT_IS_TOP_LEVEL})
 
