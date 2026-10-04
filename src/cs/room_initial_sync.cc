@@ -68,9 +68,14 @@ struct room_initial_sync {
   };
   std::string room_id;
   using response = room_info_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/initialSync";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

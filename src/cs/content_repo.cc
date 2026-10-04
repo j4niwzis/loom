@@ -22,12 +22,17 @@ struct upload_content {
   std::string body;  // the bytes, as the content type says
   std::string content_type = "application/octet-stream";
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix") + "/media/v3/upload";
     if (filename)
       detail::query(target, "filename", detail::text((*filename)));
-    return {method::post{}, std::move(target), body, true};
+    return {method::post{}, std::move(target), true, content_type};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    if (!body.empty()) std::invoke(sink, std::string_view(body));
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/media/v3/upload/{serverName}/{mediaId}: Upload content to an `mxc://` URI that was created earlier.
@@ -38,12 +43,17 @@ struct upload_content_to_mxc {
   std::string body;  // the bytes, as the content type says
   std::string content_type = "application/octet-stream";
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix") + "/media/v3/upload/" + percent_encoded(detail::text(server_name)) + "/" + percent_encoded(detail::text(media_id));
     if (filename)
       detail::query(target, "filename", detail::text((*filename)));
-    return {method::put{}, std::move(target), body, true};
+    return {method::put{}, std::move(target), true, content_type};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    if (!body.empty()) std::invoke(sink, std::string_view(body));
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/media/v1/create: Create a new `mxc://` URI without uploading the content.
@@ -55,10 +65,15 @@ struct create_content {
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix") + "/media/v1/create";
-    return {method::post{}, std::move(target), "{}", true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    std::invoke(sink, std::string_view("{}"));
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/media/v3/download/{serverName}/{mediaId}: Download content from the content repository. (deprecated)
@@ -72,7 +87,7 @@ struct get_content {
     std::string bytes;
   };
   static constexpr bool raw_response = true;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix") + "/media/v3/download/" + percent_encoded(detail::text(server_name)) + "/" + percent_encoded(detail::text(media_id));
     if (allow_remote)
       detail::query(target, "allow_remote", detail::text((*allow_remote)));
@@ -80,8 +95,13 @@ struct get_content {
       detail::query(target, "timeout_ms", detail::text((*timeout_ms)));
     if (allow_redirect)
       detail::query(target, "allow_redirect", detail::text((*allow_redirect)));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/media/v3/download/{serverName}/{mediaId}/{fileName}: Download content from the content repository overriding the file name (deprecated)
@@ -96,7 +116,7 @@ struct get_content_override_name {
     std::string bytes;
   };
   static constexpr bool raw_response = true;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix") + "/media/v3/download/" + percent_encoded(detail::text(server_name)) + "/" + percent_encoded(detail::text(media_id)) + "/" + percent_encoded(detail::text(file_name));
     if (allow_remote)
       detail::query(target, "allow_remote", detail::text((*allow_remote)));
@@ -104,8 +124,13 @@ struct get_content_override_name {
       detail::query(target, "timeout_ms", detail::text((*timeout_ms)));
     if (allow_redirect)
       detail::query(target, "allow_redirect", detail::text((*allow_redirect)));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/media/v3/thumbnail/{serverName}/{mediaId}: Download a thumbnail of content from the content repository (deprecated)
@@ -134,7 +159,7 @@ struct get_content_thumbnail {
     std::string bytes;
   };
   static constexpr bool raw_response = true;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix") + "/media/v3/thumbnail/" + percent_encoded(detail::text(server_name)) + "/" + percent_encoded(detail::text(media_id));
     detail::query(target, "width", detail::text(width));
     detail::query(target, "height", detail::text(height));
@@ -148,8 +173,13 @@ struct get_content_thumbnail {
       detail::query(target, "allow_redirect", detail::text((*allow_redirect)));
     if (animated)
       detail::query(target, "animated", detail::text((*animated)));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/media/v3/preview_url: Get information about a URL for a client (deprecated)
@@ -163,13 +193,18 @@ struct get_url_preview {
   std::string url;
   std::optional<std::int64_t> ts;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix") + "/media/v3/preview_url";
     detail::query(target, "url", detail::text(url));
     if (ts)
       detail::query(target, "ts", detail::text((*ts)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/media/v3/config: Get the configuration for the content repository. (deprecated)
@@ -180,9 +215,14 @@ struct get_config {
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"m_upload_size">(knot::key("m.upload.size")).member<"rest">(knot::rest); }
   };
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix") + "/media/v3/config";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

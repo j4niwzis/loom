@@ -28,19 +28,29 @@ struct get_push_rules {
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/pushrules/global/: Retrieve all push rules.
 struct get_push_rules_global {
   using response = def::push_ruleset_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/pushrules/global/{kind}/{ruleId}: Retrieve a push rule.
@@ -81,10 +91,15 @@ struct get_push_rule {
   kind_t kind;
   std::string rule_id;
   using response = push_rule_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // DELETE /_matrix/client/v3/pushrules/global/{kind}/{ruleId}: Delete a push rule.
@@ -115,10 +130,15 @@ struct delete_push_rule {
   kind_t kind;
   std::string rule_id;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id));
-    return {method::delete_{}, std::move(target), "", true};
+    return {method::delete_{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v3/pushrules/global/{kind}/{ruleId}: Add or change a push rule.
@@ -159,14 +179,19 @@ struct set_push_rule {
   std::optional<std::string> after;
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id));
     if (before)
       detail::query(target, "before", detail::text((*before)));
     if (after)
       detail::query(target, "after", detail::text((*after)));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/pushrules/global/{kind}/{ruleId}/enabled: Get whether a push rule is enabled
@@ -202,10 +227,15 @@ struct is_push_rule_enabled {
   kind_t kind;
   std::string rule_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id)) + "/enabled";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v3/pushrules/global/{kind}/{ruleId}/enabled: Enable or disable a push rule.
@@ -242,10 +272,15 @@ struct set_push_rule_enabled {
   std::string rule_id;
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id)) + "/enabled";
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/pushrules/global/{kind}/{ruleId}/actions: The actions for a push rule
@@ -281,10 +316,15 @@ struct get_push_rule_actions {
   kind_t kind;
   std::string rule_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id)) + "/actions";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v3/pushrules/global/{kind}/{ruleId}/actions: Set the actions for a push rule.
@@ -321,9 +361,14 @@ struct set_push_rule_actions {
   std::string rule_id;
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/pushrules/global/" + percent_encoded(detail::text(kind)) + "/" + percent_encoded(detail::text(rule_id)) + "/actions";
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

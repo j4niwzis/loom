@@ -21,19 +21,29 @@ struct leave_room {
   std::string room_id;
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/leave";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/rooms/{roomId}/forget: Stop the requesting user remembering about a particular room.
 struct forget_room {
   std::string room_id;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/forget";
-    return {method::post{}, std::move(target), "{}", true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    std::invoke(sink, std::string_view("{}"));
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

@@ -21,10 +21,10 @@
 # archive/<ref>.tar.gz: the generated one is made on request, and when the
 # compression behind it changed every digest pinned against it broke at once.
 # A file uploaded to a release is stored as it was uploaded.
-set(CME_PINNED "v0.2.23")
-set(CME_PINNED_SHA256 "954cb9a1a4abb22c8e0432328ab538dd84e65538287ab0ccfc2366c05ee1acaa")
+set(CME_PINNED "v0.2.28")
+set(CME_PINNED_SHA256 "cad2e9659bec0ab15e5537f9fe5888daa81eded2f79a2feda500fc5a41034c99")
 set(CME_PINNED_URL
-  "https://github.com/j4niwzis/cmake-everywhere/releases/download/v0.2.23/cmake-everywhere-0.2.23.tar.gz")
+  "https://github.com/j4niwzis/cmake-everywhere/releases/download/v0.2.28/cmake-everywhere-0.2.28.tar.gz")
 if(NOT "${CME_PIN_APPLIED}" STREQUAL "${CME_PINNED}")
   set(CME_VERSION "${CME_PINNED}" CACHE STRING
     "cmake-everywhere release" FORCE)
@@ -32,7 +32,7 @@ if(NOT "${CME_PIN_APPLIED}" STREQUAL "${CME_PINNED}")
     "The digest of that release's archive" FORCE)
   set(CME_URL "${CME_PINNED_URL}" CACHE STRING
     "Where that archive is fetched from" FORCE)
-  set(CME_PIN_APPLIED "${CME_PINNED}" CACHE INLOOMAL
+  set(CME_PIN_APPLIED "${CME_PINNED}" CACHE INTERNAL
     "The pin this build directory was given")
 endif()
 set(CME_URL "${CME_PINNED_URL}" CACHE STRING

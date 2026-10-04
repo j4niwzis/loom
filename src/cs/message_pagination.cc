@@ -39,7 +39,7 @@ struct get_room_events {
   std::optional<std::int64_t> limit;
   std::optional<std::string> filter;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/messages";
     if (from)
       detail::query(target, "from", detail::text((*from)));
@@ -50,7 +50,12 @@ struct get_room_events {
       detail::query(target, "limit", detail::text((*limit)));
     if (filter)
       detail::query(target, "filter", detail::text((*filter)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

@@ -16,9 +16,14 @@ struct request_open_id_token {
   std::string user_id;
   knot::raw body;
   using response = def::open_id_credentials_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/openid/request_token";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

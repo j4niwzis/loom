@@ -25,10 +25,15 @@ struct get_login_flows {
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/login";
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/login: Authenticates the user.
@@ -66,9 +71,14 @@ struct login {
   };
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/login";
-    return {method::post{}, std::move(target), detail::json(body), false};
+    return {method::post{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

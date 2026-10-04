@@ -36,10 +36,15 @@ struct upload_keys {
   };
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/keys/upload";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/keys/query: Download device identity keys.
@@ -145,10 +150,15 @@ struct query_keys {
   };
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/keys/query";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/keys/claim: Claim one-time encryption keys.
@@ -167,10 +177,15 @@ struct claim_keys {
   };
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/keys/claim";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/keys/changes: Query users with recent device key updates.
@@ -184,11 +199,16 @@ struct get_keys_changes {
   std::string from;
   std::string to;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/keys/changes";
     detail::query(target, "from", detail::text(from));
     detail::query(target, "to", detail::text(to));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

@@ -119,7 +119,7 @@ struct room_state {
   std::map<std::pair<std::string, std::string>, ev::timeline_event, std::less<>> events;
 
   constexpr const ev::timeline_event* find(std::string_view type, std::string_view state_key = "") const {
-    const auto found = events.find(std::pair<std::string, std::string>(type, state_key));
+    const auto found = events.find(std::pair<std::string_view, std::string_view>(type, state_key));
     return found == events.end() ? nullptr : &found->second;
   }
 
@@ -229,6 +229,7 @@ struct joined_room {
   std::map<std::string, other_event, std::less<>> account_data;  // by type
   std::vector<std::string> typing;
   std::vector<other_event> ephemeral;  // the last sync's, receipts among them
+  bool timeline_truncated = false;  // local eviction, not a server gap
 };
 
 // What a message relates to, as its m.relates_to says: whether it replaces
@@ -302,6 +303,7 @@ struct left_room {
   std::vector<ev::timeline_event> timeline;
   std::optional<std::string> prev_batch;
   std::map<std::string, other_event, std::less<>> account_data;
+  bool timeline_truncated = false;
 };
 
 struct state {
@@ -315,12 +317,14 @@ struct state {
   std::vector<knot::raw> to_device;                               // the last sync's
   std::optional<knot::raw> device_lists;
   std::map<std::string, std::int64_t> one_time_keys_count;
+  // No limit preserves the complete timeline since the last server gap.
+  // Eviction invalidates prev_batch: that token predates the evicted events.
+  std::optional<std::size_t> timeline_limit;
 
   // An answer applied. use_state_after says whether the request asked for
   // state_after: then the state there is the state at the end of the
   // timeline, and the timeline's state events are not applied again.
   constexpr void apply(const cs::sync::response& sync, bool use_state_after = false) {
-    since = sync.next_batch;
     if (sync.account_data && sync.account_data->events)
       for (const auto& one : *sync.account_data->events)
         account_data.insert_or_assign(one.type, one);
@@ -336,8 +340,10 @@ struct state {
       device_lists = sync.device_lists;
     if (sync.device_one_time_keys_count)
       one_time_keys_count = *sync.device_one_time_keys_count;
-    if (!sync.rooms)
+    if (!sync.rooms) {
+      since = sync.next_batch;
       return;
+    }
     const auto& rooms = *sync.rooms;
     if (rooms.join)
       for (const auto& [id, got] : *rooms.join) {
@@ -349,7 +355,7 @@ struct state {
           kept.state = std::move(was_left->second.state);
           left.erase(was_left);
         }
-        apply_joined(kept, got, use_state_after);
+        apply_joined(kept, got, use_state_after, timeline_limit);
       }
     if (rooms.invite)
       for (const auto& [id, got] : *rooms.invite) {
@@ -381,19 +387,22 @@ struct state {
         }
         apply_state_and_timeline(kept.state, kept.timeline, kept.prev_batch, got.state ? &*got.state : nullptr,
                                  got.state_after ? &*got.state_after : nullptr,
-                                 got.timeline ? &*got.timeline : nullptr, use_state_after);
+                                 got.timeline ? &*got.timeline : nullptr, use_state_after,
+                                 timeline_limit, kept.timeline_truncated);
         if (got.account_data && got.account_data->events)
           for (const auto& one : *got.account_data->events)
             kept.account_data.insert_or_assign(one.type, one);
       }
+    since = sync.next_batch;
   }
 
  private:
   template <class Joined>
-  static constexpr void apply_joined(joined_room& kept, const Joined& got, bool use_state_after) {
+  static constexpr void apply_joined(joined_room& kept, const Joined& got, bool use_state_after,
+                                    std::optional<std::size_t> timeline_limit) {
     apply_state_and_timeline(kept.state, kept.timeline, kept.prev_batch, got.state ? &*got.state : nullptr,
                              got.state_after ? &*got.state_after : nullptr, got.timeline ? &*got.timeline : nullptr,
-                             use_state_after);
+                             use_state_after, timeline_limit, kept.timeline_truncated);
     // The summary's fields come only when they change.
     if (got.summary) {
       if (got.summary->m_heroes)
@@ -427,7 +436,8 @@ struct state {
   static constexpr void apply_state_and_timeline(room_state& state, std::vector<ev::timeline_event>& timeline,
                                                  std::optional<std::string>& prev_batch, const State* before,
                                                  const StateAfter* after, const Timeline* got,
-                                                 bool use_state_after) {
+                                                 bool use_state_after, std::optional<std::size_t> timeline_limit,
+                                                 bool& truncated) {
     if (use_state_after) {
       if (after && after->events)
         for (const auto& one : *after->events)
@@ -439,24 +449,38 @@ struct state {
     if (!got)
       return;
     // A gap: what is kept no longer runs on into what comes.
-    if (got->limited.value_or(false))
+    if (got->limited.value_or(false)) {
       timeline.clear();
-    if (timeline.empty())
+      truncated = false;
+    }
+    if (timeline.empty() && !truncated)
       prev_batch = got->prev_batch;
+    // Own the keys: redaction can replace events while this index is alive.
+    std::map<std::string, std::size_t, std::less<>> positions;
+    if (!got->events.empty())
+      for (std::size_t i = 0; i < timeline.size(); ++i)
+        positions.try_emplace(timeline[i].event_id, i);
     const redaction_rules rules = redaction_rules::of(state.room_version());
     for (const auto& one : got->events) {
       if (one.state_key && !use_state_after)
         state.set(one);
-      timeline.push_back(one);
+      if (positions.try_emplace(one.event_id, timeline.size()).second)
+        timeline.push_back(one);
       if (one.type == "m.room.redaction")
-        redact(state, timeline, one, rules);
+        redact(state, timeline, one, rules, positions);
+    }
+    if (timeline_limit && timeline.size() > *timeline_limit) {
+      timeline.erase(timeline.begin(), timeline.end() - static_cast<std::ptrdiff_t>(*timeline_limit));
+      prev_batch.reset();
+      truncated = true;
     }
   }
 
   // What a redaction redacts, wherever it is kept: its content cut to what the
   // room version keeps, and the redaction in its unsigned.
   static constexpr void redact(room_state& state, std::vector<ev::timeline_event>& timeline,
-                               const ev::timeline_event& redaction, const redaction_rules& rules) {
+                               const ev::timeline_event& redaction, const redaction_rules& rules,
+                               const std::map<std::string, std::size_t, std::less<>>& positions) {
     std::optional<std::string> target = redaction.redacts;
     if (redaction.content.template is<ev::m_room_redaction_content_t>())
       if (const auto& redacts = redaction.content.template as<ev::m_room_redaction_content_t>().redacts)
@@ -478,9 +502,8 @@ struct state {
       if (auto made = knot::try_read<ev::timeline_event>(knot::to_json_string(*all)))
         one = std::move(*made);
     };
-    for (auto& one : timeline)
-      if (one.event_id == *target && &one != &timeline.back())
-        cut(one);
+    if (const auto found = positions.find(*target); found != positions.end() && *target != redaction.event_id)
+      cut(timeline[found->second]);
     for (auto& [key, one] : state.events)
       if (one.event_id == *target)
         cut(one);

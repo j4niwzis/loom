@@ -37,10 +37,15 @@ struct set_presence {
   std::string user_id;
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/presence/" + percent_encoded(detail::text(user_id)) + "/status";
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/presence/{userId}/status: Get this user's presence state.
@@ -70,9 +75,14 @@ struct get_presence {
   };
   std::string user_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/presence/" + percent_encoded(detail::text(user_id)) + "/status";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

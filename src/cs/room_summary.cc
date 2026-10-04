@@ -64,11 +64,16 @@ struct get_room_summary {
   std::string room_id_or_alias;
   std::optional<std::vector<std::string>> via;
   using response = room_summary_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/room_summary/" + percent_encoded(detail::text(room_id_or_alias));
     if (via)
       for (const auto& one : (*via)) detail::query(target, "via", detail::text(one));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

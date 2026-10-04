@@ -20,13 +20,27 @@ struct put { static constexpr std::string_view name = "PUT"; };
 struct delete_ { static constexpr std::string_view name = "DELETE"; };
 }  // namespace method
 
+// Available before the body is written, so a transport can send its headers
+// first. Bodies are written synchronously to the caller's concrete sink.
+struct request_head {
+  splice::variant<method::get, method::post, method::put, method::delete_> method;
+  std::string target;
+  bool authenticated = true;
+  std::string content_type = "application/json";
+
+  constexpr std::string_view method_name() const {
+    return splice::visit([](auto one) { return decltype(one)::name; }, method);
+  }
+};
+
 // What to send, from the homeserver's base URL; with the access token as
 // "Authorization: Bearer", where authenticated.
 struct request {
   splice::variant<method::get, method::post, method::put, method::delete_> method;
   std::string target;
-  std::string body;  // JSON, or nothing
+  std::string body;  // JSON, media bytes, or nothing
   bool authenticated = true;
+  std::string content_type = "application/json";
 
   constexpr std::string_view method_name() const {
     return splice::visit([](auto one) { return decltype(one)::name; }, method);
@@ -47,6 +61,15 @@ struct error {
 };
 
 namespace detail {
+template <class Endpoint>
+constexpr request collect_request(const Endpoint& endpoint) {
+  auto head = endpoint.to_head();
+  std::string body;
+  endpoint.write_body([&](std::string_view piece) { body.append(piece); });
+  return {std::move(head.method), std::move(head.target), std::move(body),
+          head.authenticated, std::move(head.content_type)};
+}
+
 struct error_body {
   std::optional<std::string> errcode;
   std::optional<std::string> error;
@@ -109,21 +132,21 @@ consteval auto json_schema(knot::type<empty>) { return knot::schema<empty>(); }
 
 // What came back: a 2xx read into the endpoint's response; anything else
 // into the error.
-template <class Endpoint>
-constexpr std::expected<typename Endpoint::response, error> read(int status, std::string_view body) {
-  if constexpr (requires { Endpoint::raw_response; }) {
-    // Bytes, not JSON: what the content repository gives.
-    if (status >= 200 && status < 300)
-      return typename Endpoint::response{std::string(body)};
-  }
+namespace detail {
+template <class Endpoint, class Range>
+constexpr std::expected<typename Endpoint::response, error> read_response(int status, Range&& body) {
   if (status >= 200 && status < 300) {
-    auto got = knot::try_read<typename Endpoint::response>(body);
-    if (!got)
-      return std::unexpected(error{status, "M_BAD_JSON", std::string(got.error().message), std::nullopt});
-    return std::move(*got);
+    if constexpr (requires { Endpoint::raw_response; }) {
+      return typename Endpoint::response{std::ranges::to<std::string>(std::forward<Range>(body))};
+    } else {
+      auto got = knot::try_read<typename Endpoint::response>(std::forward<Range>(body));
+      if (!got)
+        return std::unexpected(error{status, "M_BAD_JSON", std::string(got.error().message), std::nullopt});
+      return std::move(*got);
+    }
   }
   error out{status, "", "", std::nullopt};
-  if (auto said = knot::try_read<detail::error_body>(body)) {
+  if (auto said = knot::try_read<detail::error_body>(std::forward<Range>(body))) {
     out.errcode = said->errcode.value_or("");
     out.message = said->error.value_or("");
     out.retry_after_ms = said->retry_after_ms;
@@ -131,13 +154,53 @@ constexpr std::expected<typename Endpoint::response, error> read(int status, std
   }
   return std::unexpected(std::move(out));
 }
+}  // namespace detail
+
+template <class Endpoint>
+constexpr std::expected<typename Endpoint::response, error> read(int status, std::string_view body) {
+  return detail::read_response<Endpoint>(status, body);
+}
+
+// The constraint selects ranges that are not already handled as text; in
+// particular a string literal must not be read including its trailing NUL.
+template <class Endpoint, std::ranges::input_range Range>
+  requires std::same_as<std::ranges::range_value_t<Range>, char> &&
+           (!std::convertible_to<Range, std::string_view>)
+constexpr std::expected<typename Endpoint::response, error> read(int status, Range&& body) {
+  return detail::read_response<Endpoint>(status, std::forward<Range>(body));
+}
+
+template <class Endpoint, std::ranges::input_range Chunks>
+constexpr std::expected<typename Endpoint::response, error> read_chunks(int status, Chunks&& chunks) {
+  return read<Endpoint>(status, std::forward<Chunks>(chunks) | std::views::join);
+}
+
+// Download bytes straight to a sink. On an HTTP error, only the error is
+// decoded; no error-body bytes are passed to the download sink. Exceptions
+// from the range or sink propagate to the caller.
+template <class Endpoint, std::ranges::input_range Chunks, class Sink>
+  requires (Endpoint::raw_response)
+constexpr std::expected<void, error> read_chunks_to(int status, Chunks&& chunks, Sink&& sink) {
+  if (status >= 200 && status < 300) {
+    for (auto&& chunk : chunks) {
+      const std::string_view piece(chunk);
+      if (!piece.empty())
+        std::invoke(sink, piece);
+    }
+    return {};
+  }
+  return std::unexpected(read_chunks<Endpoint>(status, std::forward<Chunks>(chunks)).error());
+}
 
 // GET /_matrix/client/versions: what the homeserver speaks.
 struct versions {
   struct response {
     std::vector<std::string> versions;
   };
-  constexpr request to_send() const { return {method::get{}, "/_matrix/client/versions", "", false}; }
+  constexpr request_head to_head() const { return {method::get{}, "/_matrix/client/versions", false}; }
+  template <class Sink>
+  constexpr void write_body(Sink&&) const {}
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 consteval auto json_schema(knot::type<versions::response>) { return knot::schema<versions::response>(); }
 
@@ -169,12 +232,14 @@ struct login {
     std::optional<std::int64_t> expires_in_ms;
   };
 
-  constexpr request to_send() const {
-    return {method::post{}, std::string(detail::client) + "/login",
-            knot::to_json_string(body{.identifier = {.user = user}, .password = password, .device_id = device_id,
-                                      .initial_device_display_name = initial_device_display_name}),
-            false};
+  constexpr request_head to_head() const { return {method::post{}, std::string(detail::client) + "/login", false}; }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink),
+                      body{.identifier = {.user = user}, .password = password, .device_id = device_id,
+                           .initial_device_display_name = initial_device_display_name});
   }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 consteval auto json_schema(knot::type<login::response>) { return knot::schema<login::response>(); }
 
@@ -184,7 +249,10 @@ struct whoami {
     std::string user_id;
     std::optional<std::string> device_id;
   };
-  constexpr request to_send() const { return {method::get{}, std::string(detail::client) + "/account/whoami", ""}; }
+  constexpr request_head to_head() const { return {method::get{}, std::string(detail::client) + "/account/whoami"}; }
+  template <class Sink>
+  constexpr void write_body(Sink&&) const {}
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 consteval auto json_schema(knot::type<whoami::response>) { return knot::schema<whoami::response>(); }
 
@@ -196,7 +264,7 @@ struct sync {
   std::optional<std::string> filter;
   using response = sync_response;
 
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string(detail::client) + "/sync";
     if (filter)
       detail::query(target, "filter", *filter);
@@ -204,8 +272,11 @@ struct sync {
       detail::query(target, "since", *since);
     if (timeout_ms)
       detail::query(target, "timeout", detail::decimal(*timeout_ms));
-    return {method::get{}, std::move(target), ""};
+    return {method::get{}, std::move(target)};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&&) const {}
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /rooms/{room}/send/m.room.message/{txn}: a text message. The
@@ -217,12 +288,14 @@ struct send_message {
   struct response {
     std::string event_id;
   };
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     return {method::put{},
             std::string(detail::client) + "/rooms/" + percent_encoded(room) + "/send/m.room.message/" +
-                percent_encoded(txn_id),
-            knot::to_json_string(message)};
+                percent_encoded(txn_id)};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const { knot::write_chunks(std::forward<Sink>(sink), message); }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 consteval auto json_schema(knot::type<send_message::response>) { return knot::schema<send_message::response>(); }
 
@@ -236,15 +309,18 @@ struct messages {
     std::optional<std::string> end;
     std::vector<room_event> chunk;
   };
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string(detail::client) + "/rooms/" + percent_encoded(room) + "/messages";
     detail::query(target, "dir", "b");
     if (from)
       detail::query(target, "from", *from);
     if (limit)
       detail::query(target, "limit", detail::decimal(*limit));
-    return {method::get{}, std::move(target), ""};
+    return {method::get{}, std::move(target)};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&&) const {}
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 consteval auto json_schema(knot::type<messages::response>) { return knot::schema<messages::response>(); }
 
@@ -254,9 +330,12 @@ struct join {
   struct response {
     std::string room_id;
   };
-  constexpr request to_send() const {
-    return {method::post{}, std::string(detail::client) + "/join/" + percent_encoded(room), "{}"};
+  constexpr request_head to_head() const {
+    return {method::post{}, std::string(detail::client) + "/join/" + percent_encoded(room)};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const { std::invoke(sink, std::string_view("{}")); }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 consteval auto json_schema(knot::type<join::response>) { return knot::schema<join::response>(); }
 
@@ -264,9 +343,12 @@ consteval auto json_schema(knot::type<join::response>) { return knot::schema<joi
 struct leave {
   std::string room;
   using response = empty;
-  constexpr request to_send() const {
-    return {method::post{}, std::string(detail::client) + "/rooms/" + percent_encoded(room) + "/leave", "{}"};
+  constexpr request_head to_head() const {
+    return {method::post{}, std::string(detail::client) + "/rooms/" + percent_encoded(room) + "/leave"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const { std::invoke(sink, std::string_view("{}")); }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // Transaction ids for sending: each once. Kept, with its count, across

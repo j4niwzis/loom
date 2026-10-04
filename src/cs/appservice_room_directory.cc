@@ -33,9 +33,14 @@ struct update_appservice_room_directory_visibility {
   std::string room_id;
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/directory/list/appservice/" + percent_encoded(detail::text(network_id)) + "/" + percent_encoded(detail::text(room_id));
-    return {method::put{}, std::move(target), detail::json(body), false};
+    return {method::put{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

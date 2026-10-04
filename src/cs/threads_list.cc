@@ -35,7 +35,7 @@ struct get_thread_roots {
   std::optional<std::int64_t> limit;
   std::optional<std::string> from;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/threads";
     if (include)
       detail::query(target, "include", detail::text((*include)));
@@ -43,7 +43,12 @@ struct get_thread_roots {
       detail::query(target, "limit", detail::text((*limit)));
     if (from)
       detail::query(target, "from", detail::text((*from)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

@@ -50,7 +50,7 @@ struct get_space_hierarchy {
   std::optional<std::int64_t> max_depth;
   std::optional<std::string> from;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/hierarchy";
     if (suggested_only)
       detail::query(target, "suggested_only", detail::text((*suggested_only)));
@@ -60,7 +60,12 @@ struct get_space_hierarchy {
       detail::query(target, "max_depth", detail::text((*max_depth)));
     if (from)
       detail::query(target, "from", detail::text((*from)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

@@ -178,11 +178,16 @@ struct search {
   std::optional<std::string> next_batch;
   body_t body;
   using response = results_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/search";
     if (next_batch)
       detail::query(target, "next_batch", detail::text((*next_batch)));
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

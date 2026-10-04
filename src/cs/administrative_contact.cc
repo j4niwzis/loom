@@ -38,10 +38,15 @@ struct get_account3_pi_ds {
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/account/3pid: Adds contact information to the user's account. (deprecated)
@@ -66,10 +71,15 @@ struct post3_pi_ds {
   };
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/account/3pid/add: Adds contact information to the user's account.
@@ -89,10 +99,15 @@ struct add3_pid {
   };
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid/add";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/account/3pid/bind: Binds a 3PID to the user's account through an Identity Service.
@@ -107,10 +122,15 @@ struct bind3_pid {
   };
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid/bind";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/account/3pid/delete: Deletes a third-party identifier from the user's account
@@ -151,10 +171,15 @@ struct delete3pid_from_account {
   };
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid/delete";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/account/3pid/unbind: Removes a user's third-party identifier from an identity server.
@@ -195,29 +220,44 @@ struct unbind3pid_from_account {
   };
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid/unbind";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/account/3pid/email/requestToken: Begins the validation process for an email address for association with the user's account.
 struct request_token_to3_pid_email {
   def::request_email_validation_t body;
   using response = def::request_token_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid/email/requestToken";
-    return {method::post{}, std::move(target), detail::json(body), false};
+    return {method::post{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/account/3pid/msisdn/requestToken: Begins the validation process for a phone number for association with the user's account.
 struct request_token_to3_pidmsisdn {
   def::request_msisdn_validation_t body;
   using response = def::request_token_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/3pid/msisdn/requestToken";
-    return {method::post{}, std::move(target), detail::json(body), false};
+    return {method::post{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

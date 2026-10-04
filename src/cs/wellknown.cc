@@ -14,9 +14,14 @@ export namespace loom::cs {
 // GET /.well-known/matrix/client: Gets Matrix server discovery information about the domain.
 struct get_wellknown {
   using response = def::discovery_information_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/.well-known") + "/matrix/client";
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

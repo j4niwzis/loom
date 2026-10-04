@@ -54,32 +54,47 @@ struct register_ {
   std::optional<kind_t> kind;
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/register";
     if (kind)
       detail::query(target, "kind", detail::text((*kind)));
-    return {method::post{}, std::move(target), detail::json(body), false};
+    return {method::post{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/register/email/requestToken: Begins the validation process for an email to be used during registration.
 struct request_token_to_register_email {
   def::request_email_validation_t body;
   using response = def::request_token_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/register/email/requestToken";
-    return {method::post{}, std::move(target), detail::json(body), false};
+    return {method::post{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/register/msisdn/requestToken: Requests a validation token be sent to the given phone number for the purpose of registering an account
 struct request_token_to_register_msisdn {
   def::request_msisdn_validation_t body;
   using response = def::request_token_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/register/msisdn/requestToken";
-    return {method::post{}, std::move(target), detail::json(body), false};
+    return {method::post{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/register/available: Checks to see if a username is available on the server.
@@ -91,10 +106,15 @@ struct check_username_availability {
   };
   std::string username;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/register/available";
     detail::query(target, "username", detail::text(username));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

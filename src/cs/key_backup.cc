@@ -33,10 +33,15 @@ struct post_room_keys_version {
   };
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/version";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/room_keys/version: Get information about the latest backup version.
@@ -58,10 +63,15 @@ struct get_room_keys_version_current {
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
   };
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/version";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/room_keys/version/{version}: Get information about an existing backup.
@@ -84,10 +94,15 @@ struct get_room_keys_version {
   };
   std::string version;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/version/" + percent_encoded(detail::text(version));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v3/room_keys/version/{version}: Update information about an existing backup.
@@ -109,20 +124,30 @@ struct put_room_keys_version {
   std::string version;
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/version/" + percent_encoded(detail::text(version));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // DELETE /_matrix/client/v3/room_keys/version/{version}: Delete an existing key backup.
 struct delete_room_keys_version {
   std::string version;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/version/" + percent_encoded(detail::text(version));
-    return {method::delete_{}, std::move(target), "", true};
+    return {method::delete_{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v3/room_keys/keys/{roomId}/{sessionId}: Store a key in the backup.
@@ -132,11 +157,16 @@ struct put_room_key_by_session_id {
   std::string session_id;
   def::key_backup_data_t body;
   using response = def::room_keys_update_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/keys/" + percent_encoded(detail::text(room_id)) + "/" + percent_encoded(detail::text(session_id));
     detail::query(target, "version", detail::text(version));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/room_keys/keys/{roomId}/{sessionId}: Retrieve a key from the backup.
@@ -145,11 +175,16 @@ struct get_room_key_by_session_id {
   std::string room_id;
   std::string session_id;
   using response = def::key_backup_data_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/keys/" + percent_encoded(detail::text(room_id)) + "/" + percent_encoded(detail::text(session_id));
     detail::query(target, "version", detail::text(version));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // DELETE /_matrix/client/v3/room_keys/keys/{roomId}/{sessionId}: Delete a key from the backup.
@@ -158,11 +193,16 @@ struct delete_room_key_by_session_id {
   std::string room_id;
   std::string session_id;
   using response = def::room_keys_update_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/keys/" + percent_encoded(detail::text(room_id)) + "/" + percent_encoded(detail::text(session_id));
     detail::query(target, "version", detail::text(version));
-    return {method::delete_{}, std::move(target), "", true};
+    return {method::delete_{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v3/room_keys/keys/{roomId}: Store several keys in the backup for a given room.
@@ -171,11 +211,16 @@ struct put_room_keys_by_room_id {
   std::string room_id;
   def::room_key_backup_t body;
   using response = def::room_keys_update_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/keys/" + percent_encoded(detail::text(room_id));
     detail::query(target, "version", detail::text(version));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/room_keys/keys/{roomId}: Retrieve the keys from the backup for a given room.
@@ -183,11 +228,16 @@ struct get_room_keys_by_room_id {
   std::string version;
   std::string room_id;
   using response = def::room_key_backup_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/keys/" + percent_encoded(detail::text(room_id));
     detail::query(target, "version", detail::text(version));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // DELETE /_matrix/client/v3/room_keys/keys/{roomId}: Delete the keys from the backup for a given room.
@@ -195,11 +245,16 @@ struct delete_room_keys_by_room_id {
   std::string version;
   std::string room_id;
   using response = def::room_keys_update_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/keys/" + percent_encoded(detail::text(room_id));
     detail::query(target, "version", detail::text(version));
-    return {method::delete_{}, std::move(target), "", true};
+    return {method::delete_{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v3/room_keys/keys: Store several keys in the backup.
@@ -217,11 +272,16 @@ struct put_room_keys {
   std::string version;
   body_t body;
   using response = def::room_keys_update_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/keys";
     detail::query(target, "version", detail::text(version));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/room_keys/keys: Retrieve the keys from the backup.
@@ -238,21 +298,31 @@ struct get_room_keys {
   };
   std::string version;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/keys";
     detail::query(target, "version", detail::text(version));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // DELETE /_matrix/client/v3/room_keys/keys: Delete the keys from the backup.
 struct delete_room_keys {
   std::string version;
   using response = def::room_keys_update_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/room_keys/keys";
     detail::query(target, "version", detail::text(version));
-    return {method::delete_{}, std::move(target), "", true};
+    return {method::delete_{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

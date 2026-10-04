@@ -55,7 +55,7 @@ struct get_notifications {
   std::optional<std::int64_t> limit;
   std::optional<std::string> only;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/notifications";
     if (from)
       detail::query(target, "from", detail::text((*from)));
@@ -63,7 +63,12 @@ struct get_notifications {
       detail::query(target, "limit", detail::text((*limit)));
     if (only)
       detail::query(target, "only", detail::text((*only)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

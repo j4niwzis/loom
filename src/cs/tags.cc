@@ -21,10 +21,15 @@ struct get_room_tags {
   std::string user_id;
   std::string room_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/rooms/" + percent_encoded(detail::text(room_id)) + "/tags";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v3/user/{userId}/rooms/{roomId}/tags/{tag}: Add a tag to a room.
@@ -34,10 +39,15 @@ struct set_room_tag {
   std::string tag;
   def::tag_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/rooms/" + percent_encoded(detail::text(room_id)) + "/tags/" + percent_encoded(detail::text(tag));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // DELETE /_matrix/client/v3/user/{userId}/rooms/{roomId}/tags/{tag}: Remove a tag from the room.
@@ -46,9 +56,14 @@ struct delete_room_tag {
   std::string room_id;
   std::string tag;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/user/" + percent_encoded(detail::text(user_id)) + "/rooms/" + percent_encoded(detail::text(room_id)) + "/tags/" + percent_encoded(detail::text(tag));
-    return {method::delete_{}, std::move(target), "", true};
+    return {method::delete_{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

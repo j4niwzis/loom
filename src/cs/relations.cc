@@ -40,7 +40,7 @@ struct get_relating_events {
   std::optional<dir_t> dir;
   std::optional<bool> recurse;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/relations/" + percent_encoded(detail::text(event_id));
     if (from)
       detail::query(target, "from", detail::text((*from)));
@@ -52,8 +52,13 @@ struct get_relating_events {
       detail::query(target, "dir", detail::text((*dir)));
     if (recurse)
       detail::query(target, "recurse", detail::text((*recurse)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v1/rooms/{roomId}/relations/{eventId}/{relType}: Get the child events for a given parent event, with a given `relType`.
@@ -86,7 +91,7 @@ struct get_relating_events_with_rel_type {
   std::optional<dir_t> dir;
   std::optional<bool> recurse;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/relations/" + percent_encoded(detail::text(event_id)) + "/" + percent_encoded(detail::text(rel_type));
     if (from)
       detail::query(target, "from", detail::text((*from)));
@@ -98,8 +103,13 @@ struct get_relating_events_with_rel_type {
       detail::query(target, "dir", detail::text((*dir)));
     if (recurse)
       detail::query(target, "recurse", detail::text((*recurse)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v1/rooms/{roomId}/relations/{eventId}/{relType}/{eventType}: Get the child events for a given parent event, with a given `relType` and `eventType`.
@@ -133,7 +143,7 @@ struct get_relating_events_with_rel_type_and_event_type {
   std::optional<dir_t> dir;
   std::optional<bool> recurse;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/relations/" + percent_encoded(detail::text(event_id)) + "/" + percent_encoded(detail::text(rel_type)) + "/" + percent_encoded(detail::text(event_type));
     if (from)
       detail::query(target, "from", detail::text((*from)));
@@ -145,7 +155,12 @@ struct get_relating_events_with_rel_type_and_event_type {
       detail::query(target, "dir", detail::text((*dir)));
     if (recurse)
       detail::query(target, "recurse", detail::text((*recurse)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

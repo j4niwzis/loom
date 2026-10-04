@@ -23,12 +23,17 @@ struct get_mutual_rooms {
   std::string user_id;
   std::optional<std::string> from;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/mutual_rooms";
     detail::query(target, "user_id", detail::text(user_id));
     if (from)
       detail::query(target, "from", detail::text((*from)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

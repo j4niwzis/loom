@@ -31,10 +31,15 @@ struct get_room_visibility_on_directory {
   };
   std::string room_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/directory/list/room/" + percent_encoded(detail::text(room_id));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v3/directory/list/room/{roomId}: Sets the visibility of a room in the directory
@@ -58,10 +63,15 @@ struct set_room_visibility_on_directory {
   std::string room_id;
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/directory/list/room/" + percent_encoded(detail::text(room_id));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/publicRooms: Lists a server's published room directory
@@ -70,7 +80,7 @@ struct get_public_rooms {
   std::optional<std::string> since;
   std::optional<std::string> server;
   using response = def::public_rooms_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/publicRooms";
     if (limit)
       detail::query(target, "limit", detail::text((*limit)));
@@ -78,8 +88,13 @@ struct get_public_rooms {
       detail::query(target, "since", detail::text((*since)));
     if (server)
       detail::query(target, "server", detail::text((*server)));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/publicRooms: Lists a server's published room directory with an optional filter
@@ -102,11 +117,16 @@ struct query_public_rooms {
   std::optional<std::string> server;
   body_t body;
   using response = def::public_rooms_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/publicRooms";
     if (server)
       detail::query(target, "server", detail::text((*server)));
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

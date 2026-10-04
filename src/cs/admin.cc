@@ -38,10 +38,15 @@ struct get_who_is {
   };
   std::string user_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client") + "/v3/admin/whois/" + percent_encoded(detail::text(user_id));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v1/admin/suspend/{userId}: Gets information about the suspended status of a particular user.
@@ -53,10 +58,15 @@ struct get_admin_suspend_user {
   };
   std::string user_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client") + "/v1/admin/suspend/" + percent_encoded(detail::text(user_id));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v1/admin/suspend/{userId}: Set the suspended status of a particular user.
@@ -74,10 +84,15 @@ struct set_admin_suspend_user {
   std::string user_id;
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client") + "/v1/admin/suspend/" + percent_encoded(detail::text(user_id));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v1/admin/lock/{userId}: Gets information about the locked status of a particular user.
@@ -89,10 +104,15 @@ struct get_admin_lock_user {
   };
   std::string user_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client") + "/v1/admin/lock/" + percent_encoded(detail::text(user_id));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // PUT /_matrix/client/v1/admin/lock/{userId}: Set the locked status of a particular user.
@@ -110,9 +130,14 @@ struct set_admin_lock_user {
   std::string user_id;
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client") + "/v1/admin/lock/" + percent_encoded(detail::text(user_id));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

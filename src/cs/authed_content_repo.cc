@@ -20,12 +20,17 @@ struct get_content_authed {
     std::string bytes;
   };
   static constexpr bool raw_response = true;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/media/download/" + percent_encoded(detail::text(server_name)) + "/" + percent_encoded(detail::text(media_id));
     if (timeout_ms)
       detail::query(target, "timeout_ms", detail::text((*timeout_ms)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v1/media/download/{serverName}/{mediaId}/{fileName}: Download content from the content repository overriding the file name.
@@ -38,12 +43,17 @@ struct get_content_override_name_authed {
     std::string bytes;
   };
   static constexpr bool raw_response = true;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/media/download/" + percent_encoded(detail::text(server_name)) + "/" + percent_encoded(detail::text(media_id)) + "/" + percent_encoded(detail::text(file_name));
     if (timeout_ms)
       detail::query(target, "timeout_ms", detail::text((*timeout_ms)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v1/media/thumbnail/{serverName}/{mediaId}: Download a thumbnail of content from the content repository
@@ -70,7 +80,7 @@ struct get_content_thumbnail_authed {
     std::string bytes;
   };
   static constexpr bool raw_response = true;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/media/thumbnail/" + percent_encoded(detail::text(server_name)) + "/" + percent_encoded(detail::text(media_id));
     detail::query(target, "width", detail::text(width));
     detail::query(target, "height", detail::text(height));
@@ -80,8 +90,13 @@ struct get_content_thumbnail_authed {
       detail::query(target, "timeout_ms", detail::text((*timeout_ms)));
     if (animated)
       detail::query(target, "animated", detail::text((*animated)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v1/media/preview_url: Get information about a URL for a client
@@ -95,13 +110,18 @@ struct get_url_preview_authed {
   std::string url;
   std::optional<std::int64_t> ts;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/media/preview_url";
     detail::query(target, "url", detail::text(url));
     if (ts)
       detail::query(target, "ts", detail::text((*ts)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v1/media/config: Get the configuration for the content repository.
@@ -112,9 +132,14 @@ struct get_config_authed {
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"m_upload_size">(knot::key("m.upload.size")).member<"rest">(knot::rest); }
   };
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v1") + "/media/config";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

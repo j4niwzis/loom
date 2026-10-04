@@ -6,7 +6,7 @@
 #   PYTHONPATH=<PyYAML> tools/generate.py <matrix-spec checkout> <loom checkout>
 #
 # For each operation, an endpoint -- its path, query and body parameters, its
-# response, made into a loom::request by to_send() -- and for every schema a
+# response, with to_head()/write_body() or buffered to_send() -- and for every schema a
 # struct with its knot schema; what they share, in loom.cs.definitions. The
 # spec's examples become CONSTEXPR_TESTs. What it writes is committed and
 # reviewed as any code is; it is run again when the spec moves.
@@ -474,7 +474,7 @@ def main():
                     lines.append('  using response = loom::empty;')
                 else:
                     lines.append(f'  using response = {response_type};')
-                lines.append('  constexpr request to_send() const {')
+                lines.append('  constexpr request_head to_head() const {')
                 lines.append('    std::string target = ' + ' + '.join(target) + ';')
                 for cpp, key, t, required in queries:
                     get = cpp if required else f'(*{cpp})'
@@ -490,14 +490,21 @@ def main():
                     else:
                         lines.append(f'{guard}    detail::query(target, "{key}", detail::text({get}));')
                 verb = {'get': 'get', 'put': 'put', 'post': 'post', 'delete': 'delete_'}[method]
-                if body_type:
-                    body_expr = 'detail::json(body)'
-                elif raw_body:
-                    body_expr = 'body'
-                else:
-                    body_expr = '""' if method == 'get' or method == 'delete' else '"{}"'
-                lines.append(f'    return {{method::{verb}{{}}, std::move(target), {body_expr}, {"true" if authenticated else "false"}}};')
+                content_type = 'content_type' if raw_body else '\"application/json\"'
+                lines.append(f'    return {{method::{verb}{{}}, std::move(target), {"true" if authenticated else "false"}, {content_type}}};')
                 lines.append('  }')
+                lines.append('  template <class Sink>')
+                lines.append('  constexpr void write_body(Sink&& sink) const {')
+                if body_type:
+                    lines.append('    knot::write_chunks(std::forward<Sink>(sink), body);')
+                elif raw_body:
+                    lines.append('    if (!body.empty()) std::invoke(sink, std::string_view(body));')
+                elif method not in ('get', 'delete'):
+                    lines.append('    std::invoke(sink, std::string_view(\"{}\"));')
+                else:
+                    lines.append('    (void)sink;')
+                lines.append('  }')
+                lines.append('  constexpr request to_send() const { return detail::collect_request(*this); }')
                 lines.append('};')
                 body_lines += lines + ['']
                 for i, one in enumerate(response_examples):

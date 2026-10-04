@@ -14,18 +14,28 @@ export namespace loom::cs {
 // POST /_matrix/client/v3/logout: Invalidates a user access token
 struct logout {
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/logout";
-    return {method::post{}, std::move(target), "{}", true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    std::invoke(sink, std::string_view("{}"));
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/logout/all: Invalidates all access tokens for a user
 struct logout_all {
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/logout/all";
-    return {method::post{}, std::move(target), "{}", true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    std::invoke(sink, std::string_view("{}"));
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

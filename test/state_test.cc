@@ -125,4 +125,69 @@ TEST(State, RedactionRulesByVersion) {
   EXPECT_EQ(loom::client::redaction_rules::of("org.example.custom").version, 11);
 }
 
+TEST(State, DuplicateTimelineEventsAreNotAppended) {
+  loom::client::state kept;
+  kept.apply(read(first));
+  kept.apply(read(second));
+  kept.apply(read(second));
+  const auto& room = kept.joined.at("!r:x.org");
+  EXPECT_EQ(room.timeline.size(), 5u);
+  EXPECT_EQ(room.state.display_name("@b:x.org"), std::nullopt);
+  EXPECT_TRUE(knot::to_json_string(room.timeline.at(2)).contains(R"("content":{})"));
+}
+
+TEST(State, DuplicateEventsWithinOneBatchAreNotAppended) {
+  auto sync = read(first);
+  auto& events = sync.rooms->join->at("!r:x.org").timeline->events;
+  events.push_back(events.back());
+  loom::client::state kept;
+  kept.apply(sync);
+  EXPECT_EQ(kept.joined.at("!r:x.org").timeline.size(), 3u);
+}
+
+TEST(State, TimelineLimitKeepsStateAndInvalidatesOldPagination) {
+  loom::client::state kept;
+  kept.timeline_limit = 1;
+  kept.apply(read(first));
+  const auto& room = kept.joined.at("!r:x.org");
+  ASSERT_EQ(room.timeline.size(), 1u);
+  EXPECT_EQ(room.timeline.front().event_id, "$t");
+  EXPECT_EQ(room.state.name(), "Garden");
+  EXPECT_EQ(room.state.membership("@b:x.org"), "join");
+  EXPECT_TRUE(room.timeline_truncated);
+  EXPECT_FALSE(room.prev_batch.has_value());
+  kept.apply(read(R"({"next_batch":"s2","rooms":{"join":{"!r:x.org":{"timeline":{"events":[],"prev_batch":"p2"}}}}})"));
+  EXPECT_FALSE(room.prev_batch.has_value());
+  // A new server gap establishes a known pagination boundary again.
+  kept.apply(read(R"({"next_batch":"s3","rooms":{"join":{"!r:x.org":{"timeline":{"limited":true,"events":[],"prev_batch":"p3"}}}}})"));
+  EXPECT_FALSE(room.timeline_truncated);
+  EXPECT_EQ(room.prev_batch, "p3");
+}
+
+TEST(State, ZeroTimelineLimitStillAppliesState) {
+  loom::client::state kept;
+  kept.timeline_limit = 0;
+  kept.apply(read(first));
+  const auto& room = kept.joined.at("!r:x.org");
+  EXPECT_TRUE(room.timeline.empty());
+  EXPECT_EQ(room.state.name(), "Garden");
+  EXPECT_TRUE(room.timeline_truncated);
+  EXPECT_FALSE(room.prev_batch.has_value());
+}
+
+TEST(State, TimelineLimitAlsoAppliesToLeftRooms) {
+  loom::client::state kept;
+  kept.timeline_limit = 1;
+  auto gone = read(R"({"next_batch":"left","rooms":{"leave":{"!gone:x.org":{"timeline":{"prev_batch":"p","events":[
+    {"type":"m.room.message","event_id":"$1","sender":"@a:x","origin_server_ts":1,"content":{"msgtype":"m.text","body":"one"}},
+    {"type":"m.room.message","event_id":"$2","sender":"@a:x","origin_server_ts":2,"content":{"msgtype":"m.text","body":"two"}}
+  ]}}}}})");
+  kept.apply(gone);
+  const auto& room = kept.left.at("!gone:x.org");
+  ASSERT_EQ(room.timeline.size(), 1u);
+  EXPECT_EQ(room.timeline.front().event_id, "$2");
+  EXPECT_TRUE(room.timeline_truncated);
+  EXPECT_FALSE(room.prev_batch.has_value());
+}
+
 }  // namespace

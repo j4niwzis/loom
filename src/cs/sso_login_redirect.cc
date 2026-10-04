@@ -27,13 +27,18 @@ struct redirect_to_sso {
   std::string redirect_url;
   std::optional<action_t> action;
   using response = loom::empty;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/login/sso/redirect";
     detail::query(target, "redirectUrl", detail::text(redirect_url));
     if (action)
       detail::query(target, "action", detail::text((*action)));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/login/sso/redirect/{idpId}: Redirect the user's browser to the SSO interface for an IdP.
@@ -53,12 +58,17 @@ struct redirect_to_id_p {
   std::string redirect_url;
   std::optional<action_t> action;
   using response = loom::empty;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/login/sso/redirect/" + percent_encoded(detail::text(idp_id));
     detail::query(target, "redirectUrl", detail::text(redirect_url));
     if (action)
       detail::query(target, "action", detail::text((*action)));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

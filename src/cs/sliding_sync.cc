@@ -143,14 +143,19 @@ struct sliding_sync {
   std::optional<std::int64_t> timeout;
   body_t body;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = "/_matrix/client/unstable/org.matrix.simplified_msc3575/sync";
     if (pos)
       detail::query(target, "pos", detail::text((*pos)));
     if (timeout)
       detail::query(target, "timeout", detail::text((*timeout)));
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 }  // namespace loom::cs

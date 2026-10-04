@@ -14,20 +14,30 @@ export namespace loom::cs {
 // GET /_matrix/client/v3/thirdparty/protocols: Retrieve metadata about all protocols that a homeserver supports.
 struct get_protocols {
   using response = std::map<std::string, def::protocol_t>;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/thirdparty/protocols";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/thirdparty/protocol/{protocol}: Retrieve metadata about a specific protocol that the homeserver supports.
 struct get_protocol_metadata {
   std::string protocol;
   using response = def::protocol_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/thirdparty/protocol/" + percent_encoded(detail::text(protocol));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/thirdparty/location/{protocol}: Retrieve Matrix-side portals rooms leading to a third-party location.
@@ -35,12 +45,17 @@ struct query_location_by_protocol {
   std::string protocol;
   std::optional<std::map<std::string, std::string>> fields;
   using response = std::vector<def::location_t>;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/thirdparty/location/" + percent_encoded(detail::text(protocol));
     if (fields)
       for (const auto& [name, one] : (*fields)) detail::query(target, name, detail::text(one));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/thirdparty/user/{protocol}: Retrieve the Matrix User ID of a corresponding third-party user.
@@ -48,33 +63,48 @@ struct query_user_by_protocol {
   std::string protocol;
   std::optional<std::map<std::string, std::string>> fields;
   using response = std::vector<def::user_t>;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/thirdparty/user/" + percent_encoded(detail::text(protocol));
     if (fields)
       for (const auto& [name, one] : (*fields)) detail::query(target, name, detail::text(one));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/thirdparty/location: Reverse-lookup third-party locations given a Matrix room alias.
 struct query_location_by_alias {
   std::string alias;
   using response = std::vector<def::location_t>;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/thirdparty/location";
     detail::query(target, "alias", detail::text(alias));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/thirdparty/user: Reverse-lookup third-party users given a Matrix User ID.
 struct query_user_by_id {
   std::string userid;
   using response = std::vector<def::user_t>;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/thirdparty/user";
     detail::query(target, "userid", detail::text(userid));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

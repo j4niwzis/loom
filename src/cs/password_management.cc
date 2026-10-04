@@ -28,29 +28,44 @@ struct change_password {
   };
   body_t body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/password";
-    return {method::post{}, std::move(target), detail::json(body), true};
+    return {method::post{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/account/password/email/requestToken: Requests a validation token be sent to the given email address for the purpose of resetting a user's password
 struct request_token_to_reset_password_email {
   def::request_email_validation_t body;
   using response = def::request_token_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/password/email/requestToken";
-    return {method::post{}, std::move(target), detail::json(body), false};
+    return {method::post{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // POST /_matrix/client/v3/account/password/msisdn/requestToken: Requests a validation token be sent to the given phone number for the purpose of resetting a user's password.
 struct request_token_to_reset_password_msisdn {
   def::request_msisdn_validation_t body;
   using response = def::request_token_response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/account/password/msisdn/requestToken";
-    return {method::post{}, std::move(target), detail::json(body), false};
+    return {method::post{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

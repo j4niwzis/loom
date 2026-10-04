@@ -22,9 +22,9 @@ if (sync) kept.apply(*sync);                              // rooms, names, membe
 
 - `loom.ids`: user, room, event ids and aliases, by the identifier grammar;
   percent-encoding for paths.
-- `loom.events`: room events, their content typed where loom knows the type
+- `loom.events`: the small convenience event model, its content typed where loom knows the type
   (`m.room.message`, `m.room.member`, `m.room.name`, `m.room.topic`,
-  `m.room.create`) and kept as a `knot::value` otherwise.
+  `m.room.create`) and kept as `knot::raw` otherwise.
 - `loom.api`: versions, login, whoami, sync, send, messages, join, leave;
   typed errors -- errcode, and `retry_after_ms` for rate limits;
   transaction ids.
@@ -33,7 +33,73 @@ if (sync) kept.apply(*sync);                              // rooms, names, membe
 Tests are `CONSTEXPR_TEST`s, as alef's and tern's: run by the program, and --
 with `-DLOOM_CONSTEXPR_TESTS=ON` -- by the compiler as well.
 
-End-to-end encryption is not here yet.
+For the full generated API, import `loom.cs.<part>` and use `loom::cs`
+endpoints. `loom.ev` supplies the generated event model and `loom.state`
+supplies `loom::client::state`, including membership transitions and
+redactions. The shorter names above remain available for existing callers.
+
+## Streaming requests and responses
+
+Every endpoint exposes `to_head()` and `write_body(sink)`. The header value
+owns its method, target, authentication flag and content type, so it can be
+sent before serialization starts. The sink is a concrete callable receiving
+`std::string_view` chunks. Consume or copy each chunk before returning; it
+may borrow endpoint storage or temporary serializer storage. The endpoint
+must remain alive and unchanged during the call. Sink exceptions propagate.
+
+```cpp
+auto head = endpoint.to_head();
+// Configure the transport with head.method_name(), head.target,
+// head.authenticated and head.content_type; use chunked transfer if needed.
+endpoint.write_body([&](std::string_view chunk) { transport.write(chunk); });
+```
+
+`to_send()` still returns a buffered `loom::request`. It uses the same
+writer and preserves the content type, including media uploads. The
+generator emits both interfaces; generated files and handwritten endpoints
+follow the same convention. For an upload whose bytes come from a file or
+another stream, use the upload endpoint's `to_head()` and send that source
+directly through the transport; no endpoint body string is needed.
+
+`read<Endpoint>(status, characters)` accepts a single-pass character range
+as well as a string view. `read_chunks<Endpoint>(status, chunks)` accepts a
+single-pass range of character chunks, including empty chunks and tokens
+split at arbitrary boundaries. Both return the usual typed response or
+homeserver error. Raw response types return owned bytes without JSON parsing.
+
+For downloads, `read_chunks_to<Endpoint>(status, chunks, sink)` forwards
+successful response chunks directly to a sink and returns
+`std::expected<void, loom::error>`. On an HTTP error it decodes the error and
+does not pass its body to the sink. Range and sink exceptions propagate;
+bytes already delivered before a transport failure remain the caller's to
+discard or resume. Transport buffering and response-size limits remain the
+caller's responsibility.
+
+## Retained state and encryption
+
+`loom::client::state` suppresses duplicate event IDs in each retained
+timeline. Redactions find timeline targets through an index built for the
+incoming batch. Set `state.timeline_limit` to cap the number of retained
+events per joined or left room; zero retains state but no timeline. The
+default is unlimited for compatibility. The limit bounds retained events,
+not the memory used to decode an individual response.
+
+Local eviction sets `room.timeline_truncated` and clears `prev_batch`,
+because that token refers to a boundary before the evicted events. A new
+server gap re-establishes the boundary. Clients using a limit must handle
+the lost history explicitly, with their own storage or a new history fetch.
+
+The optional `crypto` component provides Olm/Megolm through vodozemac,
+key backup, cross-signing and verification helpers. It requires OpenSSL
+and the Rust toolchain for the vodozemac bindings. The protocol API does no
+network I/O; the crypto machine uses filesystem paths and a caller-supplied
+concrete `Keeper` for its persistent store. Keepers must make successful
+writes durable and replace files atomically where crash recovery requires it.
+
+Failed saves remain dirty and can be retried with `flush()`. An existing
+empty or unreadable store is an error; it must not silently create a new
+device identity. Applications must handle persistence failures before
+continuing operations that require durable crypto state.
 
 ## Building
 

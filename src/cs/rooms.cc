@@ -16,10 +16,15 @@ struct get_one_room_event {
   std::string room_id;
   std::string event_id;
   using response = loom::ev::timeline_event;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/event/" + percent_encoded(detail::text(event_id));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/rooms/{roomId}/state/{eventType}/{stateKey}: Get the state identified by the type and key.
@@ -40,22 +45,32 @@ struct get_room_state_with_key {
   std::string state_key;
   std::optional<format_t> format;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/state/" + percent_encoded(detail::text(event_type)) + "/" + percent_encoded(detail::text(state_key));
     if (format)
       detail::query(target, "format", detail::text((*format)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/rooms/{roomId}/state: Get all state events in the current state of a room.
 struct get_room_state {
   std::string room_id;
   using response = std::vector<loom::ev::timeline_event>;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/state";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/rooms/{roomId}/members: Get the m.room.member events for the room.
@@ -116,7 +131,7 @@ struct get_members_by_room {
   std::optional<membership_t> membership;
   std::optional<not_membership_t> not_membership;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/members";
     if (at)
       detail::query(target, "at", detail::text((*at)));
@@ -124,8 +139,13 @@ struct get_members_by_room {
       detail::query(target, "membership", detail::text((*membership)));
     if (not_membership)
       detail::query(target, "not_membership", detail::text((*not_membership)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/rooms/{roomId}/joined_members: Gets the list of currently joined users and their profile data.
@@ -143,9 +163,14 @@ struct get_joined_members_by_room {
   };
   std::string room_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/rooms/" + percent_encoded(detail::text(room_id)) + "/joined_members";
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

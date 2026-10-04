@@ -17,10 +17,15 @@ struct set_profile_field {
   std::string key_name;
   knot::raw body;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/profile/" + percent_encoded(detail::text(user_id)) + "/" + percent_encoded(detail::text(key_name));
-    return {method::put{}, std::move(target), detail::json(body), true};
+    return {method::put{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    knot::write_chunks(std::forward<Sink>(sink), body);
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/profile/{userId}/{keyName}: Get a profile field for a user.
@@ -28,10 +33,15 @@ struct get_profile_field {
   std::string user_id;
   std::string key_name;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/profile/" + percent_encoded(detail::text(user_id)) + "/" + percent_encoded(detail::text(key_name));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // DELETE /_matrix/client/v3/profile/{userId}/{keyName}: Remove a profile field from a user.
@@ -39,10 +49,15 @@ struct delete_profile_field {
   std::string user_id;
   std::string key_name;
   using response = knot::raw;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/profile/" + percent_encoded(detail::text(user_id)) + "/" + percent_encoded(detail::text(key_name));
-    return {method::delete_{}, std::move(target), "", true};
+    return {method::delete_{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/profile/{userId}: Get all profile information for a user.
@@ -56,9 +71,14 @@ struct get_user_profile {
   };
   std::string user_id;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/profile/" + percent_encoded(detail::text(user_id));
-    return {method::get{}, std::move(target), "", false};
+    return {method::get{}, std::move(target), false, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

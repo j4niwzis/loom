@@ -45,8 +45,7 @@ class olm_machine {
   static olm_machine open(Keeper keeper, std::filesystem::path store, std::string user_id, std::string device_id) {
     olm_machine made(std::move(keeper), std::move(store), std::move(user_id), std::move(device_id));
     made.key_ = made.pickle_key();
-    std::error_code there;
-    const bool exists = std::filesystem::exists(made.store_, there);
+    const bool exists = std::filesystem::exists(made.store_);
     const auto opened = exists ? made.keeper_.read_file(made.store_) : std::optional<std::string>(std::string());
     if (!opened)
       throw std::runtime_error("the encryption store cannot be opened (local data locked?): " + made.store_.string());
@@ -54,7 +53,7 @@ class olm_machine {
     // A store there that cannot be read -- damaged, or its key lost -- is not
     // replaced by a new identity: the device's keys on the server would no
     // longer be its own, and every session would be lost without a word.
-    if (!text.empty()) {
+    if (exists) {
       auto read = knot::try_read<kept_file>(text);
       if (!read)
         throw std::runtime_error("the encryption store cannot be read: " + made.store_.string());
@@ -644,8 +643,7 @@ class olm_machine {
     // There: read whole, or an error. A key there that cannot be read --
     // its permissions, cut short, sealed and locked -- was made anew over
     // the old one, and the store under it lost for good.
-    std::error_code ignored;
-    if (std::filesystem::exists(path, ignored)) {
+    if (std::filesystem::exists(path)) {
       const auto opened = keeper_.read_file(path);
       if (!opened || opened->size() != key.size())
         throw std::runtime_error("the encryption store's key cannot be read: " + path.string());
@@ -653,7 +651,7 @@ class olm_machine {
       return key;
     }
     // Not there, and a store there: its key lost -- an error, not a new key.
-    if (std::filesystem::exists(store_, ignored))
+    if (std::filesystem::exists(store_))
       throw std::runtime_error("the encryption store's key is missing: " + path.string());
     // The system's own randomness (RAND_bytes), not std::random_device.
     const auto random = random_bytes(key.size());
@@ -666,7 +664,9 @@ class olm_machine {
   bool unsaved_ = false;
   std::vector<std::pair<std::string, std::string>> wedged_;
   void save() {
-    unsaved_ = false;
+    // Even an immediate save must remain retryable if pickling,
+    // serialization, directory creation or the keeper fails.
+    unsaved_ = true;
     kept_.account = std::string((*account_)->pickle(key_));
     std::error_code ignored;
     std::filesystem::create_directories(store_.parent_path(), ignored);
@@ -676,6 +676,7 @@ class olm_machine {
     // seals local data, the user's alone either way.
     if (!keeper_.write_file(store_, knot::to_json_string(kept_), true))
       throw std::runtime_error("the encryption store cannot be written: " + store_.string());
+    unsaved_ = false;
   }
 
   [[nodiscard]] std::string sign(std::string_view canonical) const {

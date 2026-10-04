@@ -172,7 +172,7 @@ struct sync {
   std::optional<std::int64_t> timeout;
   std::optional<bool> use_state_after;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/sync";
     if (filter)
       detail::query(target, "filter", detail::text((*filter)));
@@ -186,7 +186,12 @@ struct sync {
       detail::query(target, "timeout", detail::text((*timeout)));
     if (use_state_after)
       detail::query(target, "use_state_after", detail::text((*use_state_after)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs

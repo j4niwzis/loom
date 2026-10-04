@@ -23,14 +23,19 @@ struct get_events {
   std::optional<std::string> from;
   std::optional<std::int64_t> timeout;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/events";
     if (from)
       detail::query(target, "from", detail::text((*from)));
     if (timeout)
       detail::query(target, "timeout", detail::text((*timeout)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/initialSync: Get the user's current state. (deprecated)
@@ -117,23 +122,33 @@ struct initial_sync {
   std::optional<std::int64_t> limit;
   std::optional<bool> archived;
   using response = response_t;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/initialSync";
     if (limit)
       detail::query(target, "limit", detail::text((*limit)));
     if (archived)
       detail::query(target, "archived", detail::text((*archived)));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 
 // GET /_matrix/client/v3/events/{eventId}: Get a single event by event ID. (deprecated)
 struct get_one_event {
   std::string event_id;
   using response = loom::ev::timeline_event;
-  constexpr request to_send() const {
+  constexpr request_head to_head() const {
     std::string target = std::string("/_matrix/client/v3") + "/events/" + percent_encoded(detail::text(event_id));
-    return {method::get{}, std::move(target), "", true};
+    return {method::get{}, std::move(target), true, "application/json"};
   }
+  template <class Sink>
+  constexpr void write_body(Sink&& sink) const {
+    (void)sink;
+  }
+  constexpr request to_send() const { return detail::collect_request(*this); }
 };
 }  // namespace loom::cs
