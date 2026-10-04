@@ -19,8 +19,8 @@ endif()
 set(LOOM_CONSTEXPR_STEPS 300000000 CACHE STRING
   "clang's -fconstexpr-steps for loom and what imports it")
 
-# splice: the variant loom's choices are, and the visiting -- the one knot
-# holds its own in, at the commit knot asks for.
+# splice: the variant loom's choices are, and the visiting. Declared before
+# knot so both use the same commit, matching mux's pin.
 set(SPLICE_CONSTEXPR_STEPS ${LOOM_CONSTEXPR_STEPS} CACHE STRING
   "clang's -fconstexpr-steps for splice, as loom sets it")
 cme_declare_port(NAME splice PROVIDES splice
@@ -36,7 +36,7 @@ cme_find_package(splice REQUIRED)
 # instead with -DCPM_knot_SOURCE=<path>.
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
-  GIT_TAG 035e53fdee8875614e350331a914256495b9bb22
+  GIT_TAG fa98812b7a63dde5d81dcd51f3ee0dceb6f98678
   LICENSE AGPL-3.0-only
   TARGETS knot)
 cme_options(knot "KNOT_TESTS OFF")
