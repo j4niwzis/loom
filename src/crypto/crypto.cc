@@ -602,7 +602,8 @@ class olm_machine {
       // Sent in this room: a message from another room put here is not.
       if (!read || !in_room || in_room->room_id != room)
         return std::nullopt;
-      // Only what a message is: a message, a sticker, a reaction -- or an
+      // Only what a message is: a message, a sticker, a reaction, a call's
+      // signalling (m.call.*, sent encrypted in an encrypted room) -- or an
       // event nothing here reads, said as such. Never state, nor a
       // redaction: the server checks who may send those, and inside an
       // encrypted event it checks nothing (a room's name, its members, its
@@ -611,6 +612,14 @@ class olm_machine {
           splice::overloaded{[](const loom::ev::m_room_message_content_t&) { return true; },
                              [](const loom::ev::m_sticker_content_t&) { return true; },
                              [](const loom::ev::m_reaction_content_t&) { return true; },
+                             [](const loom::ev::m_call_invite_content_t&) { return true; },
+                             [](const loom::ev::m_call_answer_content_t&) { return true; },
+                             [](const loom::ev::m_call_candidates_content_t&) { return true; },
+                             [](const loom::ev::m_call_hangup_content_t&) { return true; },
+                             [](const loom::ev::m_call_negotiate_content_t&) { return true; },
+                             [](const loom::ev::m_call_reject_content_t&) { return true; },
+                             [](const loom::ev::m_call_select_answer_content_t&) { return true; },
+                             [](const loom::ev::m_call_sdp_stream_metadata_changed_content_t&) { return true; },
                              [](const knot::raw&) { return true; }, [](const auto&) { return false; }},
           read->content.data());
       if (!message_like)
