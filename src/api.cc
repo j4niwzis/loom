@@ -50,6 +50,68 @@ struct request {
 // What a homeserver said went wrong: its status, errcode -- M_FORBIDDEN,
 // M_UNKNOWN_TOKEN, M_LIMIT_EXCEEDED... -- and how long to wait, where it
 // says so.
+// Interactive authentication (the spec's User-Interactive Authentication
+// API), as a 401 asks for it: the flows the server offers, each its stages,
+// what is done of them, and what the stages that say anything say -- the
+// terms to agree to. Read once, here, into types. A CAPTCHA, whichever the
+// server uses, is done on its own page (the stage's fallback), not here.
+namespace auth_stage {
+struct dummy {};
+struct password {};
+struct registration_token {};
+struct terms {};
+struct captcha {};
+struct email {};
+struct msisdn {};
+struct sso {};
+struct other {
+  std::string name;
+  friend bool operator==(const other&, const other&) = default;
+};
+}  // namespace auth_stage
+using auth_stage_t = splice::variant<auth_stage::dummy, auth_stage::password, auth_stage::registration_token, auth_stage::terms,
+                                     auth_stage::captcha, auth_stage::email, auth_stage::msisdn, auth_stage::sso,
+                                     auth_stage::other>;
+[[nodiscard]] inline auth_stage_t auth_stage_of(std::string_view name) {
+  static const std::unordered_map<std::string_view, auth_stage_t> known = {
+      {"m.login.dummy", auth_stage::dummy{}},
+      {"m.login.password", auth_stage::password{}},
+      {"m.login.registration_token", auth_stage::registration_token{}},
+      {"m.login.terms", auth_stage::terms{}},
+      {"m.login.recaptcha", auth_stage::captcha{}},
+      {"m.login.email.identity", auth_stage::email{}},
+      {"m.login.msisdn", auth_stage::msisdn{}},
+      {"m.login.sso", auth_stage::sso{}}};
+  if (const auto found = known.find(name); found != known.end())
+    return found->second;
+  return auth_stage::other{std::string(name)};
+}
+// The stage's name, as the server is answered with it.
+[[nodiscard]] inline std::string name_of(const auth_stage_t& stage) {
+  return splice::visit(splice::overloaded{[](auth_stage::dummy) { return std::string("m.login.dummy"); },
+                                          [](auth_stage::password) { return std::string("m.login.password"); },
+                                          [](auth_stage::registration_token) { return std::string("m.login.registration_token"); },
+                                          [](auth_stage::terms) { return std::string("m.login.terms"); },
+                                          [](auth_stage::captcha) { return std::string("m.login.recaptcha"); },
+                                          [](auth_stage::email) { return std::string("m.login.email.identity"); },
+                                          [](auth_stage::msisdn) { return std::string("m.login.msisdn"); },
+                                          [](auth_stage::sso) { return std::string("m.login.sso"); },
+                                          [](const auth_stage::other& one) { return one.name; }},
+                       stage);
+}
+// A document to agree to, as m.login.terms gives it: its name and where it
+// is, in English where it is in it, else in the first language it has.
+struct auth_policy {
+  std::string name;
+  std::string url;
+  std::string version;
+};
+struct interactive_auth {
+  std::vector<std::vector<auth_stage_t>> flows;
+  std::vector<auth_stage_t> completed;
+  std::vector<auth_policy> terms;
+};
+
 struct error {
   int status = 0;
   std::string errcode;
@@ -58,6 +120,8 @@ struct error {
   // Asked for interactive authentication (a 401 with flows): its session,
   // to be answered in.
   std::optional<std::string> session;
+  // And what it asks: its flows, what is done, the stages' parameters.
+  std::optional<interactive_auth> auth{};
 };
 
 namespace detail {
@@ -70,13 +134,57 @@ constexpr request collect_request(const Endpoint& endpoint) {
           head.authenticated, std::move(head.content_type)};
 }
 
+struct flow_body {
+  std::vector<std::string> stages;
+};
+consteval auto json_schema(knot::type<flow_body>) { return knot::schema<flow_body>(); }
+// A policy of m.login.terms: its version beside one object per language --
+// read as what each key holds, its languages then read as they are.
+struct policy_language {
+  std::string name;
+  std::string url;
+};
+consteval auto json_schema(knot::type<policy_language>) { return knot::schema<policy_language>(); }
+struct terms_params {
+  std::map<std::string, std::map<std::string, knot::raw>> policies;
+};
+consteval auto json_schema(knot::type<terms_params>) { return knot::schema<terms_params>(); }
+struct params_body {
+  std::optional<terms_params> terms;
+};
+consteval auto json_schema(knot::type<params_body>) {
+  return knot::schema<params_body>().member<"terms">(knot::key("m.login.terms"));
+}
 struct error_body {
   std::optional<std::string> errcode;
   std::optional<std::string> error;
   std::optional<std::int64_t> retry_after_ms;
   std::optional<std::string> session;
+  std::optional<std::vector<flow_body>> flows;
+  std::optional<std::vector<std::string>> completed;
+  std::optional<params_body> params;
 };
 consteval auto json_schema(knot::type<error_body>) { return knot::schema<error_body>(); }
+// The policies as the terms stage lists them: each its name and link in
+// English, else in the first language given.
+inline std::vector<auth_policy> policies_of(const terms_params& given) {
+  return given.policies | std::views::transform([](const auto& entry) {
+           const auto& [id, fields] = entry;
+           auth_policy out{.name = id};
+           if (const auto version = fields.find("version"); version != fields.end())
+             if (auto read = knot::try_read<std::string>(std::string_view(version->second.text)))
+               out.version = std::move(*read);
+           const auto language = fields.contains("en") ? fields.find("en")
+                                 : std::ranges::find_if(fields, [](const auto& one) { return one.first != "version"; });
+           if (language != fields.end())
+             if (auto read = knot::try_read<policy_language>(std::string_view(language->second.text))) {
+               out.name = std::move(read->name);
+               out.url = std::move(read->url);
+             }
+           return out;
+         }) |
+         std::ranges::to<std::vector>();
+}
 
 inline constexpr std::string_view client = "/_matrix/client/v3";
 
@@ -151,6 +259,17 @@ constexpr std::expected<typename Endpoint::response, error> read_response(int st
     out.message = said->error.value_or("");
     out.retry_after_ms = said->retry_after_ms;
     out.session = said->session;
+    if (said->flows) {
+      const auto stages_of = [](const std::vector<std::string>& names) {
+        return names | std::views::transform([](const std::string& name) { return auth_stage_of(name); }) |
+               std::ranges::to<std::vector>();
+      };
+      out.auth = interactive_auth{
+          .flows = *said->flows | std::views::transform([&](const flow_body& flow) { return stages_of(flow.stages); }) |
+                   std::ranges::to<std::vector>(),
+          .completed = stages_of(said->completed.value_or(std::vector<std::string>{})),
+          .terms = said->params && said->params->terms ? policies_of(*said->params->terms) : std::vector<auth_policy>{}};
+    }
   }
   return std::unexpected(std::move(out));
 }
