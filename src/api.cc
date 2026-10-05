@@ -56,14 +56,30 @@ struct request {
 // terms to agree to. Read once, here, into types. A CAPTCHA, whichever the
 // server uses, is done on its own page (the stage's fallback), not here.
 namespace auth_stage {
-struct dummy {};
-struct password {};
-struct registration_token {};
-struct terms {};
-struct captcha {};
-struct email {};
-struct msisdn {};
-struct sso {};
+struct dummy {
+  friend constexpr bool operator==(dummy, dummy) = default;
+};
+struct password {
+  friend constexpr bool operator==(password, password) = default;
+};
+struct registration_token {
+  friend constexpr bool operator==(registration_token, registration_token) = default;
+};
+struct terms {
+  friend constexpr bool operator==(terms, terms) = default;
+};
+struct captcha {
+  friend constexpr bool operator==(captcha, captcha) = default;
+};
+struct email {
+  friend constexpr bool operator==(email, email) = default;
+};
+struct msisdn {
+  friend constexpr bool operator==(msisdn, msisdn) = default;
+};
+struct sso {
+  friend constexpr bool operator==(sso, sso) = default;
+};
 struct other {
   std::string name;
   friend bool operator==(const other&, const other&) = default;
