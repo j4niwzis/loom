@@ -531,7 +531,7 @@ class olm_machine {
   }
   void backed_up(const std::vector<std::string>& ids) {
     auto& all = kept_.backed_up ? *kept_.backed_up : kept_.backed_up.emplace();
-    all.insert_range(ids | std::views::transform([](const std::string& id) { return std::pair(id, true); }));
+    all.insert_range(std::views::transform(ids, [](const std::string& id) { return std::pair(id, true); }));
     this->save();
   }
 

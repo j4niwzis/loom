@@ -86,7 +86,7 @@ struct sas_state {
   [[nodiscard]] std::array<int, 7> emoji(std::string_view info) const {
     const auto indices = (*established)->bytes(std::string(info))->emoji_indices();
     std::array<int, 7> out{};
-    std::ranges::copy(indices | std::views::transform([](std::uint8_t i) { return static_cast<int>(i); }), out.begin());
+    std::ranges::copy(std::views::transform(indices, [](std::uint8_t i) { return static_cast<int>(i); }), out.begin());
     return out;
   }
   [[nodiscard]] std::string mac(std::string_view input, std::string_view info) const {
