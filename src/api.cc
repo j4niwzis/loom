@@ -126,6 +126,9 @@ struct interactive_auth {
   std::vector<std::vector<auth_stage_t>> flows;
   std::vector<auth_stage_t> completed;
   std::vector<auth_policy> terms;
+  // Where org.matrix.cross_signing_reset is done (MSC4312: an OIDC
+  // server's account page), as its parameters say.
+  std::optional<std::string> reset_url;
 };
 
 struct error {
@@ -165,11 +168,18 @@ struct terms_params {
   std::map<std::string, std::map<std::string, knot::raw>> policies;
 };
 consteval auto json_schema(knot::type<terms_params>) { return knot::schema<terms_params>(); }
+struct url_params {
+  std::optional<std::string> url;
+};
+consteval auto json_schema(knot::type<url_params>) { return knot::schema<url_params>(); }
 struct params_body {
   std::optional<terms_params> terms;
+  std::optional<url_params> cross_signing_reset;
 };
 consteval auto json_schema(knot::type<params_body>) {
-  return knot::schema<params_body>().member<"terms">(knot::key("m.login.terms"));
+  return knot::schema<params_body>()
+      .member<"terms">(knot::key("m.login.terms"))
+      .member<"cross_signing_reset">(knot::key("org.matrix.cross_signing_reset"));
 }
 struct error_body {
   std::optional<std::string> errcode;
@@ -281,7 +291,8 @@ constexpr std::expected<typename Endpoint::response, error> read_response(int st
       out.auth = interactive_auth{
           .flows = std::ranges::to<std::vector>(std::views::transform(*said->flows, [&](const flow_body& flow) { return stages_of(flow.stages); })),
           .completed = stages_of(said->completed.value_or(std::vector<std::string>{})),
-          .terms = said->params && said->params->terms ? policies_of(*said->params->terms) : std::vector<auth_policy>{}};
+          .terms = said->params && said->params->terms ? policies_of(*said->params->terms) : std::vector<auth_policy>{},
+          .reset_url = said->params && said->params->cross_signing_reset ? said->params->cross_signing_reset->url : std::nullopt};
     }
   }
   return std::unexpected(std::move(out));
