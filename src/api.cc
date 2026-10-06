@@ -184,7 +184,7 @@ consteval auto json_schema(knot::type<error_body>) { return knot::schema<error_b
 // The policies as the terms stage lists them: each its name and link in
 // English, else in the first language given.
 inline std::vector<auth_policy> policies_of(const terms_params& given) {
-  return std::views::transform(given.policies, [](const auto& entry) {
+  return std::ranges::to<std::vector>(std::views::transform(given.policies, [](const auto& entry) {
            const auto& [id, fields] = entry;
            auth_policy out{.name = id};
            if (const auto version = fields.find("version"); version != fields.end())
@@ -198,8 +198,7 @@ inline std::vector<auth_policy> policies_of(const terms_params& given) {
                out.url = std::move(read->url);
              }
            return out;
-         }) |
-         std::ranges::to<std::vector>();
+         }));
 }
 
 inline constexpr std::string_view client = "/_matrix/client/v3";
@@ -277,12 +276,10 @@ constexpr std::expected<typename Endpoint::response, error> read_response(int st
     out.session = said->session;
     if (said->flows) {
       const auto stages_of = [](const std::vector<std::string>& names) {
-        return std::views::transform(names, [](const std::string& name) { return auth_stage_of(name); }) |
-               std::ranges::to<std::vector>();
+        return std::ranges::to<std::vector>(std::views::transform(names, [](const std::string& name) { return auth_stage_of(name); }));
       };
       out.auth = interactive_auth{
-          .flows = std::views::transform(*said->flows, [&](const flow_body& flow) { return stages_of(flow.stages); }) |
-                   std::ranges::to<std::vector>(),
+          .flows = std::ranges::to<std::vector>(std::views::transform(*said->flows, [&](const flow_body& flow) { return stages_of(flow.stages); })),
           .completed = stages_of(said->completed.value_or(std::vector<std::string>{})),
           .terms = said->params && said->params->terms ? policies_of(*said->params->terms) : std::vector<auth_policy>{}};
     }
