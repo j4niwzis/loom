@@ -24,7 +24,7 @@ struct create_room {
         friend constexpr bool operator==(private_, private_) = default;
       };
     };
-    using visibility_t = splice::variant<visibility_values::public_, visibility_values::private_, std::string>;
+    using visibility_t = spl::variant<visibility_values::public_, visibility_values::private_, std::string>;
     struct state_event_t {
       std::string type;
       std::optional<std::string> state_key;
@@ -46,7 +46,7 @@ struct create_room {
         friend constexpr bool operator==(trusted_private_chat, trusted_private_chat) = default;
       };
     };
-    using preset_t = splice::variant<preset_values::private_chat, preset_values::public_chat, preset_values::trusted_private_chat, std::string>;
+    using preset_t = spl::variant<preset_values::private_chat, preset_values::public_chat, preset_values::trusted_private_chat, std::string>;
     std::optional<visibility_t> visibility;
     std::optional<std::string> room_alias_name;
     std::optional<std::string> name;

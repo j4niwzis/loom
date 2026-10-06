@@ -18,8 +18,8 @@ export namespace loom::client {
 
 // The string a choice holds: the one its alternative names, or the one kept.
 template <class... Alternatives>
-constexpr std::string_view choice_text(const splice::variant<Alternatives...>& one) {
-  return splice::visit(
+constexpr std::string_view choice_text(const spl::variant<Alternatives...>& one) {
+  return spl::visit(
       [](const auto& held) -> std::string_view {
         using type = std::remove_cvref_t<decltype(held)>;
         if constexpr (requires { type::json_value; })
@@ -178,7 +178,7 @@ struct room_state {
   // Whether the room is a space: its creation says so, by its type.
   bool is_space() const {
     const auto* created = content<ev::m_room_create_content_t>("m.room.create");
-    return created && splice::visit([](auto of) { return of.is_space; }, names::room_type_of(created->type));
+    return created && spl::visit([](auto of) { return of.is_space; }, names::room_type_of(created->type));
   }
   // The rooms a space holds: an m.space.child for each whose content is
   // still a child's -- an emptied one is a child taken out.
@@ -238,13 +238,13 @@ struct joined_room {
 inline bool replaces(const ev::m_room_message_content_t::m_relates_to_t& relates) {
   using values = ev::m_room_message_content_t::m_relates_to_t::rel_type_values;
   return relates.rel_type &&
-         splice::visit(splice::overloaded{[](values::m_replace) { return true; }, [](const auto&) { return false; }}, *relates.rel_type);
+         spl::visit(spl::overloaded{[](values::m_replace) { return true; }, [](const auto&) { return false; }}, *relates.rel_type);
 }
 inline std::optional<std::string> thread_of(const ev::m_room_message_content_t::m_relates_to_t& relates) {
   using values = ev::m_room_message_content_t::m_relates_to_t::rel_type_values;
   if (!relates.rel_type || !relates.event_id)
     return std::nullopt;
-  return splice::visit(splice::overloaded{[&](values::m_thread) { return relates.event_id; },
+  return spl::visit(spl::overloaded{[&](values::m_thread) { return relates.event_id; },
                                           [](const auto&) { return std::optional<std::string>(); }},
                        *relates.rel_type);
 }
@@ -275,7 +275,7 @@ inline std::optional<thread_summary> thread_summary_of(const ev::timeline_event&
 // A membership as the event says it, as loom.names' variant.
 inline names::membership_t membership_of(const ev::m_room_member_content_t::membership_t& said) {
   using values = ev::m_room_member_content_t::membership_values;
-  return splice::visit(splice::overloaded{[](values::join) -> names::membership_t { return names::membership::join{}; },
+  return spl::visit(spl::overloaded{[](values::join) -> names::membership_t { return names::membership::join{}; },
                                           [](values::leave) -> names::membership_t { return names::membership::leave{}; },
                                           [](values::invite) -> names::membership_t { return names::membership::invite{}; },
                                           [](values::ban) -> names::membership_t { return names::membership::ban{}; },
@@ -524,7 +524,7 @@ namespace receipt_kind {
 struct read {};
 struct other {};
 }  // namespace receipt_kind
-using receipt_kind_t = splice::variant<receipt_kind::read, receipt_kind::other>;
+using receipt_kind_t = spl::variant<receipt_kind::read, receipt_kind::other>;
 inline receipt_kind_t receipt_kind_of(std::string_view key) {
   static constexpr std::array<std::string_view, 2> reads{"m.read", "m.read.private"};
   return std::ranges::contains(reads, key) ? receipt_kind_t{receipt_kind::read{}} : receipt_kind_t{receipt_kind::other{}};
@@ -538,13 +538,13 @@ using receipts_by_event = std::map<std::string, std::map<std::string, std::map<s
 // The read receipts an ephemeral event carries: none where it is not m.receipt.
 inline std::vector<read_receipt> receipts_of(const other_event& one) {
   std::vector<read_receipt> out;
-  splice::visit(splice::overloaded{[&](const ev::m_receipt_content_t& content) {
+  spl::visit(spl::overloaded{[&](const ev::m_receipt_content_t& content) {
                                      const auto all = knot::try_read<receipts_by_event>(content.rest.text);
                                      if (!all)
                                        return;
                                      for (const auto& [event_id, kinds] : *all)
                                        for (const auto& [kind, users] : kinds)
-                                         splice::visit(splice::overloaded{[&](receipt_kind::read) {
+                                         spl::visit(spl::overloaded{[&](receipt_kind::read) {
                                                                             for (const auto& [user, at] : users)
                                                                               out.push_back({event_id, user, at.ts});
                                                                           },
@@ -561,7 +561,7 @@ using direct_rooms_t = std::map<std::string, std::vector<std::string>>;
 inline direct_rooms_t direct_rooms(const state& all) {
   direct_rooms_t out;
   if (const auto found = all.account_data.find("m.direct"); found != all.account_data.end())
-    splice::visit(splice::overloaded{[&](const ev::m_direct_content_t& content) {
+    spl::visit(spl::overloaded{[&](const ev::m_direct_content_t& content) {
                                        if (auto got = knot::try_read<direct_rooms_t>(content.rest.text))
                                          out = std::move(*got);
                                      },
@@ -581,7 +581,7 @@ struct emoticon {};
 struct sticker {};
 struct other {};
 }  // namespace image_use
-using image_use_t = splice::variant<image_use::emoticon, image_use::sticker, image_use::other>;
+using image_use_t = spl::variant<image_use::emoticon, image_use::sticker, image_use::other>;
 inline image_use_t image_use_of(std::string_view word) {
   if (word == "emoticon")
     return image_use::emoticon{};
@@ -628,7 +628,7 @@ inline void add_pack(const auto& content, const image_use_t& wanted, std::vector
 }
 // A state or account-data event's pack, whichever of its names it came under.
 inline void add_packs_of(const auto& content, const image_use_t& wanted, std::vector<pack_image>& out) {
-  splice::visit(splice::overloaded{[&](const ev::m_room_image_pack_content_t& one) { add_pack(one, wanted, out); },
+  spl::visit(spl::overloaded{[&](const ev::m_room_image_pack_content_t& one) { add_pack(one, wanted, out); },
                                    [&](const ev::im_ponies_room_emotes_content_t& one) { add_pack(one, wanted, out); },
                                    [&](const ev::im_ponies_user_emotes_content_t& one) { add_pack(one, wanted, out); },
                                    [](const auto&) {}},
@@ -651,7 +651,7 @@ inline std::vector<pack_image> images(const state& all, const joined_room& room,
   };
   for (const std::string_view type : {"im.ponies.emote_rooms", "m.image_pack.rooms"})
     if (const auto chosen = all.account_data.find(type); chosen != all.account_data.end())
-      splice::visit(splice::overloaded{[&](const ev::im_ponies_emote_rooms_content_t& one) { everywhere(one.rooms); },
+      spl::visit(spl::overloaded{[&](const ev::im_ponies_emote_rooms_content_t& one) { everywhere(one.rooms); },
                                        [&](const ev::m_image_pack_rooms_content_t& one) { everywhere(one.rooms); },
                                        [](const auto&) {}},
                     chosen->second.content.data());

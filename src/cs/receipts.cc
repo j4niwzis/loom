@@ -27,7 +27,7 @@ struct post_receipt {
       friend constexpr bool operator==(m_fully_read, m_fully_read) = default;
     };
   };
-  using receipt_type_t = splice::variant<receipt_type_values::m_read, receipt_type_values::m_read_private, receipt_type_values::m_fully_read, std::string>;
+  using receipt_type_t = spl::variant<receipt_type_values::m_read, receipt_type_values::m_read_private, receipt_type_values::m_fully_read, std::string>;
   struct body_t {
     std::optional<std::string> thread_id;
     knot::raw rest;

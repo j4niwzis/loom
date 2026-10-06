@@ -39,7 +39,7 @@ struct gallery {  // MSC4274: several in one message, in its itemtypes
   static constexpr bool carries = false, picture = false, is_emote = false;
 };
 }  // namespace msgtype
-using msgtype_t = splice::variant<msgtype::image, msgtype::file, msgtype::video, msgtype::audio, msgtype::emote,
+using msgtype_t = spl::variant<msgtype::image, msgtype::file, msgtype::video, msgtype::audio, msgtype::emote,
                                msgtype::other, msgtype::gallery>;
 namespace event_type {
 struct encrypted {};           // m.room.encrypted
@@ -61,7 +61,7 @@ struct reaction {};            // m.reaction, likewise
 struct other {};
 }  // namespace event_type
 using event_type_t =
-    splice::variant<event_type::encrypted, event_type::redaction, event_type::receipt, event_type::member,
+    spl::variant<event_type::encrypted, event_type::redaction, event_type::receipt, event_type::member,
                  event_type::room_name, event_type::topic, event_type::room_avatar, event_type::create,
                  event_type::power_levels, event_type::pinned, event_type::join_rules,
                  event_type::history_visibility, event_type::canonical_alias, event_type::sticker, event_type::message,
@@ -87,7 +87,7 @@ struct other {
   static constexpr bool in = false;
 };
 }  // namespace membership
-using membership_t = splice::variant<membership::join, membership::leave, membership::invite, membership::ban,
+using membership_t = spl::variant<membership::join, membership::leave, membership::invite, membership::ban,
                                   membership::knock, membership::other>;
 namespace relation {
 struct replace {  // m.replace
@@ -97,7 +97,7 @@ struct other {
   static constexpr bool edit = false;
 };
 }  // namespace relation
-using relation_t = splice::variant<relation::replace, relation::other>;
+using relation_t = spl::variant<relation::replace, relation::other>;
 namespace room_type {
 struct space {  // m.space
   static constexpr bool is_space = true;
@@ -106,7 +106,7 @@ struct other {
   static constexpr bool is_space = false;
 };
 }  // namespace room_type
-using room_type_t = splice::variant<room_type::space, room_type::other>;
+using room_type_t = spl::variant<room_type::space, room_type::other>;
 namespace body_format {
 struct html {  // org.matrix.custom.html
   static constexpr bool html_given = true;
@@ -115,7 +115,7 @@ struct other {
   static constexpr bool html_given = false;
 };
 }  // namespace body_format
-using body_format_t = splice::variant<body_format::html, body_format::other>;
+using body_format_t = spl::variant<body_format::html, body_format::other>;
 
 // A name looked up in a table of the ones known; Other where it is not.
 template <class Variant, class Other>
@@ -151,7 +151,7 @@ struct cancel {};
 struct done {};
 }  // namespace verification_kind
 using verification_kind_t =
-    splice::variant<verification_kind::none, verification_kind::ready, verification_kind::start, verification_kind::accept,
+    spl::variant<verification_kind::none, verification_kind::ready, verification_kind::start, verification_kind::accept,
                     verification_kind::key, verification_kind::mac, verification_kind::cancel, verification_kind::done>;
 [[nodiscard]] inline verification_kind_t verification_kind_of(std::optional<std::string_view> name) {
   static const std::unordered_map<std::string_view, verification_kind_t> known = {
@@ -218,7 +218,7 @@ struct other {
   static constexpr bool emotes = false;
 };
 }  // namespace state_type
-using state_type_t = splice::variant<state_type::space_child, state_type::room_emotes, state_type::other>;
+using state_type_t = spl::variant<state_type::space_child, state_type::room_emotes, state_type::other>;
 [[nodiscard]] inline state_type_t state_type_of(std::optional<std::string_view> name) {
   static const std::unordered_map<std::string_view, state_type_t> known = {
       {"m.space.child", state_type::space_child{}}, {"im.ponies.room_emotes", state_type::room_emotes{}}};
@@ -233,7 +233,7 @@ struct other {
   static constexpr bool gone = false;
 };
 }  // namespace errcode
-using errcode_t = splice::variant<errcode::session_gone, errcode::other>;
+using errcode_t = spl::variant<errcode::session_gone, errcode::other>;
 [[nodiscard]] inline errcode_t errcode_of(std::optional<std::string_view> name) {
   static const std::unordered_map<std::string_view, errcode_t> known = {
       {"M_UNKNOWN_TOKEN", errcode::session_gone{}}, {"M_FORBIDDEN", errcode::session_gone{}}};

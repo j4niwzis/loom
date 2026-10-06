@@ -39,7 +39,7 @@ struct get_room_state_with_key {
       friend constexpr bool operator==(event, event) = default;
     };
   };
-  using format_t = splice::variant<format_values::content, format_values::event, std::string>;
+  using format_t = spl::variant<format_values::content, format_values::event, std::string>;
   std::string room_id;
   std::string event_type;
   std::string state_key;
@@ -97,7 +97,7 @@ struct get_members_by_room {
       friend constexpr bool operator==(ban, ban) = default;
     };
   };
-  using membership_t = splice::variant<membership_values::join, membership_values::invite, membership_values::knock, membership_values::leave, membership_values::ban, std::string>;
+  using membership_t = spl::variant<membership_values::join, membership_values::invite, membership_values::knock, membership_values::leave, membership_values::ban, std::string>;
   struct not_membership_values {
     struct join {
       static constexpr std::string_view json_value = "join";
@@ -120,7 +120,7 @@ struct get_members_by_room {
       friend constexpr bool operator==(ban, ban) = default;
     };
   };
-  using not_membership_t = splice::variant<not_membership_values::join, not_membership_values::invite, not_membership_values::knock, not_membership_values::leave, not_membership_values::ban, std::string>;
+  using not_membership_t = spl::variant<not_membership_values::join, not_membership_values::invite, not_membership_values::knock, not_membership_values::leave, not_membership_values::ban, std::string>;
   struct response_t {
     std::optional<std::vector<loom::ev::timeline_event>> chunk;
     knot::raw rest;

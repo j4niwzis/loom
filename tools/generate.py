@@ -228,7 +228,7 @@ class Emitter:
             lines.append('  };')
             alternatives.append(f'{holder}::{cpp}')
         lines.append('};')
-        lines.append(f'using {name} = splice::variant<{", ".join(alternatives)}, std::string>;')
+        lines.append(f'using {name} = spl::variant<{", ".join(alternatives)}, std::string>;')
         scope['lines'].extend(lines)
         return name
 

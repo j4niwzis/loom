@@ -20,7 +20,7 @@ struct post_room_keys_version {
         friend constexpr bool operator==(m_megolm_backup_v1_curve25519_aes_sha2, m_megolm_backup_v1_curve25519_aes_sha2) = default;
       };
     };
-    using algorithm_t = splice::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
+    using algorithm_t = spl::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
     algorithm_t algorithm;
     knot::raw auth_data;
     knot::raw rest;
@@ -53,7 +53,7 @@ struct get_room_keys_version_current {
         friend constexpr bool operator==(m_megolm_backup_v1_curve25519_aes_sha2, m_megolm_backup_v1_curve25519_aes_sha2) = default;
       };
     };
-    using algorithm_t = splice::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
+    using algorithm_t = spl::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
     algorithm_t algorithm;
     knot::raw auth_data;
     std::int64_t count;
@@ -83,7 +83,7 @@ struct get_room_keys_version {
         friend constexpr bool operator==(m_megolm_backup_v1_curve25519_aes_sha2, m_megolm_backup_v1_curve25519_aes_sha2) = default;
       };
     };
-    using algorithm_t = splice::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
+    using algorithm_t = spl::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
     algorithm_t algorithm;
     knot::raw auth_data;
     std::int64_t count;
@@ -114,7 +114,7 @@ struct put_room_keys_version {
         friend constexpr bool operator==(m_megolm_backup_v1_curve25519_aes_sha2, m_megolm_backup_v1_curve25519_aes_sha2) = default;
       };
     };
-    using algorithm_t = splice::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
+    using algorithm_t = spl::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
     algorithm_t algorithm;
     knot::raw auth_data;
     std::optional<std::string> version;

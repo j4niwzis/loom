@@ -162,8 +162,8 @@ class olm_machine {
   // where it is not for this device, cannot be read, or carries no key.
   [[nodiscard]] std::optional<to_device_said> to_device(const std::string& sender,
                                                         const loom::ev::m_room_encrypted_content_t& content) {
-    const bool olm = splice::visit(
-        splice::overloaded{[](loom::ev::m_room_encrypted_content_t::algorithm_values::m_olm_v1_curve25519_aes_sha2) { return true; },
+    const bool olm = spl::visit(
+        spl::overloaded{[](loom::ev::m_room_encrypted_content_t::algorithm_values::m_olm_v1_curve25519_aes_sha2) { return true; },
                            [](const auto&) { return false; }},
         content.algorithm);
     if (!olm || !content.sender_key)
@@ -202,8 +202,8 @@ class olm_machine {
     // name, would be believed.
     if (envelope->sender != sender || envelope->recipient != user_id_ || envelope->recipient_keys.ed25519 != this->ed25519())
       return std::nullopt;
-    return splice::visit(
-        splice::overloaded{[&](const loom::ev::m_room_key_content_t& key) -> std::optional<to_device_said> {
+    return spl::visit(
+        spl::overloaded{[&](const loom::ev::m_room_key_content_t& key) -> std::optional<to_device_said> {
                              return to_device_said{room_key_offer{key, kept_file::origin{.sender_key = *content.sender_key,
                                                                                          .ed25519 = envelope->keys.ed25519,
                                                                                          .sender = sender}}};
@@ -312,7 +312,7 @@ class olm_machine {
   // An Olm message as the ciphertext m.room.encrypted carries for a device.
   [[nodiscard]] static olm_ciphertext ciphertext_of(const auto& message) {
     const auto parts = message.to_parts();
-    return olm_ciphertext{.type = static_cast<std::int64_t>(parts.message_type), .body = splice::bytes::base64_text(parts.ciphertext)};
+    return olm_ciphertext{.type = static_cast<std::int64_t>(parts.message_type), .body = spl::bytes::base64_text(parts.ciphertext)};
   }
   // A payload, for a device, over Olm: through its newest session, or one
   // made from its one-time key.
@@ -460,8 +460,8 @@ class olm_machine {
   // This user's cross-signing private keys, kept sealed under the store's
   // key; and read back.
   void keep_cross_signing(const cross_signing_secrets& secrets) {
-    const auto sealed = keeper_.seal(key_, splice::bytes::of(knot::to_json(secrets)), "cross-signing");
-    kept_.cross_signing = splice::bytes::base64_text(sealed);
+    const auto sealed = keeper_.seal(key_, spl::bytes::of(knot::to_json(secrets)), "cross-signing");
+    kept_.cross_signing = spl::bytes::base64_text(sealed);
     this->save();
   }
   [[nodiscard]] std::optional<cross_signing_secrets> cross_signing_keys() const {
@@ -473,7 +473,7 @@ class olm_machine {
     const auto opened = keeper_.open(key_, *sealed, "cross-signing");
     if (!opened)
       return std::nullopt;
-    auto read = knot::try_read<cross_signing_secrets>(splice::bytes::chars(*opened));
+    auto read = knot::try_read<cross_signing_secrets>(spl::bytes::chars(*opened));
     if (!read)
       return std::nullopt;
     return std::move(*read);
@@ -489,7 +489,7 @@ class olm_machine {
   }
   void keep_backup(const std::string& version, const std::string& secret_b64) {
     kept_.backup_version = version;
-    kept_.backup_key = splice::bytes::base64_text(keeper_.seal(key_, splice::bytes::of(secret_b64), "key backup"));
+    kept_.backup_key = spl::bytes::base64_text(keeper_.seal(key_, spl::bytes::of(secret_b64), "key backup"));
     kept_.backed_up.reset();
     this->save();
   }
@@ -500,7 +500,7 @@ class olm_machine {
     const auto opened = sealed ? keeper_.open(key_, *sealed, "key backup") : std::nullopt;
     if (!opened)
       return std::nullopt;
-    return std::pair(*kept_.backup_version, splice::bytes::text_of(*opened));
+    return std::pair(*kept_.backup_version, spl::bytes::text_of(*opened));
   }
   [[nodiscard]] std::vector<backup_entry> not_backed_up(std::size_t most) {
     std::vector<backup_entry> out;
@@ -608,8 +608,8 @@ class olm_machine {
       // redaction: the server checks who may send those, and inside an
       // encrypted event it checks nothing (a room's name, its members, its
       // power levels, a message removed -- all forged by anyone in it).
-      const bool message_like = splice::visit(
-          splice::overloaded{[](const loom::ev::m_room_message_content_t&) { return true; },
+      const bool message_like = spl::visit(
+          spl::overloaded{[](const loom::ev::m_room_message_content_t&) { return true; },
                              [](const loom::ev::m_sticker_content_t&) { return true; },
                              [](const loom::ev::m_reaction_content_t&) { return true; },
                              [](const loom::ev::m_call_invite_content_t&) { return true; },
@@ -656,7 +656,7 @@ class olm_machine {
       const auto opened = keeper_.read_file(path);
       if (!opened || opened->size() != key.size())
         throw std::runtime_error("the encryption store's key cannot be read: " + path.string());
-      std::ranges::copy(splice::bytes::of(*opened), key.begin());
+      std::ranges::copy(spl::bytes::of(*opened), key.begin());
       return key;
     }
     // Not there, and a store there: its key lost -- an error, not a new key.
@@ -665,7 +665,7 @@ class olm_machine {
     // The system's own randomness (RAND_bytes), not std::random_device.
     const auto random = random_bytes(key.size());
     std::ranges::copy(random, key.begin());
-    if (!keeper_.write_file(path, splice::bytes::text_of(key), true))
+    if (!keeper_.write_file(path, spl::bytes::text_of(key), true))
       throw std::runtime_error("the encryption store's key cannot be written: " + path.string());
     return key;
   }
@@ -689,7 +689,7 @@ class olm_machine {
   }
 
   [[nodiscard]] std::string sign(std::string_view canonical) const {
-    const auto signed_bytes = splice::bytes::buffer_of(splice::bytes::of(canonical));  // the Slice is read whole
+    const auto signed_bytes = spl::bytes::buffer_of(spl::bytes::of(canonical));  // the Slice is read whole
     const rust::Slice<const std::uint8_t> bytes(signed_bytes.data(), signed_bytes.size());
     return std::string((*account_)->sign(bytes)->to_base64());
   }

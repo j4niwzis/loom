@@ -21,7 +21,7 @@ struct get_space_hierarchy {
           friend constexpr bool operator==(m_megolm_v1_aes_sha2, m_megolm_v1_aes_sha2) = default;
         };
       };
-      using encryption_t = splice::variant<encryption_values::m_megolm_v1_aes_sha2, std::string>;
+      using encryption_t = spl::variant<encryption_values::m_megolm_v1_aes_sha2, std::string>;
       std::optional<std::string> canonical_alias;
       std::optional<std::string> name;
       std::int64_t num_joined_members;

@@ -29,7 +29,7 @@ struct upload_cross_signing_keys {
           friend constexpr bool operator==(user_signing, user_signing) = default;
         };
       };
-      using usage_item_t = splice::variant<usage_item_values::master, usage_item_values::self_signing, usage_item_values::user_signing, std::string>;
+      using usage_item_t = spl::variant<usage_item_values::master, usage_item_values::self_signing, usage_item_values::user_signing, std::string>;
       std::string user_id;
       std::vector<usage_item_t> usage;
       std::map<std::string, std::string> keys;
@@ -52,7 +52,7 @@ struct upload_cross_signing_keys {
           friend constexpr bool operator==(user_signing, user_signing) = default;
         };
       };
-      using usage_item_t = splice::variant<usage_item_values::master, usage_item_values::self_signing, usage_item_values::user_signing, std::string>;
+      using usage_item_t = spl::variant<usage_item_values::master, usage_item_values::self_signing, usage_item_values::user_signing, std::string>;
       std::string user_id;
       std::vector<usage_item_t> usage;
       std::map<std::string, std::string> keys;
@@ -75,7 +75,7 @@ struct upload_cross_signing_keys {
           friend constexpr bool operator==(user_signing, user_signing) = default;
         };
       };
-      using usage_item_t = splice::variant<usage_item_values::master, usage_item_values::self_signing, usage_item_values::user_signing, std::string>;
+      using usage_item_t = spl::variant<usage_item_values::master, usage_item_values::self_signing, usage_item_values::user_signing, std::string>;
       std::string user_id;
       std::vector<usage_item_t> usage;
       std::map<std::string, std::string> keys;

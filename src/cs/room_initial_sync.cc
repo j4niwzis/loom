@@ -32,7 +32,7 @@ struct room_initial_sync {
         friend constexpr bool operator==(ban, ban) = default;
       };
     };
-    using membership_t = splice::variant<membership_values::invite, membership_values::join, membership_values::leave, membership_values::ban, std::string>;
+    using membership_t = spl::variant<membership_values::invite, membership_values::join, membership_values::leave, membership_values::ban, std::string>;
     struct pagination_chunk_t {
       std::optional<std::string> start;
       std::string end;
@@ -50,7 +50,7 @@ struct room_initial_sync {
         friend constexpr bool operator==(public_, public_) = default;
       };
     };
-    using visibility_t = splice::variant<visibility_values::private_, visibility_values::public_, std::string>;
+    using visibility_t = spl::variant<visibility_values::private_, visibility_values::public_, std::string>;
     struct event_t {
       knot::raw content;
       std::string type;

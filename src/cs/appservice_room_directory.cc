@@ -24,7 +24,7 @@ struct update_appservice_room_directory_visibility {
         friend constexpr bool operator==(private_, private_) = default;
       };
     };
-    using visibility_t = splice::variant<visibility_values::public_, visibility_values::private_, std::string>;
+    using visibility_t = spl::variant<visibility_values::public_, visibility_values::private_, std::string>;
     visibility_t visibility;
     knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }

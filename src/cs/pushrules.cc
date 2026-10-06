@@ -77,7 +77,7 @@ struct get_push_rule {
       friend constexpr bool operator==(content, content) = default;
     };
   };
-  using kind_t = splice::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
+  using kind_t = spl::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct push_rule_t {
     std::vector<knot::raw> actions;
     bool default_;
@@ -126,7 +126,7 @@ struct delete_push_rule {
       friend constexpr bool operator==(content, content) = default;
     };
   };
-  using kind_t = splice::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
+  using kind_t = spl::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   kind_t kind;
   std::string rule_id;
   using response = knot::raw;
@@ -165,7 +165,7 @@ struct set_push_rule {
       friend constexpr bool operator==(content, content) = default;
     };
   };
-  using kind_t = splice::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
+  using kind_t = spl::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct body_t {
     std::vector<knot::raw> actions;
     std::optional<std::vector<def::push_condition_t>> conditions;
@@ -218,7 +218,7 @@ struct is_push_rule_enabled {
       friend constexpr bool operator==(content, content) = default;
     };
   };
-  using kind_t = splice::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
+  using kind_t = spl::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct response_t {
     bool enabled;
     knot::raw rest;
@@ -262,7 +262,7 @@ struct set_push_rule_enabled {
       friend constexpr bool operator==(content, content) = default;
     };
   };
-  using kind_t = splice::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
+  using kind_t = spl::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct body_t {
     bool enabled;
     knot::raw rest;
@@ -307,7 +307,7 @@ struct get_push_rule_actions {
       friend constexpr bool operator==(content, content) = default;
     };
   };
-  using kind_t = splice::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
+  using kind_t = spl::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct response_t {
     std::vector<knot::raw> actions;
     knot::raw rest;
@@ -351,7 +351,7 @@ struct set_push_rule_actions {
       friend constexpr bool operator==(content, content) = default;
     };
   };
-  using kind_t = splice::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
+  using kind_t = spl::variant<kind_values::override_, kind_values::underride, kind_values::sender, kind_values::room, kind_values::content, std::string>;
   struct body_t {
     std::vector<knot::raw> actions;
     knot::raw rest;

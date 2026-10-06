@@ -227,7 +227,7 @@ using signatures_t = std::map<std::string, std::map<std::string, std::string>>;
   try {
     auto public_key = vodozemac::types::ed25519_key_from_base64(rust::Str(key.data(), key.size()));
     auto made = vodozemac::types::ed25519_signature_from_base64(rust::Str(signature.data(), signature.size()));
-    const auto bytes = splice::bytes::buffer_of(splice::bytes::of(canonical));  // the Slice is read whole
+    const auto bytes = spl::bytes::buffer_of(spl::bytes::of(canonical));  // the Slice is read whole
     public_key->verify(rust::Slice<const std::uint8_t>(bytes.data(), bytes.size()), *made);
     return true;
   } catch (const rust::Error&) {
@@ -249,7 +249,7 @@ using signatures_t = std::map<std::string, std::map<std::string, std::string>>;
 template <class Usage, class Key>
 [[nodiscard]] std::optional<std::string> cross_key_of(const Key& key, const std::string& user) {
   const bool used = std::ranges::any_of(key.usage, [](const auto& each) {
-    return splice::visit(splice::overloaded{[](const Usage&) { return true; }, [](const auto&) { return false; }}, each);
+    return spl::visit(spl::overloaded{[](const Usage&) { return true; }, [](const auto&) { return false; }}, each);
   });
   if (!used || key.user_id != user || key.keys.size() != 1)
     return std::nullopt;
@@ -357,7 +357,7 @@ struct secret_got {
   std::string sender;
   std::string ed25519;
 };
-using to_device_said = splice::variant<room_key_offer, secret_got>;
+using to_device_said = spl::variant<room_key_offer, secret_got>;
 // A room event read, and whether the device it came from is cross-signed.
 struct decrypted {
   loom::ev::basic_event<loom::ev::timeline_content> event;
@@ -457,7 +457,7 @@ struct self_signing {};
 struct user_signing {};
 struct backup {};
 }  // namespace secret_name
-using secret_name_t = splice::variant<secret_name::master, secret_name::self_signing, secret_name::user_signing, secret_name::backup>;
+using secret_name_t = spl::variant<secret_name::master, secret_name::self_signing, secret_name::user_signing, secret_name::backup>;
 inline constexpr std::array<std::pair<std::string_view, std::size_t>, 4> kSecretNames{{{"m.cross_signing.master", 0},
                                                                                        {"m.cross_signing.self_signing", 1},
                                                                                        {"m.cross_signing.user_signing", 2},

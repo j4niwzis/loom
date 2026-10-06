@@ -27,7 +27,7 @@ struct sync {
       friend constexpr bool operator==(unavailable, unavailable) = default;
     };
   };
-  using set_presence_t = splice::variant<set_presence_values::offline, set_presence_values::online, set_presence_values::unavailable, std::string>;
+  using set_presence_t = spl::variant<set_presence_values::offline, set_presence_values::online, set_presence_values::unavailable, std::string>;
   struct response_t {
     struct rooms_t {
       struct joined_room_t {

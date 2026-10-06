@@ -23,7 +23,7 @@ struct get_relating_events {
       friend constexpr bool operator==(f, f) = default;
     };
   };
-  using dir_t = splice::variant<dir_values::b, dir_values::f, std::string>;
+  using dir_t = spl::variant<dir_values::b, dir_values::f, std::string>;
   struct response_t {
     std::optional<std::string> next_batch;
     std::optional<std::string> prev_batch;
@@ -73,7 +73,7 @@ struct get_relating_events_with_rel_type {
       friend constexpr bool operator==(f, f) = default;
     };
   };
-  using dir_t = splice::variant<dir_values::b, dir_values::f, std::string>;
+  using dir_t = spl::variant<dir_values::b, dir_values::f, std::string>;
   struct response_t {
     std::optional<std::string> next_batch;
     std::optional<std::string> prev_batch;
@@ -124,7 +124,7 @@ struct get_relating_events_with_rel_type_and_event_type {
       friend constexpr bool operator==(f, f) = default;
     };
   };
-  using dir_t = splice::variant<dir_values::b, dir_values::f, std::string>;
+  using dir_t = spl::variant<dir_values::b, dir_values::f, std::string>;
   struct response_t {
     std::optional<std::string> next_batch;
     std::optional<std::string> prev_batch;

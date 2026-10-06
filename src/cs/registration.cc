@@ -23,7 +23,7 @@ struct register_ {
       friend constexpr bool operator==(user, user) = default;
     };
   };
-  using kind_t = splice::variant<kind_values::guest, kind_values::user, std::string>;
+  using kind_t = spl::variant<kind_values::guest, kind_values::user, std::string>;
   struct body_t {
     struct authentication_data_t {
       std::optional<std::string> type;

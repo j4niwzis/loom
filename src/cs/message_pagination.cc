@@ -23,7 +23,7 @@ struct get_room_events {
       friend constexpr bool operator==(f, f) = default;
     };
   };
-  using dir_t = splice::variant<dir_values::b, dir_values::f, std::string>;
+  using dir_t = spl::variant<dir_values::b, dir_values::f, std::string>;
   struct response_t {
     std::string start;
     std::optional<std::string> end;

@@ -20,7 +20,7 @@ struct get_room_summary {
         friend constexpr bool operator==(m_megolm_v1_aes_sha2, m_megolm_v1_aes_sha2) = default;
       };
     };
-    using encryption_t = splice::variant<encryption_values::m_megolm_v1_aes_sha2, std::string>;
+    using encryption_t = spl::variant<encryption_values::m_megolm_v1_aes_sha2, std::string>;
     struct membership_values {
       struct invite {
         static constexpr std::string_view json_value = "invite";
@@ -43,7 +43,7 @@ struct get_room_summary {
         friend constexpr bool operator==(ban, ban) = default;
       };
     };
-    using membership_t = splice::variant<membership_values::invite, membership_values::join, membership_values::knock, membership_values::leave, membership_values::ban, std::string>;
+    using membership_t = spl::variant<membership_values::invite, membership_values::join, membership_values::knock, membership_values::leave, membership_values::ban, std::string>;
     std::optional<std::string> canonical_alias;
     std::optional<std::string> name;
     std::int64_t num_joined_members;

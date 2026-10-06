@@ -58,7 +58,7 @@ struct post_pusher {
           friend constexpr bool operator==(event_id_only, event_id_only) = default;
         };
       };
-      using format_t = splice::variant<format_values::event_id_only, std::string>;
+      using format_t = spl::variant<format_values::event_id_only, std::string>;
       std::optional<std::string> url;
       std::optional<format_t> format;
       knot::raw rest;

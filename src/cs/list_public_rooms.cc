@@ -24,7 +24,7 @@ struct get_room_visibility_on_directory {
         friend constexpr bool operator==(public_, public_) = default;
       };
     };
-    using visibility_t = splice::variant<visibility_values::private_, visibility_values::public_, std::string>;
+    using visibility_t = spl::variant<visibility_values::private_, visibility_values::public_, std::string>;
     std::optional<visibility_t> visibility;
     knot::raw rest;
     friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"rest">(knot::rest); }
@@ -55,7 +55,7 @@ struct set_room_visibility_on_directory {
         friend constexpr bool operator==(public_, public_) = default;
       };
     };
-    using visibility_t = splice::variant<visibility_values::private_, visibility_values::public_, std::string>;
+    using visibility_t = spl::variant<visibility_values::private_, visibility_values::public_, std::string>;
     std::optional<visibility_t> visibility;
     knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }

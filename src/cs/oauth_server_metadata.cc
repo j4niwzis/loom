@@ -40,7 +40,7 @@ struct get_auth_metadata {
         friend constexpr bool operator==(org_matrix_cross_signing_reset, org_matrix_cross_signing_reset) = default;
       };
     };
-    using account_management_actions_supported_item_t = splice::variant<account_management_actions_supported_item_values::org_matrix_profile, account_management_actions_supported_item_values::org_matrix_devices_list, account_management_actions_supported_item_values::org_matrix_device_view, account_management_actions_supported_item_values::org_matrix_device_delete, account_management_actions_supported_item_values::org_matrix_account_deactivate, account_management_actions_supported_item_values::org_matrix_cross_signing_reset, std::string>;
+    using account_management_actions_supported_item_t = spl::variant<account_management_actions_supported_item_values::org_matrix_profile, account_management_actions_supported_item_values::org_matrix_devices_list, account_management_actions_supported_item_values::org_matrix_device_view, account_management_actions_supported_item_values::org_matrix_device_delete, account_management_actions_supported_item_values::org_matrix_account_deactivate, account_management_actions_supported_item_values::org_matrix_cross_signing_reset, std::string>;
     std::string issuer;
     std::string authorization_endpoint;
     std::string token_endpoint;

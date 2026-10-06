@@ -26,7 +26,7 @@ struct get_capabilities {
             friend constexpr bool operator==(unstable, unstable) = default;
           };
         };
-        using available_value_t = splice::variant<available_value_values::stable, available_value_values::unstable, std::string>;
+        using available_value_t = spl::variant<available_value_values::stable, available_value_values::unstable, std::string>;
         std::string default_;
         std::map<std::string, available_value_t> available;
         knot::raw rest;

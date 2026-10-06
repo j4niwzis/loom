@@ -25,7 +25,7 @@ set(SPLICE_CONSTEXPR_STEPS ${LOOM_CONSTEXPR_STEPS} CACHE STRING
   "clang's -fconstexpr-steps for splice, as loom sets it")
 cme_declare_port(NAME splice PROVIDES splice
   GITHUB_REPOSITORY j4niwzis/splice
-  GIT_TAG 4bc078254fb74570559fe7039ac92c6a2c1a0434
+  GIT_TAG eb07788f6751dad1636aec9fd6bb134fe03a953f
   LICENSE GPL-3.0-only
   TARGETS splice)
 cme_options(splice "SPLICE_TESTS OFF")
@@ -36,7 +36,7 @@ cme_find_package(splice REQUIRED)
 # instead with -DCPM_knot_SOURCE=<path>.
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
-  GIT_TAG fa98812b7a63dde5d81dcd51f3ee0dceb6f98678
+  GIT_TAG 5c1a46a932e1cacd27c297d405877728454a4a4f
   LICENSE AGPL-3.0-only
   TARGETS knot)
 cme_options(knot "KNOT_TESTS OFF")

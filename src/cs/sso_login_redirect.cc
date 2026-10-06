@@ -23,7 +23,7 @@ struct redirect_to_sso {
       friend constexpr bool operator==(register_, register_) = default;
     };
   };
-  using action_t = splice::variant<action_values::login, action_values::register_, std::string>;
+  using action_t = spl::variant<action_values::login, action_values::register_, std::string>;
   std::string redirect_url;
   std::optional<action_t> action;
   using response = loom::empty;
@@ -53,7 +53,7 @@ struct redirect_to_id_p {
       friend constexpr bool operator==(register_, register_) = default;
     };
   };
-  using action_t = splice::variant<action_values::login, action_values::register_, std::string>;
+  using action_t = spl::variant<action_values::login, action_values::register_, std::string>;
   std::string idp_id;
   std::string redirect_url;
   std::optional<action_t> action;

@@ -23,27 +23,27 @@ struct delete_ { static constexpr std::string_view name = "DELETE"; };
 // Available before the body is written, so a transport can send its headers
 // first. Bodies are written synchronously to the caller's concrete sink.
 struct request_head {
-  splice::variant<method::get, method::post, method::put, method::delete_> method;
+  spl::variant<method::get, method::post, method::put, method::delete_> method;
   std::string target;
   bool authenticated = true;
   std::string content_type = "application/json";
 
   constexpr std::string_view method_name() const {
-    return splice::visit([](auto one) { return decltype(one)::name; }, method);
+    return spl::visit([](auto one) { return decltype(one)::name; }, method);
   }
 };
 
 // What to send, from the homeserver's base URL; with the access token as
 // "Authorization: Bearer", where authenticated.
 struct request {
-  splice::variant<method::get, method::post, method::put, method::delete_> method;
+  spl::variant<method::get, method::post, method::put, method::delete_> method;
   std::string target;
   std::string body;  // JSON, media bytes, or nothing
   bool authenticated = true;
   std::string content_type = "application/json";
 
   constexpr std::string_view method_name() const {
-    return splice::visit([](auto one) { return decltype(one)::name; }, method);
+    return spl::visit([](auto one) { return decltype(one)::name; }, method);
   }
 };
 
@@ -85,7 +85,7 @@ struct other {
   friend bool operator==(const other&, const other&) = default;
 };
 }  // namespace auth_stage
-using auth_stage_t = splice::variant<auth_stage::dummy, auth_stage::password, auth_stage::registration_token, auth_stage::terms,
+using auth_stage_t = spl::variant<auth_stage::dummy, auth_stage::password, auth_stage::registration_token, auth_stage::terms,
                                      auth_stage::captcha, auth_stage::email, auth_stage::msisdn, auth_stage::sso,
                                      auth_stage::other>;
 [[nodiscard]] inline auth_stage_t auth_stage_of(std::string_view name) {
@@ -104,7 +104,7 @@ using auth_stage_t = splice::variant<auth_stage::dummy, auth_stage::password, au
 }
 // The stage's name, as the server is answered with it.
 [[nodiscard]] inline std::string name_of(const auth_stage_t& stage) {
-  return splice::visit(splice::overloaded{[](auth_stage::dummy) { return std::string("m.login.dummy"); },
+  return spl::visit(spl::overloaded{[](auth_stage::dummy) { return std::string("m.login.dummy"); },
                                           [](auth_stage::password) { return std::string("m.login.password"); },
                                           [](auth_stage::registration_token) { return std::string("m.login.registration_token"); },
                                           [](auth_stage::terms) { return std::string("m.login.terms"); },
@@ -231,8 +231,8 @@ constexpr std::string text(double one) {
 constexpr std::string text(const knot::raw& one) { return one.text; }
 // A choice: the string its alternative names, or the one it keeps.
 template <class... Alternatives>
-constexpr std::string text(const splice::variant<Alternatives...>& one) {
-  return splice::visit(
+constexpr std::string text(const spl::variant<Alternatives...>& one) {
+  return spl::visit(
       [](const auto& held) -> std::string {
         if constexpr (requires { std::remove_cvref_t<decltype(held)>::json_value; }) {
           return std::string(std::remove_cvref_t<decltype(held)>::json_value);

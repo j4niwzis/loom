@@ -23,7 +23,7 @@ struct get_thread_roots {
       friend constexpr bool operator==(participated, participated) = default;
     };
   };
-  using include_t = splice::variant<include_values::all, include_values::participated, std::string>;
+  using include_t = spl::variant<include_values::all, include_values::participated, std::string>;
   struct response_t {
     std::vector<loom::ev::timeline_event> chunk;
     std::optional<std::string> next_batch;

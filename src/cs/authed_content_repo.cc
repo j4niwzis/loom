@@ -68,7 +68,7 @@ struct get_content_thumbnail_authed {
       friend constexpr bool operator==(scale, scale) = default;
     };
   };
-  using method_t = splice::variant<method_values::crop, method_values::scale, std::string>;
+  using method_t = spl::variant<method_values::crop, method_values::scale, std::string>;
   std::string server_name;
   std::string media_id;
   std::int64_t width;
