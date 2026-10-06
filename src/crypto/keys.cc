@@ -71,7 +71,7 @@ template <byte_range... Parts>
   return out;
 }
 [[nodiscard]] inline std::string url_safe(std::string text) {
-  return text | std::views::transform([](char c) { return c == '+' ? '-' : c == '/' ? '_' : c; }) | std::ranges::to<std::string>();
+  return std::ranges::to<std::string>(text | std::views::transform([](char c) { return c == '+' ? '-' : c == '/' ? '_' : c; }));
 }
 }  // namespace detail
 
@@ -190,7 +190,7 @@ template <byte_range Key, byte_range... Parts>
   body.insert(body.end(), ciphertext->begin(), ciphertext->end());
   const auto mac = detail::hmac_sha256(std::span(*keys).last(32), body);
   body.insert(body.end(), mac.begin(), mac.end());
-  const std::string lines = spl::bytes::every(spl::bytes::base64_padded(body), 96, '\n') | std::ranges::to<std::string>();
+  const std::string lines = std::ranges::to<std::string>(spl::bytes::every(spl::bytes::base64_padded(body), 96, '\n'));
   return std::format("{}\n{}\n{}\n", detail::kExportHeader, lines, detail::kExportFooter);
 }
 // A key file opened: none where it is not one, its passphrase another, or
@@ -200,9 +200,8 @@ template <byte_range Key, byte_range... Parts>
   const auto end = text.find(detail::kExportFooter);
   if (begin == std::string_view::npos || end == std::string_view::npos || end < begin)
     return std::nullopt;
-  const std::string encoded = text.substr(begin + detail::kExportHeader.size(), end - begin - detail::kExportHeader.size()) |
-                              std::views::filter([](char c) { return std::isspace(static_cast<unsigned char>(c)) == 0; }) |
-                              std::ranges::to<std::string>();
+  const std::string encoded = std::ranges::to<std::string>(text.substr(begin + detail::kExportHeader.size(), end - begin - detail::kExportHeader.size()) |
+                              std::views::filter([](char c) { return std::isspace(static_cast<unsigned char>(c)) == 0; }));
   const auto body = from_base64(encoded);
   if (!body || body->size() < 1 + 16 + 16 + 4 + 32 || (*body)[0] != 1)
     return std::nullopt;
@@ -359,8 +358,7 @@ template <byte_range Bytes>
   }
   const auto zeros = std::ranges::distance(bytes | std::views::take_while([](std::uint8_t b) { return b == 0; }));  // walked again
   return std::string(static_cast<std::size_t>(zeros), '1') +
-         (digits | std::views::reverse | std::views::transform([](std::uint8_t d) { return kBase58[d]; }) |
-          std::ranges::to<std::string>());
+         (std::ranges::to<std::string>(digits | std::views::reverse | std::views::transform([](std::uint8_t d) { return kBase58[d]; })));
 }
 [[nodiscard]] inline std::optional<std::vector<std::uint8_t>> from_base58(std::string_view text) {
   std::vector<std::uint8_t> bytes;  // base 256, least significant first
@@ -427,11 +425,10 @@ template <detail::byte_range Key>
   bytes.insert(bytes.end(), key.begin(), key.end());
   bytes.push_back(std::ranges::fold_left(bytes, std::uint8_t{0}, [](std::uint8_t a, std::uint8_t b) { return static_cast<std::uint8_t>(a ^ b); }));
   const std::string plain = detail::base58(bytes);
-  return spl::bytes::every(plain, 4, ' ') | std::ranges::to<std::string>();
+  return std::ranges::to<std::string>(spl::bytes::every(plain, 4, ' '));
 }
 [[nodiscard]] inline std::optional<std::vector<std::uint8_t>> key_of_recovery(std::string_view recovery) {
-  const std::string plain = recovery | std::views::filter([](char c) { return std::isspace(static_cast<unsigned char>(c)) == 0; }) |
-                            std::ranges::to<std::string>();
+  const std::string plain = std::ranges::to<std::string>(recovery | std::views::filter([](char c) { return std::isspace(static_cast<unsigned char>(c)) == 0; }));
   const auto bytes = detail::from_base58(plain);
   if (!bytes || bytes->size() != 35 || (*bytes)[0] != 0x8B || (*bytes)[1] != 0x01)
     return std::nullopt;

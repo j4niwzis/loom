@@ -36,7 +36,7 @@ cme_find_package(splice REQUIRED)
 # instead with -DCPM_knot_SOURCE=<path>.
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
-  GIT_TAG 5c1a46a932e1cacd27c297d405877728454a4a4f
+  GIT_TAG 43b874b4946cc6e0668c90a8936f022868b7d62f
   LICENSE AGPL-3.0-only
   TARGETS knot)
 cme_options(knot "KNOT_TESTS OFF")

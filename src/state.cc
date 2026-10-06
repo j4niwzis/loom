@@ -183,9 +183,9 @@ struct room_state {
   // The rooms a space holds: an m.space.child for each whose content is
   // still a child's -- an emptied one is a child taken out.
   std::vector<std::string> space_children() const {
-    return events |
+    return std::ranges::to<std::vector>(events |
            std::views::filter([](const auto& one) { return one.second.content.template is<ev::m_space_child_content_t>(); }) |
-           std::views::transform([](const auto& one) { return one.first.second; }) | std::ranges::to<std::vector>();
+           std::views::transform([](const auto& one) { return one.first.second; }));
   }
   // The messages pinned in the room, as its state says.
   std::vector<std::string> pinned() const {
@@ -292,9 +292,9 @@ inline std::string room_name(std::string_view room, const joined_room& kept) {
     return *name;
   if (auto alias = kept.state.canonical_alias(); alias && !alias->empty())
     return *alias;
-  std::string heroes = kept.summary.heroes |
+  std::string heroes = std::ranges::to<std::string>(kept.summary.heroes |
                        std::views::transform([&](const std::string& hero) { return kept.state.display_name(hero).value_or(hero); }) |
-                       std::views::join_with(std::string_view(", ")) | std::ranges::to<std::string>();
+                       std::views::join_with(std::string_view(", ")));
   return heroes.empty() ? std::string(room) : heroes;
 }
 
