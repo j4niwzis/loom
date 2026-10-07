@@ -2528,6 +2528,19 @@ struct im_ponies_emote_rooms_content_t {
   knot::raw rest;
   friend consteval auto json_schema(knot::type<im_ponies_emote_rooms_content_t>) { return knot::schema<im_ponies_emote_rooms_content_t>().member<"rest">(knot::rest).tag("im.ponies.emote_rooms"); }
 };
+struct net_mux_mentions_read_content_t {
+  struct sealed_t {
+    std::string iv;
+    std::string ciphertext;
+    std::string mac;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<sealed_t>) { return knot::schema<sealed_t>().member<"rest">(knot::rest); }
+  };
+  std::optional<std::vector<std::string>> seen;
+  std::optional<sealed_t> sealed;
+  knot::raw rest;
+  friend consteval auto json_schema(knot::type<net_mux_mentions_read_content_t>) { return knot::schema<net_mux_mentions_read_content_t>().member<"rest">(knot::rest).tag("net.mux.mentions_read"); }
+};
 
 // The content of a state event, by its type. Any other type is kept as knot::raw, its JSON text.
 using state_content = knot::tagged<"type", m_policy_rule_room_content_t, m_policy_rule_server_content_t, m_policy_rule_user_content_t, m_room_avatar_content_t, m_room_canonical_alias_content_t, m_room_create_content_t, m_room_encryption_content_t, m_room_guest_access_content_t, m_room_history_visibility_content_t, m_room_image_pack_content_t, m_room_join_rules_content_t, m_room_member_content_t, m_room_name_content_t, m_room_pinned_events_content_t, m_room_policy_content_t, m_room_power_levels_content_t, m_room_server_acl_content_t, m_room_third_party_invite_content_t, m_room_tombstone_content_t, m_room_topic_content_t, m_space_child_content_t, m_space_parent_content_t, im_ponies_room_emotes_content_t, knot::raw>;
@@ -2536,7 +2549,7 @@ using message_content = knot::tagged<"type", m_call_answer_content_t, m_call_can
 // The content of any room event -- a timeline holds both kinds. Any other type is kept as knot::raw, its JSON text.
 using timeline_content = knot::tagged<"type", m_call_answer_content_t, m_call_candidates_content_t, m_call_hangup_content_t, m_call_invite_content_t, m_call_negotiate_content_t, m_call_reject_content_t, m_call_sdp_stream_metadata_changed_content_t, m_call_select_answer_content_t, m_reaction_content_t, m_room_message_content_t, m_room_redaction_content_t, m_sticker_content_t, m_room_encrypted_content_t, m_policy_rule_room_content_t, m_policy_rule_server_content_t, m_policy_rule_user_content_t, m_room_avatar_content_t, m_room_canonical_alias_content_t, m_room_create_content_t, m_room_encryption_content_t, m_room_guest_access_content_t, m_room_history_visibility_content_t, m_room_image_pack_content_t, m_room_join_rules_content_t, m_room_member_content_t, m_room_name_content_t, m_room_pinned_events_content_t, m_room_policy_content_t, m_room_power_levels_content_t, m_room_server_acl_content_t, m_room_third_party_invite_content_t, m_room_tombstone_content_t, m_room_topic_content_t, m_space_child_content_t, m_space_parent_content_t, im_ponies_room_emotes_content_t, knot::raw>;
 // The content of an event outside a room's timeline: account data, ephemeral, to-device. Any other type is kept as knot::raw, its JSON text.
-using other_content = knot::tagged<"type", m_accepted_terms_content_t, m_direct_content_t, m_dummy_content_t, m_forwarded_room_key_content_t, m_fully_read_content_t, m_identity_server_content_t, m_ignored_user_list_content_t, m_image_pack_rooms_content_t, m_invite_permission_config_content_t, m_key_verification_accept_content_t, m_key_verification_cancel_content_t, m_key_verification_done_content_t, m_key_verification_key_content_t, m_key_verification_mac_content_t, m_key_verification_ready_content_t, m_key_verification_request_content_t, m_key_verification_start_content_t, m_key_backup_content_t, m_marked_unread_content_t, m_presence_content_t, m_push_rules_content_t, m_receipt_content_t, m_recent_emoji_content_t, m_room_encrypted_content_t, m_room_key_withheld_content_t, m_room_key_content_t, m_room_key_bundle_content_t, m_room_key_request_content_t, m_secret_request_content_t, m_secret_send_content_t, m_tag_content_t, m_typing_content_t, im_ponies_user_emotes_content_t, im_ponies_emote_rooms_content_t, knot::raw>;
+using other_content = knot::tagged<"type", m_accepted_terms_content_t, m_direct_content_t, m_dummy_content_t, m_forwarded_room_key_content_t, m_fully_read_content_t, m_identity_server_content_t, m_ignored_user_list_content_t, m_image_pack_rooms_content_t, m_invite_permission_config_content_t, m_key_verification_accept_content_t, m_key_verification_cancel_content_t, m_key_verification_done_content_t, m_key_verification_key_content_t, m_key_verification_mac_content_t, m_key_verification_ready_content_t, m_key_verification_request_content_t, m_key_verification_start_content_t, m_key_backup_content_t, m_marked_unread_content_t, m_presence_content_t, m_push_rules_content_t, m_receipt_content_t, m_recent_emoji_content_t, m_room_encrypted_content_t, m_room_key_withheld_content_t, m_room_key_content_t, m_room_key_bundle_content_t, m_room_key_request_content_t, m_secret_request_content_t, m_secret_send_content_t, m_tag_content_t, m_typing_content_t, im_ponies_user_emotes_content_t, im_ponies_emote_rooms_content_t, net_mux_mentions_read_content_t, knot::raw>;
 
 // Complete these aggregates before std::optional inspects their constructors.
 // Clang with libstdc++ can cache a false is_constructible result for a nested
