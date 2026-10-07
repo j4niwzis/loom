@@ -168,10 +168,17 @@ struct filter_t {
   friend consteval auto json_schema(knot::type<filter_t>) { return knot::schema<filter_t>().member<"rest">(knot::rest); }
 };
 struct key_backup_data_t {
+  struct session_data_t {
+    std::optional<std::string> ephemeral;
+    std::optional<std::string> ciphertext;
+    std::optional<std::string> mac;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<session_data_t>) { return knot::schema<session_data_t>().member<"rest">(knot::rest); }
+  };
   std::int64_t first_message_index;
   std::int64_t forwarded_count;
   bool is_verified;
-  knot::raw session_data;
+  session_data_t session_data;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<key_backup_data_t>) { return knot::schema<key_backup_data_t>().member<"rest">(knot::rest); }
 };

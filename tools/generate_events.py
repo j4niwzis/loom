@@ -310,6 +310,10 @@ def main_events():
     # event is a room event all the same -- m.room.encrypted is built that
     # way because it is sent to devices as well -- so it is in both unions.
     by_kind['room'] += [c for c in by_kind['other'] if c[0].startswith('m.room.')]
+    # A key verification's steps are sent in a room as well, referring to the
+    # request (a message) they answer: in the timeline, read as their types.
+    by_kind['room'] += [c for c in by_kind['other']
+                        if c[0].startswith('m.key.verification.') and c[0] != 'm.key.verification.request']
     unions = [
         ('state_content', 'The content of a state event, by its type.', by_kind['state']),
         ('message_content', 'The content of a message-like room event, by its type.', by_kind['room']),

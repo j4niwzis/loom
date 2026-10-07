@@ -21,8 +21,14 @@ struct post_room_keys_version {
       };
     };
     using algorithm_t = spl::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
+    struct auth_data_t {
+      std::optional<std::string> public_key;
+      std::optional<std::map<std::string, std::map<std::string, std::string>>> signatures;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<auth_data_t>) { return knot::schema<auth_data_t>().member<"rest">(knot::rest); }
+    };
     algorithm_t algorithm;
-    knot::raw auth_data;
+    auth_data_t auth_data;
     knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }
   };
@@ -54,8 +60,14 @@ struct get_room_keys_version_current {
       };
     };
     using algorithm_t = spl::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
+    struct auth_data_t {
+      std::optional<std::string> public_key;
+      std::optional<std::map<std::string, std::map<std::string, std::string>>> signatures;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<auth_data_t>) { return knot::schema<auth_data_t>().member<"rest">(knot::rest); }
+    };
     algorithm_t algorithm;
-    knot::raw auth_data;
+    auth_data_t auth_data;
     std::int64_t count;
     std::string etag;
     std::string version;
@@ -84,8 +96,14 @@ struct get_room_keys_version {
       };
     };
     using algorithm_t = spl::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
+    struct auth_data_t {
+      std::optional<std::string> public_key;
+      std::optional<std::map<std::string, std::map<std::string, std::string>>> signatures;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<auth_data_t>) { return knot::schema<auth_data_t>().member<"rest">(knot::rest); }
+    };
     algorithm_t algorithm;
-    knot::raw auth_data;
+    auth_data_t auth_data;
     std::int64_t count;
     std::string etag;
     std::string version;
@@ -115,8 +133,14 @@ struct put_room_keys_version {
       };
     };
     using algorithm_t = spl::variant<algorithm_values::m_megolm_backup_v1_curve25519_aes_sha2, std::string>;
+    struct auth_data_t {
+      std::optional<std::string> public_key;
+      std::optional<std::map<std::string, std::map<std::string, std::string>>> signatures;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<auth_data_t>) { return knot::schema<auth_data_t>().member<"rest">(knot::rest); }
+    };
     algorithm_t algorithm;
-    knot::raw auth_data;
+    auth_data_t auth_data;
     std::optional<std::string> version;
     knot::raw rest;
     friend consteval auto json_schema(knot::type<body_t>) { return knot::schema<body_t>().member<"rest">(knot::rest); }

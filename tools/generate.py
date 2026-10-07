@@ -52,10 +52,37 @@ def member_name(key):
 FILES = {}
 
 
+# What the spec leaves an open object, its shape said by the algorithm it is
+# of: typed as the one algorithm the spec has (a key backup's,
+# m.megolm_backup.v1.curve25519-aes-sha2), its members optional -- another
+# algorithm's are kept in its rest -- so that clients read them as members,
+# not again from text.
+SIGNATURES = {'type': 'object', 'additionalProperties': {'type': 'object', 'additionalProperties': {'type': 'string'}}}
+ALGORITHM_DATA = {
+    'auth_data': {'public_key': {'type': 'string'}, 'signatures': SIGNATURES},
+    'session_data': {'ephemeral': {'type': 'string'}, 'ciphertext': {'type': 'string'}, 'mac': {'type': 'string'}},
+}
+
+
+def with_algorithm_data(node):
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == 'properties' and isinstance(value, dict):
+                for name, shape in ALGORITHM_DATA.items():
+                    held = value.get(name)
+                    if isinstance(held, dict) and held.get('type') == 'object' and 'properties' not in held:
+                        held['properties'] = dict(shape)
+            with_algorithm_data(value)
+    elif isinstance(node, list):
+        for value in node:
+            with_algorithm_data(value)
+    return node
+
+
 def load(path):
     path = os.path.normpath(path)
     if path not in FILES:
-        FILES[path] = yaml.safe_load(open(path))
+        FILES[path] = with_algorithm_data(yaml.safe_load(open(path)))
     return FILES[path]
 
 
