@@ -388,7 +388,7 @@ struct unsigned_data {
   std::optional<relations_t> m_relations;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<unsigned_data>) {
-    return knot::schema<unsigned_data>().member<"m_relations">(knot::key("m.relations")).member<"rest">(knot::rest);
+    return knot::schema<unsigned_data>().template member<"m_relations">(knot::key("m.relations")).template member<"rest">(knot::rest);
   }
 };
 
