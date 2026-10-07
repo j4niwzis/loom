@@ -368,11 +368,14 @@ struct relations {
 }  // namespace unsigned_detail
 
 // What the server adds to an event, not signed (the spec's UnsignedData):
-// prev_content and redacted_because as they came, and anything newer kept.
+// prev_content as content of the event's own type -- chosen by the event's
+// type, a key of the object above (knot settles it from there) --
+// redacted_because as it came, and anything newer kept.
+template <class Content>
 struct unsigned_data {
   std::optional<std::int64_t> age;
   std::optional<std::string> membership;
-  std::optional<knot::raw> prev_content;
+  std::optional<Content> prev_content;
   std::optional<knot::raw> redacted_because;
   std::optional<std::string> transaction_id;
   // Keep the public nested spellings without instantiating optional before
@@ -399,7 +402,7 @@ struct room_event {
   std::string sender;
   std::optional<std::string> state_key;
   std::string type;
-  std::optional<unsigned_data> unsigned_;
+  std::optional<unsigned_data<Content>> unsigned_;
   friend consteval auto json_schema(knot::type<room_event>) {
     return knot::schema<room_event>().template member<"unsigned_">(knot::key("unsigned"));
   }
