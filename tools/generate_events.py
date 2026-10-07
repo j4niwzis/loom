@@ -80,8 +80,49 @@ MEDIA_INFO = {
         'xyz.amorgan.blurhash': {'type': 'string'},
     },
 }
+# An encrypted attachment (the spec's EncryptedFile): where its ciphertext
+# is, and what opens it.
+ENCRYPTED_FILE = {
+    'type': 'object',
+    'properties': {
+        'url': {'type': 'string'},
+        'key': {'type': 'object', 'properties': {
+            'kty': {'type': 'string'},
+            'key_ops': {'type': 'array', 'items': {'type': 'string'}},
+            'alg': {'type': 'string'},
+            'k': {'type': 'string'},
+            'ext': {'type': 'boolean'},
+        }, 'required': ['kty', 'key_ops', 'alg', 'k', 'ext']},
+        'iv': {'type': 'string'},
+        'hashes': {'type': 'object', 'additionalProperties': {'type': 'string'}},
+        'v': {'type': 'string'},
+    },
+    'required': ['url', 'key', 'iv', 'hashes', 'v'],
+}
+# Where a forwarded message is from (MSC2723), by the stable name or the
+# unstable one.
+FORWARDED_FROM = {
+    'type': 'object',
+    'properties': {
+        'event_id': {'type': 'string'},
+        'room_id': {'type': 'string'},
+        'sender': {'type': 'string'},
+    },
+    'required': ['event_id', 'room_id', 'sender'],
+}
 MESSAGE_EXTRAS = {
     'format': {'type': 'string'},
+    # An encrypted picture or file: its EncryptedFile, in place of url.
+    'file': ENCRYPTED_FILE,
+    # A verification request sent as a message (m.key.verification.request):
+    # to whom, from which device, by which methods.
+    'to': {'type': 'string'},
+    'from_device': {'type': 'string'},
+    'methods': {'type': 'array', 'items': {'type': 'string'}},
+    # Forwarded: MSC2723's origin, and Extera's attribution.
+    'm.forwarded': FORWARDED_FROM,
+    'com.famedly.app.forwarded': FORWARDED_FROM,
+    'xyz.extera.forward': {'type': 'object', 'properties': {'attribution': {'type': 'string'}}},
     # What a message carries, of any msgtype: where it is kept, its name, its
     # facts -- and a gallery's items (MSC4274), each as a message of its own.
     'url': {'type': 'string'},
@@ -119,13 +160,32 @@ MESSAGE_EXTRAS = {
 }
 
 
+# What other events carry that their schemas leave to other sections of the
+# spec: an encrypted event's relation, kept in the clear beside its
+# ciphertext; a verification's start, its SAS method's offer.
+EVENT_EXTRAS = {
+    'm.room.encrypted': {
+        'm.relates_to': {'type': 'object', 'properties': {
+            'rel_type': {'type': 'string'},
+            'event_id': {'type': 'string'},
+        }},
+    },
+    'm.key.verification.start': {
+        'key_agreement_protocols': {'type': 'array', 'items': {'type': 'string'}},
+        'hashes': {'type': 'array', 'items': {'type': 'string'}},
+        'message_authentication_codes': {'type': 'array', 'items': {'type': 'string'}},
+        'short_authentication_string': {'type': 'array', 'items': {'type': 'string'}},
+    },
+}
+
+
 def with_message_extras(event_type, schema):
-    if event_type not in ('m.room.message', 'm.sticker') or not isinstance(schema, dict) \
-            or not schema.get('properties'):
+    extras = MESSAGE_EXTRAS if event_type in ('m.room.message', 'm.sticker') else EVENT_EXTRAS.get(event_type)
+    if extras is None or not isinstance(schema, dict) or not schema.get('properties'):
         return schema
     schema = dict(schema)
     properties = dict(schema['properties'])
-    for key, extra in MESSAGE_EXTRAS.items():
+    for key, extra in extras.items():
         properties.setdefault(key, extra)
     schema['properties'] = properties
     return schema

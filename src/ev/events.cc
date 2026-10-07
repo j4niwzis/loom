@@ -363,6 +363,10 @@ struct m_key_verification_start_m_reciprocate_v1_content_t {
   method_t method;
   std::string secret;
   std::optional<def::verification_relates_to_t> m_relates_to;
+  std::optional<std::vector<std::string>> key_agreement_protocols;
+  std::optional<std::vector<std::string>> hashes;
+  std::optional<std::vector<std::string>> message_authentication_codes;
+  std::optional<std::vector<std::string>> short_authentication_string;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_key_verification_start_m_reciprocate_v1_content_t>) { return knot::schema<m_key_verification_start_m_reciprocate_v1_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest); }
 };
@@ -402,6 +406,10 @@ struct m_key_verification_start_content_t {
   std::string method;
   std::optional<std::string> next_method;
   std::optional<def::verification_relates_to_t> m_relates_to;
+  std::optional<std::vector<std::string>> key_agreement_protocols;
+  std::optional<std::vector<std::string>> hashes;
+  std::optional<std::vector<std::string>> message_authentication_codes;
+  std::optional<std::vector<std::string>> short_authentication_string;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_key_verification_start_content_t>) { return knot::schema<m_key_verification_start_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.key.verification.start"); }
 };
@@ -579,13 +587,20 @@ struct m_room_encrypted_content_t {
     };
   };
   using algorithm_t = spl::variant<algorithm_values::m_olm_v1_curve25519_aes_sha2, algorithm_values::m_megolm_v1_aes_sha2, std::string>;
+  struct m_relates_to_t {
+    std::optional<std::string> rel_type;
+    std::optional<std::string> event_id;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_relates_to_t>) { return knot::schema<m_relates_to_t>().member<"rest">(knot::rest); }
+  };
   algorithm_t algorithm;
   knot::raw ciphertext;
   std::optional<std::string> sender_key;
   std::optional<std::string> device_id;
   std::optional<std::string> session_id;
+  std::optional<m_relates_to_t> m_relates_to;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_encrypted_content_t>) { return knot::schema<m_room_encrypted_content_t>().member<"rest">(knot::rest).tag("m.room.encrypted"); }
+  friend consteval auto json_schema(knot::type<m_room_encrypted_content_t>) { return knot::schema<m_room_encrypted_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"rest">(knot::rest).tag("m.room.encrypted"); }
 };
 struct m_room_encryption_content_t {
   struct algorithm_values {
@@ -806,6 +821,25 @@ struct m_room_message_m_audio_content_t {
     };
   };
   using msgtype_t = spl::variant<msgtype_values::m_audio, std::string>;
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct itemtypes_item_t {
     struct info_t {
       struct thumbnail_info_t {
@@ -889,12 +923,18 @@ struct m_room_message_m_audio_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::raw> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::vector<itemtypes_item_t>> itemtypes;
   std::optional<m_relates_to_t> m_relates_to;
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_audio_content_t>) { return knot::schema<m_room_message_m_audio_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_audio_content_t>) { return knot::schema<m_room_message_m_audio_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_emote_content_t {
   struct msgtype_values {
@@ -904,6 +944,43 @@ struct m_room_message_m_emote_content_t {
     };
   };
   using msgtype_t = spl::variant<msgtype_values::m_emote, std::string>;
+  struct file_t {
+    struct key_t {
+      std::string kty;
+      std::vector<std::string> key_ops;
+      std::string alg;
+      std::string k;
+      bool ext;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+    };
+    std::string url;
+    key_t key;
+    std::string iv;
+    std::map<std::string, std::string> hashes;
+    std::string v;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+  };
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct info_t {
     struct thumbnail_info_t {
       std::optional<std::int64_t> w;
@@ -1002,6 +1079,13 @@ struct m_room_message_m_emote_content_t {
   msgtype_t msgtype;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
+  std::optional<file_t> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::string> url;
   std::optional<std::string> filename;
   std::optional<info_t> info;
@@ -1010,7 +1094,7 @@ struct m_room_message_m_emote_content_t {
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_emote_content_t>) { return knot::schema<m_room_message_m_emote_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_emote_content_t>) { return knot::schema<m_room_message_m_emote_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_file_content_t {
   struct file_info_t {
@@ -1037,6 +1121,25 @@ struct m_room_message_m_file_content_t {
     };
   };
   using msgtype_t = spl::variant<msgtype_values::m_file, std::string>;
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct itemtypes_item_t {
     struct info_t {
       struct thumbnail_info_t {
@@ -1120,12 +1223,18 @@ struct m_room_message_m_file_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::raw> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::vector<itemtypes_item_t>> itemtypes;
   std::optional<m_relates_to_t> m_relates_to;
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_file_content_t>) { return knot::schema<m_room_message_m_file_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_file_content_t>) { return knot::schema<m_room_message_m_file_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_image_content_t {
   struct image_info_t {
@@ -1155,6 +1264,25 @@ struct m_room_message_m_image_content_t {
     };
   };
   using msgtype_t = spl::variant<msgtype_values::m_image, std::string>;
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct itemtypes_item_t {
     struct info_t {
       struct thumbnail_info_t {
@@ -1238,12 +1366,18 @@ struct m_room_message_m_image_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::raw> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::vector<itemtypes_item_t>> itemtypes;
   std::optional<m_relates_to_t> m_relates_to;
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_image_content_t>) { return knot::schema<m_room_message_m_image_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_image_content_t>) { return knot::schema<m_room_message_m_image_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_key_verification_request_content_t {
   struct msgtype_values {
@@ -1253,6 +1387,43 @@ struct m_room_message_m_key_verification_request_content_t {
     };
   };
   using msgtype_t = spl::variant<msgtype_values::m_key_verification_request, std::string>;
+  struct file_t {
+    struct key_t {
+      std::string kty;
+      std::vector<std::string> key_ops;
+      std::string alg;
+      std::string k;
+      bool ext;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+    };
+    std::string url;
+    key_t key;
+    std::string iv;
+    std::map<std::string, std::string> hashes;
+    std::string v;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+  };
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct info_t {
     struct thumbnail_info_t {
       std::optional<std::int64_t> w;
@@ -1354,6 +1525,10 @@ struct m_room_message_m_key_verification_request_content_t {
   std::vector<std::string> methods;
   std::string to;
   msgtype_t msgtype;
+  std::optional<file_t> file;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::string> url;
   std::optional<std::string> filename;
   std::optional<info_t> info;
@@ -1362,7 +1537,7 @@ struct m_room_message_m_key_verification_request_content_t {
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_key_verification_request_content_t>) { return knot::schema<m_room_message_m_key_verification_request_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_key_verification_request_content_t>) { return knot::schema<m_room_message_m_key_verification_request_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_location_content_t {
   struct msgtype_values {
@@ -1386,6 +1561,43 @@ struct m_room_message_m_location_content_t {
     std::optional<thumbnail_info_t> thumbnail_info;
     knot::raw rest;
     friend consteval auto json_schema(knot::type<location_info_t>) { return knot::schema<location_info_t>().member<"rest">(knot::rest); }
+  };
+  struct file_t {
+    struct key_t {
+      std::string kty;
+      std::vector<std::string> key_ops;
+      std::string alg;
+      std::string k;
+      bool ext;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+    };
+    std::string url;
+    key_t key;
+    std::string iv;
+    std::map<std::string, std::string> hashes;
+    std::string v;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+  };
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
   };
   struct itemtypes_item_t {
     struct info_t {
@@ -1467,6 +1679,13 @@ struct m_room_message_m_location_content_t {
   msgtype_t msgtype;
   std::optional<location_info_t> info;
   std::optional<std::string> format;
+  std::optional<file_t> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::string> url;
   std::optional<std::string> filename;
   std::optional<std::vector<itemtypes_item_t>> itemtypes;
@@ -1475,7 +1694,7 @@ struct m_room_message_m_location_content_t {
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_location_content_t>) { return knot::schema<m_room_message_m_location_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_location_content_t>) { return knot::schema<m_room_message_m_location_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_notice_content_t {
   struct msgtype_values {
@@ -1485,6 +1704,43 @@ struct m_room_message_m_notice_content_t {
     };
   };
   using msgtype_t = spl::variant<msgtype_values::m_notice, std::string>;
+  struct file_t {
+    struct key_t {
+      std::string kty;
+      std::vector<std::string> key_ops;
+      std::string alg;
+      std::string k;
+      bool ext;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+    };
+    std::string url;
+    key_t key;
+    std::string iv;
+    std::map<std::string, std::string> hashes;
+    std::string v;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+  };
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct info_t {
     struct thumbnail_info_t {
       std::optional<std::int64_t> w;
@@ -1583,6 +1839,13 @@ struct m_room_message_m_notice_content_t {
   msgtype_t msgtype;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
+  std::optional<file_t> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::string> url;
   std::optional<std::string> filename;
   std::optional<info_t> info;
@@ -1591,7 +1854,7 @@ struct m_room_message_m_notice_content_t {
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_notice_content_t>) { return knot::schema<m_room_message_m_notice_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_notice_content_t>) { return knot::schema<m_room_message_m_notice_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_server_notice_content_t {
   struct msgtype_values {
@@ -1601,6 +1864,43 @@ struct m_room_message_m_server_notice_content_t {
     };
   };
   using msgtype_t = spl::variant<msgtype_values::m_server_notice, std::string>;
+  struct file_t {
+    struct key_t {
+      std::string kty;
+      std::vector<std::string> key_ops;
+      std::string alg;
+      std::string k;
+      bool ext;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+    };
+    std::string url;
+    key_t key;
+    std::string iv;
+    std::map<std::string, std::string> hashes;
+    std::string v;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+  };
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct info_t {
     struct thumbnail_info_t {
       std::optional<std::int64_t> w;
@@ -1701,6 +2001,13 @@ struct m_room_message_m_server_notice_content_t {
   std::optional<std::string> admin_contact;
   std::optional<std::string> limit_type;
   std::optional<std::string> format;
+  std::optional<file_t> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::string> url;
   std::optional<std::string> filename;
   std::optional<info_t> info;
@@ -1710,7 +2017,7 @@ struct m_room_message_m_server_notice_content_t {
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_server_notice_content_t>) { return knot::schema<m_room_message_m_server_notice_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_server_notice_content_t>) { return knot::schema<m_room_message_m_server_notice_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_text_content_t {
   struct msgtype_values {
@@ -1720,6 +2027,43 @@ struct m_room_message_m_text_content_t {
     };
   };
   using msgtype_t = spl::variant<msgtype_values::m_text, std::string>;
+  struct file_t {
+    struct key_t {
+      std::string kty;
+      std::vector<std::string> key_ops;
+      std::string alg;
+      std::string k;
+      bool ext;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+    };
+    std::string url;
+    key_t key;
+    std::string iv;
+    std::map<std::string, std::string> hashes;
+    std::string v;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+  };
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct info_t {
     struct thumbnail_info_t {
       std::optional<std::int64_t> w;
@@ -1818,6 +2162,13 @@ struct m_room_message_m_text_content_t {
   msgtype_t msgtype;
   std::optional<std::string> format;
   std::optional<std::string> formatted_body;
+  std::optional<file_t> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::string> url;
   std::optional<std::string> filename;
   std::optional<info_t> info;
@@ -1826,7 +2177,7 @@ struct m_room_message_m_text_content_t {
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_text_content_t>) { return knot::schema<m_room_message_m_text_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_text_content_t>) { return knot::schema<m_room_message_m_text_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_m_video_content_t {
   struct video_info_t {
@@ -1856,6 +2207,25 @@ struct m_room_message_m_video_content_t {
     };
   };
   using msgtype_t = spl::variant<msgtype_values::m_video, std::string>;
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct itemtypes_item_t {
     struct info_t {
       struct thumbnail_info_t {
@@ -1939,14 +2309,57 @@ struct m_room_message_m_video_content_t {
   msgtype_t msgtype;
   std::optional<std::string> url;
   std::optional<knot::raw> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::vector<itemtypes_item_t>> itemtypes;
   std::optional<m_relates_to_t> m_relates_to;
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_m_video_content_t>) { return knot::schema<m_room_message_m_video_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
+  friend consteval auto json_schema(knot::type<m_room_message_m_video_content_t>) { return knot::schema<m_room_message_m_video_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest); }
 };
 struct m_room_message_content_t {
+  struct file_t {
+    struct key_t {
+      std::string kty;
+      std::vector<std::string> key_ops;
+      std::string alg;
+      std::string k;
+      bool ext;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+    };
+    std::string url;
+    key_t key;
+    std::string iv;
+    std::map<std::string, std::string> hashes;
+    std::string v;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+  };
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct info_t {
     struct thumbnail_info_t {
       std::optional<std::int64_t> w;
@@ -2044,6 +2457,13 @@ struct m_room_message_content_t {
   std::string body;
   std::string msgtype;
   std::optional<std::string> format;
+  std::optional<file_t> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::string> url;
   std::optional<std::string> filename;
   std::optional<info_t> info;
@@ -2053,7 +2473,7 @@ struct m_room_message_content_t {
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_room_message_content_t>) { return knot::schema<m_room_message_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest).tag("m.room.message"); }
+  friend consteval auto json_schema(knot::type<m_room_message_content_t>) { return knot::schema<m_room_message_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest).tag("m.room.message"); }
 };
 struct m_room_name_content_t {
   std::string name;
@@ -2297,6 +2717,43 @@ struct m_sticker_content_t {
     knot::raw rest;
     friend consteval auto json_schema(knot::type<image_info_t>) { return knot::schema<image_info_t>().member<"rest">(knot::rest); }
   };
+  struct file_t {
+    struct key_t {
+      std::string kty;
+      std::vector<std::string> key_ops;
+      std::string alg;
+      std::string k;
+      bool ext;
+      knot::raw rest;
+      friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+    };
+    std::string url;
+    key_t key;
+    std::string iv;
+    std::map<std::string, std::string> hashes;
+    std::string v;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+  };
+  struct m_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<m_forwarded_t>) { return knot::schema<m_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct com_famedly_app_forwarded_t {
+    std::string event_id;
+    std::string room_id;
+    std::string sender;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<com_famedly_app_forwarded_t>) { return knot::schema<com_famedly_app_forwarded_t>().member<"rest">(knot::rest); }
+  };
+  struct xyz_extera_forward_t {
+    std::optional<std::string> attribution;
+    knot::raw rest;
+    friend consteval auto json_schema(knot::type<xyz_extera_forward_t>) { return knot::schema<xyz_extera_forward_t>().member<"rest">(knot::rest); }
+  };
   struct itemtypes_item_t {
     struct info_t {
       struct thumbnail_info_t {
@@ -2376,6 +2833,13 @@ struct m_sticker_content_t {
   image_info_t info;
   std::string url;
   std::optional<std::string> format;
+  std::optional<file_t> file;
+  std::optional<std::string> to;
+  std::optional<std::string> from_device;
+  std::optional<std::vector<std::string>> methods;
+  std::optional<m_forwarded_t> m_forwarded;
+  std::optional<com_famedly_app_forwarded_t> com_famedly_app_forwarded;
+  std::optional<xyz_extera_forward_t> xyz_extera_forward;
   std::optional<std::string> filename;
   std::optional<std::vector<itemtypes_item_t>> itemtypes;
   std::optional<std::string> formatted_body;
@@ -2383,7 +2847,7 @@ struct m_sticker_content_t {
   std::optional<m_mentions_t> m_mentions;
   std::optional<m_new_content_t> m_new_content;
   knot::raw rest;
-  friend consteval auto json_schema(knot::type<m_sticker_content_t>) { return knot::schema<m_sticker_content_t>().member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest).tag("m.sticker"); }
+  friend consteval auto json_schema(knot::type<m_sticker_content_t>) { return knot::schema<m_sticker_content_t>().member<"m_forwarded">(knot::key("m.forwarded")).member<"com_famedly_app_forwarded">(knot::key("com.famedly.app.forwarded")).member<"xyz_extera_forward">(knot::key("xyz.extera.forward")).member<"m_relates_to">(knot::key("m.relates_to")).member<"m_mentions">(knot::key("m.mentions")).member<"m_new_content">(knot::key("m.new_content")).member<"rest">(knot::rest).tag("m.sticker"); }
 };
 struct m_tag_content_t {
   std::optional<std::map<std::string, def::tag_t>> tags;
