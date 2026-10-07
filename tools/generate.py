@@ -381,6 +381,34 @@ def cpp_json(value):
     return 'R"__json(' + text + ')__json"'
 
 
+# What an answer carries that its schema leaves open (additionalProperties),
+# where loom's clients read it: typed, so that it is not read again from the
+# answer's rest. A URL's preview: its page's Open Graph facts, beside the
+# og:image the spec names.
+OPEN_GRAPH = {
+    'og:site_name': {'type': 'string'},
+    'og:title': {'type': 'string'},
+    'og:description': {'type': 'string'},
+}
+RESPONSE_EXTRAS = {
+    'getUrlPreview': OPEN_GRAPH,
+    'getUrlPreviewAuthed': OPEN_GRAPH,
+}
+
+
+def with_response_extras(operation, schema, base):
+    extras = RESPONSE_EXTRAS.get(operation)
+    if extras is None:
+        return schema
+    schema, _ = merged(schema, base)
+    schema = dict(schema)
+    properties = dict(schema.get('properties', {}))
+    for key, extra in extras.items():
+        properties.setdefault(key, extra)
+    schema['properties'] = properties
+    return schema
+
+
 def main():
     g = Generator()
     modules, tests = [], []
@@ -448,7 +476,8 @@ def main():
                     answer, answer_base, _ = resolve(responses.get(ok, responses.get(int(ok))), path)
                     content = (answer or {}).get('content', {})
                     if 'application/json' in content and 'schema' in content['application/json']:
-                        response_type = e.type_of(content['application/json']['schema'], path, 'response', scope)
+                        response_type = e.type_of(with_response_extras(op['operationId'], content['application/json']['schema'], answer_base),
+                                                  path, 'response', scope)
                         response_examples = example_of(content['application/json'], answer_base)
                     elif content:
                         raw_response = True

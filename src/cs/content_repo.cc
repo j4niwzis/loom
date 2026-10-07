@@ -187,8 +187,11 @@ struct get_url_preview {
   struct response_t {
     std::optional<std::int64_t> matrix_image_size;
     std::optional<std::string> og_image;
+    std::optional<std::string> og_site_name;
+    std::optional<std::string> og_title;
+    std::optional<std::string> og_description;
     knot::raw rest;
-    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"matrix_image_size">(knot::key("matrix:image:size")).member<"og_image">(knot::key("og:image")).member<"rest">(knot::rest); }
+    friend consteval auto json_schema(knot::type<response_t>) { return knot::schema<response_t>().member<"matrix_image_size">(knot::key("matrix:image:size")).member<"og_image">(knot::key("og:image")).member<"og_site_name">(knot::key("og:site_name")).member<"og_title">(knot::key("og:title")).member<"og_description">(knot::key("og:description")).member<"rest">(knot::rest); }
   };
   std::string url;
   std::optional<std::int64_t> ts;
