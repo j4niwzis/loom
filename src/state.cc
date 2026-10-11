@@ -456,19 +456,49 @@ struct state {
     if (!got->events.empty())
       for (std::size_t i = 0; i < timeline.size(); ++i)
         positions.try_emplace(timeline[i].event_id, i);
+    // Bound storage before copying incoming events: trimming only afterwards
+    // temporarily retains the entire response twice and leaves its capacity.
+    if (timeline_limit) {
+      if (timeline.size() > *timeline_limit) {
+        const auto dropped = timeline.size() - *timeline_limit;
+        for (auto& [id, index] : positions)
+          index = index < dropped ? std::numeric_limits<std::size_t>::max() : index - dropped;
+        timeline.erase(timeline.begin(), timeline.end() - static_cast<std::ptrdiff_t>(*timeline_limit));
+        prev_batch.reset();
+        truncated = true;
+      }
+      if (timeline.capacity() > *timeline_limit)
+        timeline = std::vector<ev::timeline_event>(std::make_move_iterator(timeline.begin()),
+                                                   std::make_move_iterator(timeline.end()));
+      const auto room = *timeline_limit - timeline.size();
+      timeline.reserve(timeline.size() + std::min(room, got->events.size()));
+    }
     const redaction_rules rules = redaction_rules::of(state.room_version());
     for (const auto& one : got->events) {
       if (one.state_key && !use_state_after)
         state.set(one);
-      if (positions.try_emplace(one.event_id, timeline.size()).second)
-        timeline.push_back(one);
+      if (!positions.contains(one.event_id)) {
+        if (timeline_limit && timeline.size() == *timeline_limit) {
+          // Keep evicted IDs in the index so duplicates in this response are
+          // still ignored. Their sentinel cannot refer to a retained event.
+          if (!timeline.empty()) {
+            timeline.erase(timeline.begin());
+            for (auto& [id, index] : positions)
+              if (index != std::numeric_limits<std::size_t>::max())
+                index = index == 0 ? std::numeric_limits<std::size_t>::max() : index - 1;
+          }
+          prev_batch.reset();
+          truncated = true;
+        }
+        if (!timeline_limit || *timeline_limit != 0) {
+          positions.emplace(one.event_id, timeline.size());
+          timeline.push_back(one);
+        } else {
+          positions.emplace(one.event_id, std::numeric_limits<std::size_t>::max());
+        }
+      }
       if (one.type == "m.room.redaction")
         redact(state, timeline, one, rules, positions);
-    }
-    if (timeline_limit && timeline.size() > *timeline_limit) {
-      timeline.erase(timeline.begin(), timeline.end() - static_cast<std::ptrdiff_t>(*timeline_limit));
-      prev_batch.reset();
-      truncated = true;
     }
   }
 
@@ -498,7 +528,7 @@ struct state {
       if (auto made = knot::try_read<ev::timeline_event>(knot::to_json_string(*all)))
         one = std::move(*made);
     };
-    if (const auto found = positions.find(*target); found != positions.end() && *target != redaction.event_id)
+    if (const auto found = positions.find(*target); found != positions.end() && found->second < timeline.size() && *target != redaction.event_id)
       cut(timeline[found->second]);
     for (auto& [key, one] : state.events)
       if (one.event_id == *target)

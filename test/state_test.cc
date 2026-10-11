@@ -152,6 +152,7 @@ TEST(State, TimelineLimitKeepsStateAndInvalidatesOldPagination) {
   const auto& room = kept.joined.at("!r:x.org");
   ASSERT_EQ(room.timeline.size(), 1u);
   EXPECT_EQ(room.timeline.front().event_id, "$t");
+  EXPECT_LE(room.timeline.capacity(), 1u);
   EXPECT_EQ(room.state.name(), "Garden");
   EXPECT_EQ(room.state.membership("@b:x.org"), "join");
   EXPECT_TRUE(room.timeline_truncated);
@@ -164,12 +165,35 @@ TEST(State, TimelineLimitKeepsStateAndInvalidatesOldPagination) {
   EXPECT_EQ(room.prev_batch, "p3");
 }
 
+TEST(State, TimelineLimitBoundsIncomingBatchCapacity) {
+  loom::client::state kept;
+  kept.timeline_limit = 20;
+  auto sync = read(first);
+  auto& incoming = sync.rooms->join->at("!r:x.org").timeline->events;
+  const auto message = incoming.back();
+  for (int i = 0; i < 1000; ++i) {
+    auto one = message;
+    one.event_id = "$bulk" + std::to_string(i);
+    incoming.push_back(std::move(one));
+  }
+  kept.apply(sync);
+  const auto& room = kept.joined.at("!r:x.org");
+  ASSERT_EQ(room.timeline.size(), 20u);
+  EXPECT_LE(room.timeline.capacity(), 20u);
+  EXPECT_EQ(room.timeline.front().event_id, "$bulk980");
+  EXPECT_EQ(room.timeline.back().event_id, "$bulk999");
+  EXPECT_EQ(room.state.name(), "Garden");
+  EXPECT_TRUE(room.timeline_truncated);
+  EXPECT_FALSE(room.prev_batch);
+}
+
 TEST(State, ZeroTimelineLimitStillAppliesState) {
   loom::client::state kept;
   kept.timeline_limit = 0;
   kept.apply(read(first));
   const auto& room = kept.joined.at("!r:x.org");
   EXPECT_TRUE(room.timeline.empty());
+  EXPECT_EQ(room.timeline.capacity(), 0u);
   EXPECT_EQ(room.state.name(), "Garden");
   EXPECT_TRUE(room.timeline_truncated);
   EXPECT_FALSE(room.prev_batch.has_value());
