@@ -180,6 +180,16 @@ EVENT_EXTRAS = {
 
 
 def with_message_extras(event_type, schema):
+    # VoIP v0 uses numeric versions and has neither party IDs nor a
+    # mandatory hangup reason. The v1 examples alone hide these valid calls.
+    if event_type.startswith('m.call.') and isinstance(schema, dict) and schema.get('properties'):
+        schema = dict(schema)
+        properties = dict(schema['properties'])
+        if 'version' in properties:
+            properties['version'] = {'oneOf': [{'type': 'string'}, {'type': 'integer'}]}
+        schema['properties'] = properties
+        schema['required'] = [key for key in schema.get('required', []) if key not in ('party_id', 'reason')]
+
     extras = MESSAGE_EXTRAS if event_type in ('m.room.message', 'm.sticker') else EVENT_EXTRAS.get(event_type)
     if extras is None or not isinstance(schema, dict) or not schema.get('properties'):
         return schema

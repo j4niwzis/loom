@@ -185,6 +185,8 @@ class Emitter:
                      for o in options}
             if kinds == {'string'}:
                 return 'std::string'
+            if kinds == {'string', 'integer'}:
+                return 'spl::variant<std::string, std::int64_t>'
             return 'knot::raw'
         kind = schema.get('type')
         if isinstance(kind, list):

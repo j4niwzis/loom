@@ -106,8 +106,8 @@ struct m_call_answer_content_t {
   answer_t answer;
   std::optional<def::sdp_stream_metadata_t> sdp_stream_metadata;
   std::string call_id;
-  std::string version;
-  std::string party_id;
+  spl::variant<std::string, std::int64_t> version;
+  std::optional<std::string> party_id;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_call_answer_content_t>) { return knot::schema<m_call_answer_content_t>().member<"rest">(knot::rest).tag("m.call.answer"); }
 };
@@ -121,8 +121,8 @@ struct m_call_candidates_content_t {
   };
   std::vector<candidate_t> candidates;
   std::string call_id;
-  std::string version;
-  std::string party_id;
+  spl::variant<std::string, std::int64_t> version;
+  std::optional<std::string> party_id;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_call_candidates_content_t>) { return knot::schema<m_call_candidates_content_t>().member<"rest">(knot::rest).tag("m.call.candidates"); }
 };
@@ -158,10 +158,10 @@ struct m_call_hangup_content_t {
     };
   };
   using reason_t = spl::variant<reason_values::ice_timeout, reason_values::ice_failed, reason_values::invite_timeout, reason_values::user_hangup, reason_values::user_media_failed, reason_values::user_busy, reason_values::unknown_error, std::string>;
-  reason_t reason;
+  std::optional<reason_t> reason;
   std::string call_id;
-  std::string version;
-  std::string party_id;
+  spl::variant<std::string, std::int64_t> version;
+  std::optional<std::string> party_id;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_call_hangup_content_t>) { return knot::schema<m_call_hangup_content_t>().member<"rest">(knot::rest).tag("m.call.hangup"); }
 };
@@ -184,8 +184,8 @@ struct m_call_invite_content_t {
   std::optional<std::string> invitee;
   std::optional<def::sdp_stream_metadata_t> sdp_stream_metadata;
   std::string call_id;
-  std::string version;
-  std::string party_id;
+  spl::variant<std::string, std::int64_t> version;
+  std::optional<std::string> party_id;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_call_invite_content_t>) { return knot::schema<m_call_invite_content_t>().member<"rest">(knot::rest).tag("m.call.invite"); }
 };
@@ -211,31 +211,31 @@ struct m_call_negotiate_content_t {
   std::int64_t lifetime;
   std::optional<def::sdp_stream_metadata_t> sdp_stream_metadata;
   std::string call_id;
-  std::string version;
-  std::string party_id;
+  spl::variant<std::string, std::int64_t> version;
+  std::optional<std::string> party_id;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_call_negotiate_content_t>) { return knot::schema<m_call_negotiate_content_t>().member<"rest">(knot::rest).tag("m.call.negotiate"); }
 };
 struct m_call_reject_content_t {
   std::string call_id;
-  std::string version;
-  std::string party_id;
+  spl::variant<std::string, std::int64_t> version;
+  std::optional<std::string> party_id;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_call_reject_content_t>) { return knot::schema<m_call_reject_content_t>().member<"rest">(knot::rest).tag("m.call.reject"); }
 };
 struct m_call_sdp_stream_metadata_changed_content_t {
   def::sdp_stream_metadata_t sdp_stream_metadata;
   std::string call_id;
-  std::string version;
-  std::string party_id;
+  spl::variant<std::string, std::int64_t> version;
+  std::optional<std::string> party_id;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_call_sdp_stream_metadata_changed_content_t>) { return knot::schema<m_call_sdp_stream_metadata_changed_content_t>().member<"rest">(knot::rest).tag("m.call.sdp_stream_metadata_changed"); }
 };
 struct m_call_select_answer_content_t {
   std::string selected_party_id;
   std::string call_id;
-  std::string version;
-  std::string party_id;
+  spl::variant<std::string, std::int64_t> version;
+  std::optional<std::string> party_id;
   knot::raw rest;
   friend consteval auto json_schema(knot::type<m_call_select_answer_content_t>) { return knot::schema<m_call_select_answer_content_t>().member<"rest">(knot::rest).tag("m.call.select_answer"); }
 };
