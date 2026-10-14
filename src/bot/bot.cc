@@ -26,6 +26,7 @@ import loom;
 import loom.cs.room_send;
 import loom.cs.sync;
 import loom.cs.typing;
+import loom.cs.message_pagination;
 
 namespace asio = boost::asio;
 
@@ -147,6 +148,22 @@ inline said said_of(const content& c) {
                                     [](const markdown& m) { return said{m.source, markdown_html(m.source)}; }},
                     c);
 }
+// What a bot reads of a room's history: messages and reactions typed, the
+// rest kept as it came.
+using looked_content = knot::tagged<"type", loom::ev::m_room_message_content_t, loom::ev::m_reaction_content_t, knot::raw>;
+struct looked_event {
+  looked_content content;
+  std::string event_id;
+  std::string sender;
+  std::string type;  // what the content is chosen by
+  knot::raw rest;
+  friend consteval auto json_schema(knot::type<looked_event>) { return knot::schema<looked_event>().member<"rest">(knot::rest); }
+};
+struct looked_history {
+  std::vector<looked_event> chunk;
+  knot::raw rest;
+  friend consteval auto json_schema(knot::type<looked_history>) { return knot::schema<looked_history>().member<"rest">(knot::rest); }
+};
 }  // namespace detail
 
 // ---- What is heard -----------------------------------------------------------
@@ -359,6 +376,43 @@ class fiber {
     asked.body.typing = on;
     if (on) asked.body.timeout = for_ms.count();
     return client_.call(fiber_, asked, std::chrono::seconds(20)).has_value();
+  }
+
+  // The room's latest messages that a filter takes, oldest first, each with
+  // whether this bot has reacted to it -- what a bot started again catches
+  // up on.
+  struct looked {
+    message said;
+    bool reacted = false;
+  };
+  std::vector<looked> recent(const std::string& room, const filter& wants, std::int64_t last = 50) {
+    loom::cs::get_room_events asked{};
+    asked.room_id = room;
+    asked.dir = loom::cs::get_room_events::dir_t(loom::cs::get_room_events::dir_values::b{});
+    asked.limit = last;
+    std::vector<looked> out;
+    const auto got = client_.call<loom::cs::get_room_events, detail::looked_history>(fiber_, asked, std::chrono::seconds(20));
+    if (!got) return out;
+    std::set<std::string> reacted;
+    for (const auto& e : got->chunk)
+      spl::visit(spl::overloaded{[&](const loom::ev::m_reaction_content_t& r) {
+                                   if (e.sender == client_.settings().user_id && r.m_relates_to && r.m_relates_to->event_id)
+                                     reacted.insert(*r.m_relates_to->event_id);
+                                 },
+                                 [](const auto&) {}},
+                 e.content.data());
+    for (const auto& e : got->chunk | std::views::reverse)
+      spl::visit(spl::overloaded{[&](const loom::ev::m_room_message_content_t& said) {
+                                   message m{.room_id = room, .event_id = e.event_id, .sender = e.sender, .body = said.body};
+                                   if (said.m_new_content && said.m_new_content->body) {
+                                     m.body = *said.m_new_content->body;
+                                     m.edit = true;
+                                   }
+                                   if (wants.takes(m)) out.push_back({std::move(m), reacted.contains(e.event_id)});
+                                 },
+                                 [](const auto&) {}},
+                 e.content.data());
+    return out;
   }
 
  private:

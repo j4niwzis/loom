@@ -106,7 +106,7 @@ set(loom_needs_state events cs-sync)
 set(loom_needs_crypto events cs-keys)
 # A bot: fibers, HTTPS, the sync and what it says -- a target of its own
 # (loom_bot), with Boost and OpenSSL, which the core takes neither of.
-set(loom_needs_bot events cs-sync cs-room_send cs-typing)
+set(loom_needs_bot events cs-sync cs-room_send cs-typing cs-message_pagination)
 set(loom_file_bot "")
 set(loom_file_events src/ev/events.cc)
 set(loom_file_definitions src/cs/definitions.cc)
