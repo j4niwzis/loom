@@ -65,7 +65,7 @@ include(cmake/generated.cmake)
 # -- Simplified Sliding Sync (MSC4186).
 list(APPEND LOOM_CS_PARTS sliding_sync)
 
-set(loom_components events state crypto)
+set(loom_components events state crypto bot)
 foreach(part IN LISTS LOOM_CS_PARTS)
   list(APPEND loom_components cs-${part})
 endforeach()
@@ -91,7 +91,9 @@ foreach(component IN LISTS loom_asked)
   endif()
 endforeach()
 if(NOT loom_asked)
+  # All of it but the bot, which brings Boost and OpenSSL: asked for by name.
   set(loom_asked ${loom_components})
+  list(REMOVE_ITEM loom_asked bot)
 endif()
 
 # What each component needs besides itself, as alef's table says it: the
@@ -102,6 +104,10 @@ set(loom_needs_events "")
 set(loom_needs_definitions events)
 set(loom_needs_state events cs-sync)
 set(loom_needs_crypto events cs-keys)
+# A bot: fibers, HTTPS, the sync and what it says -- a target of its own
+# (loom_bot), with Boost and OpenSSL, which the core takes neither of.
+set(loom_needs_bot events cs-sync cs-room_send cs-typing)
+set(loom_file_bot "")
 set(loom_file_events src/ev/events.cc)
 set(loom_file_definitions src/cs/definitions.cc)
 set(loom_file_state src/state.cc)
@@ -148,6 +154,16 @@ endif()
 target_link_libraries(loom PUBLIC knot splice)
 target_compile_options(loom PUBLIC
   $<$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang>:-fconstexpr-steps=${LOOM_CONSTEXPR_STEPS}>)
+
+if("bot" IN_LIST loom_built)
+  cme_find_package(Boost COMPONENTS asio beast context REQUIRED)
+  find_package(OpenSSL REQUIRED)
+  add_library(loom_bot)
+  target_sources(loom_bot PUBLIC FILE_SET CXX_MODULES BASE_DIRS src FILES src/bot/fiber.cc src/bot/https.cc src/bot/bot.cc)
+  target_compile_features(loom_bot PUBLIC cxx_std_26)
+  target_link_libraries(loom_bot PUBLIC loom Boost::asio Boost::beast Boost::context OpenSSL::SSL OpenSSL::Crypto)
+  add_library(loom::bot ALIAS loom_bot)
+endif()
 
 # The names the targets used to have, each the one library now.
 add_library(loom::loom ALIAS loom)
