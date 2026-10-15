@@ -190,6 +190,28 @@ struct filter {
   }
 };
 
+// A room message as the bot hears it: its text (an edit's, the new one), and
+// where it stands -- the message it answers, the thread it is in -- read from
+// its relation. One reading, for the sync and for the history alike.
+inline message heard(std::string room, std::string event_id, std::string sender, const loom::ev::m_room_message_content_t& said) {
+  message m{.room_id = std::move(room), .event_id = std::move(event_id), .sender = std::move(sender), .body = said.body};
+  if (said.m_new_content && said.m_new_content->body) {
+    m.body = *said.m_new_content->body;
+    m.edit = true;
+  }
+  if (said.m_relates_to) {
+    const auto& rel = *said.m_relates_to;
+    if (rel.m_in_reply_to) m.reply_to = rel.m_in_reply_to->event_id;
+    if (rel.rel_type)
+      spl::visit(spl::overloaded{[&](const loom::ev::m_room_message_content_t::m_relates_to_t::rel_type_values::m_thread&) {
+                                   m.thread_root = rel.event_id;
+                                 },
+                                 [](const auto&) {}},
+                 *rel.rel_type);
+  }
+  return m;
+}
+
 class client;
 class fiber;
 
@@ -403,11 +425,7 @@ class fiber {
                  e.content.data());
     for (const auto& e : got->chunk | std::views::reverse)
       spl::visit(spl::overloaded{[&](const loom::ev::m_room_message_content_t& said) {
-                                   message m{.room_id = room, .event_id = e.event_id, .sender = e.sender, .body = said.body};
-                                   if (said.m_new_content && said.m_new_content->body) {
-                                     m.body = *said.m_new_content->body;
-                                     m.edit = true;
-                                   }
+                                   message m = heard(room, e.event_id, e.sender, said);
                                    if (wants.takes(m)) out.push_back({std::move(m), reacted.contains(e.event_id)});
                                  },
                                  [](const auto&) {}},
@@ -505,22 +523,7 @@ inline void client::sync_forever(detail::fiber_on& f) {
       if (!joined.timeline) continue;
       for (const auto& event : joined.timeline->events)
         spl::visit(spl::overloaded{[&](const loom::ev::m_room_message_content_t& said) {
-                                     message m{.room_id = room, .event_id = event.event_id, .sender = event.sender, .body = said.body};
-                                     if (said.m_new_content && said.m_new_content->body) {
-                                       m.body = *said.m_new_content->body;
-                                       m.edit = true;
-                                     }
-                                     if (said.m_relates_to) {
-                                       const auto& rel = *said.m_relates_to;
-                                       if (rel.m_in_reply_to) m.reply_to = rel.m_in_reply_to->event_id;
-                                       if (rel.rel_type)
-                                         spl::visit(spl::overloaded{[&](const loom::ev::m_room_message_content_t::m_relates_to_t::rel_type_values::m_thread&) {
-                                                                      m.thread_root = rel.event_id;
-                                                                    },
-                                                                    [](const auto&) {}},
-                                                    *rel.rel_type);
-                                     }
-                                     deliver(m);
+                                     deliver(heard(room, event.event_id, event.sender, said));
                                    },
                                    [](const auto&) {}},
                    event.content.data());
