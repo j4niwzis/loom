@@ -201,7 +201,10 @@ inline message heard(std::string room, std::string event_id, std::string sender,
   }
   if (said.m_relates_to) {
     const auto& rel = *said.m_relates_to;
-    if (rel.m_in_reply_to) m.reply_to = rel.m_in_reply_to->event_id;
+    // In a thread, a client points m.in_reply_to at the thread's last
+    // message only as a fallback (is_falling_back) for clients without
+    // threads: not an answer to it.
+    if (rel.m_in_reply_to && !rel.is_falling_back.value_or(false)) m.reply_to = rel.m_in_reply_to->event_id;
     if (rel.rel_type)
       spl::visit(spl::overloaded{[&](const loom::ev::m_room_message_content_t::m_relates_to_t::rel_type_values::m_thread&) {
                                    m.thread_root = rel.event_id;
