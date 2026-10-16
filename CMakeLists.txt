@@ -36,7 +36,7 @@ cme_find_package(splice REQUIRED)
 # instead with -DCPM_knot_SOURCE=<path>.
 cme_declare_port(NAME knot PROVIDES knot
   GITHUB_REPOSITORY j4niwzis/knot
-  GIT_TAG 960ff133aad8ba48590f8e6227bd0cf4f853cdc7
+  GIT_TAG 56858a4b579584a85b488db99ef10687a97702d5
   LICENSE AGPL-3.0-only
   TARGETS knot)
 cme_options(knot "KNOT_TESTS OFF")
@@ -102,7 +102,8 @@ set(loom_needs_events "")
 set(loom_needs_definitions events)
 set(loom_needs_state events cs-sync)
 set(loom_needs_crypto events cs-keys)
-set(loom_file_events src/ev/events.cc)
+set(loom_file_events src/ev/events.cc src/ev/state_once.cc src/ev/message_once.cc src/ev/timeline_once.cc
+                     src/ev/other_once.cc src/ev/ev.cc)
 set(loom_file_definitions src/cs/definitions.cc)
 set(loom_file_state src/state.cc)
 set(loom_file_crypto src/crypto/wire.cc src/crypto/keys.cc src/crypto/sas.cc src/crypto/crypto.cc)
