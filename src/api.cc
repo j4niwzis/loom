@@ -266,18 +266,10 @@ consteval auto json_schema(knot::type<empty>) { return knot::schema<empty>(); }
 // What came back: a 2xx read into the endpoint's response; anything else
 // into the error.
 namespace detail {
-template <class Endpoint, class Range>
-constexpr std::expected<typename Endpoint::response, error> read_response(int status, Range&& body) {
-  if (status >= 200 && status < 300) {
-    if constexpr (requires { Endpoint::raw_response; }) {
-      return typename Endpoint::response{std::ranges::to<std::string>(std::forward<Range>(body))};
-    } else {
-      auto got = knot::try_read<typename Endpoint::response>(std::forward<Range>(body));
-      if (!got)
-        return std::unexpected(error{status, "M_BAD_JSON", std::string(got.error().message), std::nullopt});
-      return std::move(*got);
-    }
-  }
+// What an answer other than a 2xx says, read into the error: the same for
+// every endpoint, so made apart from what reads each one's response.
+template <class Range>
+constexpr error error_from(int status, Range&& body) {
   error out{status, "", "", std::nullopt};
   if (auto said = knot::try_read<detail::error_body>(std::forward<Range>(body))) {
     out.errcode = said->errcode.value_or("");
@@ -295,7 +287,34 @@ constexpr std::expected<typename Endpoint::response, error> read_response(int st
           .reset_url = said->params && said->params->cross_signing_reset ? said->params->cross_signing_reset->url : std::nullopt};
     }
   }
-  return std::unexpected(std::move(out));
+  return out;
+}
+}  // namespace detail
+
+// The same, from text in memory: a function of its own, made once here --
+// in the reader of each endpoint, its auth flows and policies were made
+// again for every endpoint a unit asks.
+constexpr error error_of(int status, std::string_view body) { return detail::error_from(status, body); }
+template <std::ranges::input_range Range>
+  requires(!std::convertible_to<Range, std::string_view>)
+constexpr error error_of(int status, Range&& body) {
+  return detail::error_from(status, std::forward<Range>(body));
+}
+
+namespace detail {
+template <class Endpoint, class Range>
+constexpr std::expected<typename Endpoint::response, error> read_response(int status, Range&& body) {
+  if (status >= 200 && status < 300) {
+    if constexpr (requires { Endpoint::raw_response; }) {
+      return typename Endpoint::response{std::ranges::to<std::string>(std::forward<Range>(body))};
+    } else {
+      auto got = knot::try_read<typename Endpoint::response>(std::forward<Range>(body));
+      if (!got)
+        return std::unexpected(error{status, "M_BAD_JSON", std::string(got.error().message), std::nullopt});
+      return std::move(*got);
+    }
+  }
+  return std::unexpected(error_of(status, std::forward<Range>(body)));
 }
 }  // namespace detail
 
