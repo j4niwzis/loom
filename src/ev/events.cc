@@ -842,10 +842,51 @@ struct m_room_message_m_audio_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -1001,10 +1042,51 @@ struct m_room_message_m_emote_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -1178,10 +1260,51 @@ struct m_room_message_m_file_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -1339,10 +1462,51 @@ struct m_room_message_m_image_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -1498,10 +1662,51 @@ struct m_room_message_m_key_verification_request_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -1691,10 +1896,51 @@ struct m_room_message_m_location_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -1851,10 +2097,51 @@ struct m_room_message_m_notice_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -2029,10 +2316,51 @@ struct m_room_message_m_server_notice_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -2210,10 +2538,51 @@ struct m_room_message_m_text_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -2390,10 +2759,51 @@ struct m_room_message_m_video_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -2542,10 +2952,51 @@ struct m_room_message_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };
@@ -2954,10 +3405,51 @@ struct m_sticker_content_t {
   };
   struct org_matrix_msc4553_forwarded_t {
     struct content_t {
+      struct info_t {
+        struct thumbnail_info_t {
+          std::optional<std::int64_t> w;
+          std::optional<std::int64_t> h;
+          std::optional<std::string> mimetype;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<thumbnail_info_t>) { return knot::schema<thumbnail_info_t>().member<"rest">(knot::rest); }
+        };
+        std::optional<std::string> mimetype;
+        std::optional<std::int64_t> size;
+        std::optional<std::int64_t> w;
+        std::optional<std::int64_t> h;
+        std::optional<std::int64_t> duration;
+        std::optional<std::string> thumbnail_url;
+        std::optional<thumbnail_info_t> thumbnail_info;
+        std::optional<std::string> xyz_amorgan_blurhash;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<info_t>) { return knot::schema<info_t>().member<"xyz_amorgan_blurhash">(knot::key("xyz.amorgan.blurhash")).member<"rest">(knot::rest); }
+      };
+      struct file_t {
+        struct key_t {
+          std::string kty;
+          std::vector<std::string> key_ops;
+          std::string alg;
+          std::string k;
+          bool ext;
+          knot::raw rest;
+          friend consteval auto json_schema(knot::type<key_t>) { return knot::schema<key_t>().member<"rest">(knot::rest); }
+        };
+        std::string url;
+        key_t key;
+        std::string iv;
+        std::map<std::string, std::string> hashes;
+        std::string v;
+        knot::raw rest;
+        friend consteval auto json_schema(knot::type<file_t>) { return knot::schema<file_t>().member<"rest">(knot::rest); }
+      };
       std::optional<std::string> body;
       std::optional<std::string> msgtype;
       std::optional<std::string> format;
       std::optional<std::string> formatted_body;
+      std::optional<std::string> url;
+      std::optional<std::string> filename;
+      std::optional<info_t> info;
+      std::optional<file_t> file;
       knot::raw rest;
       friend consteval auto json_schema(knot::type<content_t>) { return knot::schema<content_t>().member<"rest">(knot::rest); }
     };

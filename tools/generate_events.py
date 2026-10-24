@@ -194,6 +194,10 @@ MESSAGE_EXTRAS = {
             'room_id': {'type': 'string'},
             'sender': {'type': 'string'},
             'origin_server_ts': {'type': 'integer'},
+            # The original's content as it was: its text, and what it
+            # carries -- a picture's or a file's place, name and facts, an
+            # encrypted one's EncryptedFile -- the message itself carrying
+            # none of it (an image forwarded has no url of its own).
             'content': {
                 'type': 'object',
                 'properties': {
@@ -201,6 +205,10 @@ MESSAGE_EXTRAS = {
                     'msgtype': {'type': 'string'},
                     'format': {'type': 'string'},
                     'formatted_body': {'type': 'string'},
+                    'url': {'type': 'string'},
+                    'filename': {'type': 'string'},
+                    'info': MEDIA_INFO,
+                    'file': ENCRYPTED_FILE,
                 },
             },
         },
