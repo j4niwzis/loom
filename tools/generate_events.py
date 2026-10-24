@@ -184,6 +184,28 @@ MESSAGE_EXTRAS = {
     'm.forwarded': FORWARDED_FROM,
     'com.famedly.app.forwarded': FORWARDED_FROM,
     'xyz.extera.forward': {'type': 'object', 'properties': {'attribution': {'type': 'string'}}},
+    # Forwarded as MSC4553 marks it: the original's origin, its time, and its
+    # content as it was -- a text's body and its formatted body -- the
+    # message's own body being a fallback that quotes it.
+    'org.matrix.msc4553.forwarded': {
+        'type': 'object',
+        'properties': {
+            'event_id': {'type': 'string'},
+            'room_id': {'type': 'string'},
+            'sender': {'type': 'string'},
+            'origin_server_ts': {'type': 'integer'},
+            'content': {
+                'type': 'object',
+                'properties': {
+                    'body': {'type': 'string'},
+                    'msgtype': {'type': 'string'},
+                    'format': {'type': 'string'},
+                    'formatted_body': {'type': 'string'},
+                },
+            },
+        },
+        'required': ['event_id', 'room_id', 'sender'],
+    },
     # What a message carries, of any msgtype: where it is kept, its name, its
     # facts -- and a gallery's items (MSC4274), each as a message of its own.
     'url': {'type': 'string'},
