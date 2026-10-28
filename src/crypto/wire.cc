@@ -357,7 +357,19 @@ struct secret_got {
   std::string sender;
   std::string ed25519;
 };
-using to_device_said = spl::variant<room_key_offer, secret_got>;
+// A room key forwarded over Olm (m.forwarded_room_key) -- an answer to a
+// key request: the key, as the original sender claimed it, and who
+// forwarded it -- the user, and the ed25519 and curve25519 keys of the device
+// the Olm payload says it came from. Taken only by the caller's word
+// (accept_forwarded), that it was asked for and came from a device of its
+// own it trusts.
+struct forwarded_key_got {
+  loom::ev::m_forwarded_room_key_content_t key;
+  std::string sender;
+  std::string ed25519;
+  std::string sender_key;
+};
+using to_device_said = spl::variant<room_key_offer, secret_got, forwarded_key_got>;
 // A room event read, and whether the device it came from is cross-signed.
 struct decrypted {
   loom::ev::basic_event<loom::ev::timeline_content> event;

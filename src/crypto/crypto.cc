@@ -211,6 +211,9 @@ class olm_machine {
                            [&](const loom::ev::m_secret_send_content_t& said) -> std::optional<to_device_said> {
                              return to_device_said{secret_got{said.request_id, said.secret, sender, envelope->keys.ed25519}};
                            },
+                           [&](const loom::ev::m_forwarded_room_key_content_t& key) -> std::optional<to_device_said> {
+                             return to_device_said{forwarded_key_got{key, sender, envelope->keys.ed25519, *content.sender_key}};
+                           },
                            [](const auto&) -> std::optional<to_device_said> { return std::nullopt; }},
         payload->content.data());
   }
@@ -405,6 +408,21 @@ class olm_machine {
         }
       }
     return out;
+  }
+  // A forwarded room key taken -- the caller having found it answers a
+  // request of its own, from a device of its own it trusts -- as an
+  // imported key is: its authenticity not this device's to vouch for, the
+  // devices it passed through kept. Whether it was taken.
+  [[nodiscard]] bool accept_forwarded(const forwarded_key_got& got) {
+    auto chain = got.key.forwarding_curve25519_key_chain;
+    chain.push_back(got.sender_key);
+    return this->import_sessions(std::vector{exported_session{.algorithm = got.key.algorithm,
+                                                              .forwarding_curve25519_key_chain = std::move(chain),
+                                                              .room_id = got.key.room_id,
+                                                              .sender_key = got.key.sender_key,
+                                                              .sender_claimed_keys = {{"ed25519", got.key.sender_claimed_ed25519_key}},
+                                                              .session_id = got.key.session_id,
+                                                              .session_key = got.key.session_key}}) > 0;
   }
   // Room keys from a key file, taken where none is held under their ID:
   // how many were.
