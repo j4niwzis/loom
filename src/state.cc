@@ -767,6 +767,9 @@ struct media_said {
   std::string uri;
   std::string name;
   std::string caption;
+  // The caption as HTML, where it is formatted (MSC2530: a media message's
+  // body and formatted_body are its caption).
+  std::optional<std::string> caption_html;
   std::string mimetype;
   std::int64_t size = 0;
   std::optional<std::string> reply_to;
@@ -778,6 +781,10 @@ struct media_said {
 namespace detail {
 inline void fill_media(auto& content, const media_said& said) {
   content.body = said.caption.empty() ? said.name : said.caption;
+  if (!said.caption.empty() && said.caption_html) {
+    content.format = "org.matrix.custom.html";
+    content.formatted_body = *said.caption_html;
+  }
   content.filename = said.name;
   content.url = said.uri;
   auto& info = content.info.emplace();
