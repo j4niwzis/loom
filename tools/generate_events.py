@@ -171,6 +171,17 @@ FORWARDED_FROM = {
     },
     'required': ['event_id', 'room_id', 'sender'],
 }
+# A gallery's items (MSC4274), each as a message of its own.
+GALLERY_ITEMS = {'type': 'array', 'items': {
+    'type': 'object',
+    'properties': {
+        'itemtype': {'type': 'string'},
+        'body': {'type': 'string'},
+        'url': {'type': 'string'},
+        'filename': {'type': 'string'},
+        'info': MEDIA_INFO,
+    },
+}}
 MESSAGE_EXTRAS = {
     'format': {'type': 'string'},
     # An encrypted picture or file: its EncryptedFile, in place of url.
@@ -209,6 +220,9 @@ MESSAGE_EXTRAS = {
                     'filename': {'type': 'string'},
                     'info': MEDIA_INFO,
                     'file': ENCRYPTED_FILE,
+                    # A gallery's items: without them a gallery forwarded
+                    # was one of nothing in a client that reads the mark.
+                    'itemtypes': GALLERY_ITEMS,
                 },
             },
         },
@@ -219,16 +233,7 @@ MESSAGE_EXTRAS = {
     'url': {'type': 'string'},
     'filename': {'type': 'string'},
     'info': MEDIA_INFO,
-    'itemtypes': {'type': 'array', 'items': {
-        'type': 'object',
-        'properties': {
-            'itemtype': {'type': 'string'},
-            'body': {'type': 'string'},
-            'url': {'type': 'string'},
-            'filename': {'type': 'string'},
-            'info': MEDIA_INFO,
-        },
-    }},
+    'itemtypes': GALLERY_ITEMS,
     'formatted_body': {'type': 'string'},
     'm.relates_to': {
         'type': 'object',
