@@ -123,6 +123,15 @@ NEW_CONTENT = {
         'body': {'type': 'string'},
         'format': {'type': 'string'},
         'formatted_body': {'type': 'string'},
+        # Who the message mentions as it now is (Matrix 1.7, m.mentions on
+        # an edit's new content: all of them; the edit's own, those it adds).
+        'm.mentions': {
+            'type': 'object',
+            'properties': {
+                'user_ids': {'type': 'array', 'items': {'type': 'string'}},
+                'room': {'type': 'boolean'},
+            },
+        },
     },
 }
 # What a picture, a file or a video says of itself, as clients send it: the

@@ -732,14 +732,19 @@ inline ev::m_room_message_m_text_content_t text_message(const text_said& said) {
 }
 // An edit of a message: the new text in m.new_content, "* " before it for
 // clients that do not know edits.
+// Who it mentions (Matrix 1.7): its new content's m.mentions, every one of
+// them; the edit's own, an empty one -- none notified again by an edit, nor
+// by its "* " body read as text.
 inline ev::m_room_message_m_text_content_t edit_message(std::string_view event, const std::string& text,
-                                                         const std::optional<std::string>& html) {
+                                                         const std::optional<std::string>& html,
+                                                         const std::vector<std::string>& mentions = {}) {
   ev::m_room_message_m_text_content_t content;
   content.body = "* " + text;
   if (html) {
     content.format = std::string(kHtml);
     content.formatted_body = "* " + *html;
   }
+  content.m_mentions.emplace();
   auto& now = content.m_new_content.emplace();
   now.msgtype = "m.text";
   now.body = text;
@@ -747,6 +752,8 @@ inline ev::m_room_message_m_text_content_t edit_message(std::string_view event, 
     now.format = std::string(kHtml);
     now.formatted_body = *html;
   }
+  if (!mentions.empty())
+    now.m_mentions.emplace().user_ids = mentions;
   auto& relates = content.m_relates_to.emplace();
   relates.rel_type = ev::m_room_message_m_text_content_t::m_relates_to_t::rel_type_values::m_replace{};
   relates.event_id = std::string(event);
