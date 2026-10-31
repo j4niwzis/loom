@@ -476,6 +476,29 @@ struct thread_summary {
     return knot::schema<thread_summary>().member<"rest">(knot::rest);
   }
 };
+// The redaction that cut an event (the spec's redacted_because: the
+// m.room.redaction event itself): who sent it, when, and why -- who deleted
+// what is read from it; anything else kept as it came. Each part optional:
+// an event whose unsigned says less is still read.
+struct redaction_content {
+  std::optional<std::string> reason;
+  std::optional<std::string> redacts;
+  knot::raw rest;
+  friend consteval auto json_schema(knot::type<redaction_content>) {
+    return knot::schema<redaction_content>().member<"rest">(knot::rest);
+  }
+};
+struct redaction {
+  std::optional<std::string> event_id;
+  std::optional<std::string> sender;
+  std::optional<std::int64_t> origin_server_ts;
+  using content_t = redaction_content;
+  std::optional<content_t> content;
+  knot::raw rest;
+  friend consteval auto json_schema(knot::type<redaction>) {
+    return knot::schema<redaction>().member<"rest">(knot::rest);
+  }
+};
 struct relations {
   using thread_t = thread_summary;
   std::optional<thread_t> m_thread;
@@ -489,13 +512,15 @@ struct relations {
 // What the server adds to an event, not signed (the spec's UnsignedData):
 // prev_content as content of the event's own type -- chosen by the event's
 // type, a key of the object above (knot settles it from there) --
-// redacted_because as it came, and anything newer kept.
+// redacted_because, the redaction that cut it (who, when, why), and anything
+// newer kept.
 template <class Content>
 struct unsigned_data {
   std::optional<std::int64_t> age;
   std::optional<std::string> membership;
   std::optional<Content> prev_content;
-  std::optional<knot::raw> redacted_because;
+  using redaction_t = unsigned_detail::redaction;
+  std::optional<redaction_t> redacted_because;
   std::optional<std::string> transaction_id;
   // Keep the public nested spellings without instantiating optional before
   // the value types and their default member initializers are complete.
