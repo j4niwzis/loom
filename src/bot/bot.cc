@@ -263,13 +263,17 @@ class client {
   [[nodiscard]] asio::io_context& io() { return io_; }
 
   // A request from a fiber: the homeserver's answer read into the endpoint's
-  // response, or nothing. Rate limits waited out and tried again.
+  // response, or nothing. Rate limits, failures to answer and server errors
+  // waited out and tried again.
   template <class Endpoint, class Response = typename Endpoint::response>
   std::optional<Response> call(detail::fiber_on& f, const Endpoint& asked, std::chrono::seconds wait = std::chrono::seconds(30)) {
     for (int tries = 0; tries < 5; ++tries) {
       const auto got = detail::send(f, tls_, session_.host, session_.access_token, asked.to_send(), wait);
-      if (!got) return std::nullopt;
-      if (got->status == 429) {
+      // No answer (the connection failed, or timed out), the server busy
+      // (429) or failing (5xx): waited out and asked again -- the same
+      // request, its transaction id the same, so a message sent twice is
+      // one message.
+      if (!got || got->status == 429 || got->status >= 500) {
         sleep(f, std::chrono::milliseconds(1000 << tries));
         continue;
       }
