@@ -27,6 +27,7 @@ import loom.cs.room_send;
 import loom.cs.sync;
 import loom.cs.typing;
 import loom.cs.message_pagination;
+import loom.cs.authed_content_repo;
 
 namespace asio = boost::asio;
 
@@ -167,6 +168,47 @@ struct looked_history {
 }  // namespace detail
 
 // ---- What is heard -----------------------------------------------------------
+// What a message carries besides its words: a picture, a video, a sound or
+// a file -- its kind read once from the message's msgtype, where the
+// message comes in.
+namespace attachment_kind {
+struct image {};
+struct video {};
+struct audio {};
+struct file {};
+}  // namespace attachment_kind
+using attachment_kind_t = spl::variant<attachment_kind::image, attachment_kind::video, attachment_kind::audio, attachment_kind::file>;
+inline std::optional<attachment_kind_t> attachment_kind_of(std::string_view msgtype) {
+  static const std::array<std::pair<std::string_view, attachment_kind_t>, 4> kKinds{{
+      {"m.image", attachment_kind::image{}},
+      {"m.video", attachment_kind::video{}},
+      {"m.audio", attachment_kind::audio{}},
+      {"m.file", attachment_kind::file{}},
+  }};
+  const auto found = std::ranges::find(kKinds, msgtype, &std::pair<std::string_view, attachment_kind_t>::first);
+  if (found == kKinds.end()) return std::nullopt;
+  return found->second;
+}
+// Where a piece of media is: mxc://server/id, read once.
+struct media_id {
+  std::string server;
+  std::string id;
+};
+inline std::optional<media_id> media_id_of(std::string_view mxc) {
+  constexpr std::string_view kScheme = "mxc://";
+  if (!mxc.starts_with(kScheme)) return std::nullopt;
+  mxc.remove_prefix(kScheme.size());
+  const std::size_t slash = mxc.find('/');
+  if (slash == std::string_view::npos || slash == 0 || slash + 1 == mxc.size()) return std::nullopt;
+  return media_id{std::string(mxc.substr(0, slash)), std::string(mxc.substr(slash + 1))};
+}
+struct attachment {
+  attachment_kind_t kind;
+  media_id where;
+  std::string name;
+  std::optional<std::string> mimetype;
+};
+
 // A message in a room, as the sync brought it.
 struct message {
   std::string room_id;
@@ -176,6 +218,8 @@ struct message {
   bool edit = false;
   std::optional<std::string> thread_root;
   std::optional<std::string> reply_to;
+  // A picture or a file it carries (unencrypted: its url).
+  std::optional<attachment> attached;
 };
 // Which messages an inbox takes: each part said narrows it.
 struct filter {
@@ -199,6 +243,11 @@ inline message heard(std::string room, std::string event_id, std::string sender,
     m.body = *said.m_new_content->body;
     m.edit = true;
   }
+  if (said.url)
+    if (const auto kind = attachment_kind_of(said.msgtype))
+      if (auto where = media_id_of(*said.url))
+        m.attached = attachment{*kind, std::move(*where), said.filename.value_or(said.body),
+                                said.info ? said.info->mimetype : std::nullopt};
   if (said.m_relates_to) {
     const auto& rel = *said.m_relates_to;
     // In a thread, a client points m.in_reply_to at the thread's last
@@ -280,6 +329,21 @@ class client {
       if (got->status != 200) return std::nullopt;
       if (auto read = knot::try_read<Response>(std::string_view(got->body))) return std::move(*read);
       return std::nullopt;
+    }
+    return std::nullopt;
+  }
+  // A request whose answer is not JSON -- a piece of media: its bytes, as
+  // they came, or nothing. Retried as call() is.
+  template <class Endpoint>
+  std::optional<std::string> fetch(detail::fiber_on& f, const Endpoint& asked, std::chrono::seconds wait = std::chrono::seconds(60)) {
+    for (int tries = 0; tries < 5; ++tries) {
+      auto got = detail::send(f, tls_, session_.host, session_.access_token, asked.to_send(), wait);
+      if (!got || got->status == 429 || got->status >= 500) {
+        sleep(f, std::chrono::milliseconds(1000 << tries));
+        continue;
+      }
+      if (got->status != 200) return std::nullopt;
+      return std::move(got->body);
     }
     return std::nullopt;
   }
@@ -397,6 +461,14 @@ class fiber {
     r.m_relates_to->event_id = event_id;
     r.m_relates_to->key = std::move(key);
     return post_event(room, "m.reaction", r);
+  }
+  // A piece of media's bytes (an attachment's), through the authenticated
+  // media API.
+  std::optional<std::string> download(const media_id& where) {
+    loom::cs::get_content_authed asked{};
+    asked.server_name = where.server;
+    asked.media_id = where.id;
+    return client_.fetch(fiber_, asked);
   }
   bool typing(const std::string& room, bool on, std::chrono::milliseconds for_ms = std::chrono::milliseconds(30000)) {
     loom::cs::set_typing asked{};
